@@ -93,3 +93,21 @@ class HelperCharacter(Character):
     def use_helper_ability(self, target):
         #TODO: Implement helper ability logic here
         pass
+
+
+class EnemyCharacter(Character):
+    def __init__(self, name, health, speed, damage, size, enemy_type):
+        super().__init__(name, health, speed, damage, size)
+        self.enemy_type = enemy_type
+
+class BossCharacter(Character):
+    def __init__(self, name, health, speed, damage, size, boss_ability):
+        super().__init__(name, health, speed, damage, size)
+        self.boss_ability = boss_ability
+
+    def use_boss_ability(self, target):
+        #TODO: Implement boss ability logic here
+        pass
+
+
+    
