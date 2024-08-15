@@ -75,24 +75,89 @@ class PlayerCharacter(Character):
     def __init__(self, name, health, speed, damage, size, special_attack):
         super().__init__(name, health, speed, damage, size)
         self.special_attack = special_attack
+        self.helper = self.get_helper(name)
 
-    def use_special_attack(self, target):
-        #TODO: Implement special attack logic here
-        pass
+    def get_special_attack(self, name):
+        special_attacks = {
+            "velscoundrel": self.velscoundrel_special,
+            "yuri": self.yuri_special,
+            "mike": self.mike_special,
+            "susan_calvin": self.susan_calvin_special,
+        }
+        return special_attacks.get(name, self.default_special)
+
+    def get_helper(self, name):
+        helpers = {
+            "velscoundrel": "Erok",
+            "yuri": "Barthlomew",
+            "mike": "Regar",
+            "susan_calvin": "Seniorita",
+        }
+        return helpers.get(name, Generic Helper)
+
+    def use_special_attack(self):
+        targets = self.get_targets_in_range()
+        return self.special_attack(targets)
+
+    def velscoundrel_special(self, targets):
+        return f"{self.name} stabs {targets}in the back!"
+
+    def yuri_special(self, targets):
+        return f"{self.name} bodyslams {targets}!"
+
+    def mike_special(self, targets):
+        return f"{self.name} shoots {targets}with a bazooka!"
+
+    def susan_calvin_special(self, targets):
+        return f"{self.name} uses a mind control ray on {targets}!"
+
+    def default_special(self, targets):
+        return f"{self.name} uses a special attack on {targets}!"
+
+    def get_targets_in_range(self):
+        # TODO: Implement target logic here after I have traxk of all characters and their positions
+        return None
 
     def call_helper(self):
-        # Implement helper call logic here
-        pass
+        return f"{self.name} calls {self.helper} for help!"
 
 
 class HelperCharacter(Character):
     def __init__(self, name, health, speed, damage, size, helper_ability):
         super().__init__(name, health, speed, damage, size)
-        self.helper_ability = helper_ability
+        self.helper_ability = self.get_helper_ability(name)
 
-    def use_helper_ability(self, target):
-        #TODO: Implement helper ability logic here
-        pass
+    def get_helper_ability(self, name):
+        abilities = {
+            "Erok": self.erok_ability,
+            "Barthlomew": self.barthlomew_ability,
+            "Regar": self.regar_ability,
+            "Seniorita": self.seniorita_ability,
+        }
+        return abilities.get(name, self.default_ability)
+
+    def use_helper_ability(self):
+        targets = self.get_targets_in_range()
+        return self.helper_ability(targets)
+
+    def erok_ability(self):
+        return f"{self.name} runs away without doing anything! What a coward!"
+    
+    def barthlomew_ability(self):
+        return f"{self.name} uses a super bite and bleeds {targets} for massive damage!"
+
+    def regar_ability(self):
+        return f"{self.name} swallows {targets} whole! hungry doggo!"
+
+    def seniorita_ability(self):
+        return f"{self.name} confuses all enemies with her beauty!"
+
+    def default_ability(self):
+        return f"{self.name} uses a helper ability on {targets}!"
+
+    def get_targets_in_range(self):
+        return None
+#TODO: Implement target method here
 
 
 class EnemyCharacter(Character):
@@ -100,14 +165,12 @@ class EnemyCharacter(Character):
         super().__init__(name, health, speed, damage, size)
         self.enemy_type = enemy_type
 
+
 class BossCharacter(Character):
     def __init__(self, name, health, speed, damage, size, boss_ability):
         super().__init__(name, health, speed, damage, size)
         self.boss_ability = boss_ability
 
     def use_boss_ability(self, target):
-        #TODO: Implement boss ability logic here
+        # TODO: Implement boss ability logic here
         pass
-
-
-    
