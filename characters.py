@@ -79,21 +79,21 @@ class PlayerCharacter(Character):
 
     def get_special_attack(self, name):
         special_attacks = {
-            "velscoundrel": self.velscoundrel_special,
-            "yuri": self.yuri_special,
-            "mike": self.mike_special,
-            "susan_calvin": self.susan_calvin_special,
+            "Velscoundrel": self.velscoundrel_special,
+            "Yuri": self.yuri_special,
+            "Mike": self.mike_special,
+            "Susan Calvin": self.susan_calvin_special,
         }
         return special_attacks.get(name, self.default_special)
 
     def get_helper(self, name):
         helpers = {
-            "velscoundrel": "Erok",
-            "yuri": "Barthlomew",
-            "mike": "Regar",
-            "susan_calvin": "Seniorita",
+            "Velscoundrel": "Erok",
+            "Yuri": "Barthlomew",
+            "Mike": "Regar",
+            "Susan Calvin": "Seniorita",
         }
-        return helpers.get(name, Generic Helper)
+        return helpers.get(name, "Generic Helper")
 
     def use_special_attack(self):
         targets = self.get_targets_in_range()
@@ -115,7 +115,7 @@ class PlayerCharacter(Character):
         return f"{self.name} uses a special attack on {targets}!"
 
     def get_targets_in_range(self):
-        # TODO: Implement target logic here after I have traxk of all characters and their positions
+        # TODO: Implement target logic here after I have track of all characters and their positions
         return None
 
     def call_helper(self):
@@ -123,7 +123,7 @@ class PlayerCharacter(Character):
 
 
 class HelperCharacter(Character):
-    def __init__(self, name, health, speed, damage, size, helper_ability):
+    def __init__(self, name, health, speed, damage, size):
         super().__init__(name, health, speed, damage, size)
         self.helper_ability = self.get_helper_ability(name)
 
@@ -140,24 +140,24 @@ class HelperCharacter(Character):
         targets = self.get_targets_in_range()
         return self.helper_ability(targets)
 
-    def erok_ability(self):
+    def erok_ability(self, targets):
         return f"{self.name} runs away without doing anything! What a coward!"
-    
-    def barthlomew_ability(self):
+
+    def barthlomew_ability(self, targets):
         return f"{self.name} uses a super bite and bleeds {targets} for massive damage!"
 
-    def regar_ability(self):
+    def regar_ability(self, targets):
         return f"{self.name} swallows {targets} whole! hungry doggo!"
 
-    def seniorita_ability(self):
+    def seniorita_ability(self, targets):
         return f"{self.name} confuses all enemies with her beauty!"
 
-    def default_ability(self):
+    def default_ability(self, targets):
         return f"{self.name} uses a helper ability on {targets}!"
 
     def get_targets_in_range(self):
+        # TODO: Implement target logic here after I have track of all characters and their positions
         return None
-#TODO: Implement target method here
 
 
 class EnemyCharacter(Character):
