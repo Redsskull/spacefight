@@ -70,94 +70,48 @@ class Character:
             and abs(self.position[1] - other.position[1]) < (self.size + other.size) / 2
         )
 
+    def get_targets_in_range(self, all_characters, range):
+        targets_in_range = []
+        for character in all_characters:
+            if character != self and self.is_within_range(character, range):
+                targets_in_range.append(character)
+        return targets_in_range
+
+    def is_within_range(self, target, range):
+        # Example distance calculation, I'll replace with  game's logic
+        dx = abs(self.position[0] - target.position[0])
+        dy = abs(self.position[1] - target.position[1])
+        distance = math.sqrt(dx**2 + dy**2)
+        return distance <= range
+
 
 class PlayerCharacter(Character):
-    def __init__(self, name, health, speed, damage, size, special_attack):
+    def __init__(self, name, health, speed, damage, size, special_attack=None):
         super().__init__(name, health, speed, damage, size)
-        self.special_attack = special_attack
-        self.helper = self.get_helper(name)
+        self.special_attack = special_attack  # This will be replaced by imported data
+        self.helper = None  # Placeholder for helper character
 
-    def get_special_attack(self, name):
-        special_attacks = {
-            "Velscoundrel": self.velscoundrel_special,
-            "Yuri": self.yuri_special,
-            "Mike": self.mike_special,
-            "Susan Calvin": self.susan_calvin_special,
-        }
-        return special_attacks.get(name, self.default_special)
-
-    def get_helper(self, name):
-        helpers = {
-            "Velscoundrel": "Erok",
-            "Yuri": "Barthlomew",
-            "Mike": "Regar",
-            "Susan Calvin": "Seniorita",
-        }
-        return helpers.get(name, "Generic Helper")
-
-    def use_special_attack(self):
-        targets = self.get_targets_in_range()
-        return self.special_attack(targets)
-
-    def velscoundrel_special(self, targets):
-        return f"{self.name} stabs {targets}in the back!"
-
-    def yuri_special(self, targets):
-        return f"{self.name} bodyslams {targets}!"
-
-    def mike_special(self, targets):
-        return f"{self.name} shoots {targets}with a bazooka!"
-
-    def susan_calvin_special(self, targets):
-        return f"{self.name} uses a mind control ray on {targets}!"
-
-    def default_special(self, targets):
-        return f"{self.name} uses a special attack on {targets}!"
-
-    def get_targets_in_range(self):
-        # TODO: Implement target logic here after I have track of all characters and their positions
-        return None
-
-    def call_helper(self):
-        return f"{self.name} calls {self.helper} for help!"
+    def use_special_attack(self, targets):
+        # Placeholder for special attack logic
+        return (
+            self.special_attack(targets)
+            if self.special_attack
+            else "Default special attack"
+        )
 
 
 class HelperCharacter(Character):
-    def __init__(self, name, health, speed, damage, size):
+    def __init__(self, name, health, speed, damage, size, helper_ability=None):
         super().__init__(name, health, speed, damage, size)
-        self.helper_ability = self.get_helper_ability(name)
+        self.helper_ability = helper_ability  # This will be replaced by imported data
 
-    def get_helper_ability(self, name):
-        abilities = {
-            "Erok": self.erok_ability,
-            "Barthlomew": self.barthlomew_ability,
-            "Regar": self.regar_ability,
-            "Seniorita": self.seniorita_ability,
-        }
-        return abilities.get(name, self.default_ability)
-
-    def use_helper_ability(self):
-        targets = self.get_targets_in_range()
-        return self.helper_ability(targets)
-
-    def erok_ability(self, targets):
-        return f"{self.name} runs away without doing anything! What a coward!"
-
-    def barthlomew_ability(self, targets):
-        return f"{self.name} uses a super bite and bleeds {targets} for massive damage!"
-
-    def regar_ability(self, targets):
-        return f"{self.name} swallows {targets} whole! hungry doggo!"
-
-    def seniorita_ability(self, targets):
-        return f"{self.name} confuses all enemies with her beauty!"
-
-    def default_ability(self, targets):
-        return f"{self.name} uses a helper ability on {targets}!"
-
-    def get_targets_in_range(self):
-        # TODO: Implement target logic here after I have track of all characters and their positions
-        return None
+    def use_helper_ability(self, targets):
+        # Placeholder for helper ability logic
+        return (
+            self.helper_ability(targets)
+            if self.helper_ability
+            else "Default helper ability"
+        )
 
 
 class EnemyCharacter(Character):
@@ -167,10 +121,10 @@ class EnemyCharacter(Character):
 
 
 class BossCharacter(Character):
-    def __init__(self, name, health, speed, damage, size, boss_ability):
+    def __init__(self, name, health, speed, damage, size, boss_ability=None):
         super().__init__(name, health, speed, damage, size)
-        self.boss_ability = boss_ability
+        self.boss_ability = boss_ability  # This will be replaced by imported data
 
     def use_boss_ability(self, target):
-        # TODO: Implement boss ability logic here
+        # Placeholder for boss ability logic
         pass

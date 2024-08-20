@@ -10,8 +10,6 @@ This will be my roadmap for my beat 'em up game. It will be set in space.
 - [ ] write a story for the game
 - [ ] Create the game window
 - [ ] Create the main menu
-- [ ] Create the player character
-- [ ] Create the helper character
 - [ ] Create the first level
 - [ ] Create the first boss
 - [ ] Create the second level
@@ -21,7 +19,7 @@ This will be my roadmap for my beat 'em up game. It will be set in space.
 - [ ] Create the fourth level
 - [ ] Create the fourth boss
 - [ ] Create the game over screen
-
+- [ ] Create the win
 
 ## Current task in detail:
 - [ ] Create character classes for the game
