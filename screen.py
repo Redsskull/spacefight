@@ -2,6 +2,9 @@ import pygame
 
 
 class Screen:
+    """
+    Base class for all screens in the game.
+    """
     def __init__(self, game):
         self.game = game
         self.screen = game.screen
