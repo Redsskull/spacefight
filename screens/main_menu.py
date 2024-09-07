@@ -32,7 +32,7 @@ class MainMenu(Screen):
             self.menu_rects.append((text, rect))
 
         # Load and play the background music
-        pygame.mixer.music.load("assets/main_menu_music.wav")
+        pygame.mixer.music.load("assets/main_menu.mp3")
         pygame.mixer.music.play(-1)
 
     def handle_events(self, events):
