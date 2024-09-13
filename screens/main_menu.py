@@ -1,6 +1,8 @@
 import pygame
 from .base import Screen
 
+
+
 class MainMenu(Screen):
     """
     The main menu screen. Allows the player to start the game, open options, or quit.
@@ -24,7 +26,7 @@ class MainMenu(Screen):
         self.title = self.font.render("SpaceFight", True, (255, 255, 255))
         self.title_rect = self.title.get_rect(center=(self.game.SCREEN_WIDTH // 2, 100))
 
-        self.menu_items = ["Start", "Options", "Quit"]
+        self.menu_items = ["Start", "Options", "Test Characters",  "Quit"]
         self.menu_rects = []
         for i, item in enumerate(self.menu_items):
             text = self.font.render(item, True, (255, 255, 255))
@@ -56,7 +58,10 @@ class MainMenu(Screen):
                                 print(
                                     "Open options"
                                 )  # Replace with options screen logic
-                            elif i == 2:  # Quit
+                            elif i == 2:
+                                from .characters_test import CharacterTest
+                                self.game.change_screen(CharacterTest(self.game))
+                            elif i == 3:  # Quit
                                 pygame.mixer.music.stop()
                                 self.game.running = False
 
@@ -69,4 +74,3 @@ class MainMenu(Screen):
         self.screen.blit(self.title, self.title_rect)
         for text, rect in self.menu_rects:
             self.screen.blit(text, rect)
-

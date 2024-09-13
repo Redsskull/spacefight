@@ -23,6 +23,7 @@ class Game:
         self.clock = pygame.time.Clock()
         self.running = True
         self.current_screen = None
+        self.main_menu = MainMenu(self) #I think I need this here..
 
     def start(self):
         """
