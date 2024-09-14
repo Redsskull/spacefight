@@ -33,7 +33,15 @@ class MainMenu(Screen):
             rect = text.get_rect(center=(self.game.SCREEN_WIDTH // 2, 300 + i * 50))
             self.menu_rects.append((text, rect))
 
-        # Load and play the background music
+        #Initialize music
+        self.initialize_music()
+
+
+    def initialize_music(self):
+        """
+        Initialize the music for the main menu screen.
+            
+        """
         pygame.mixer.music.load("assets/main_menu.mp3")
         pygame.mixer.music.play(-1)
 
@@ -60,6 +68,7 @@ class MainMenu(Screen):
                                 )  # Replace with options screen logic
                             elif i == 2:
                                 from .characters_test import CharacterTest
+                                pygame.mixer.music.stop()
                                 self.game.change_screen(CharacterTest(self.game))
                             elif i == 3:  # Quit
                                 pygame.mixer.music.stop()
@@ -74,3 +83,10 @@ class MainMenu(Screen):
         self.screen.blit(self.title, self.title_rect)
         for text, rect in self.menu_rects:
             self.screen.blit(text, rect)
+
+    def on_resume(self):
+        """
+        Resume the main menu screen.
+
+        """
+        self.initialize_music()

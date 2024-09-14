@@ -36,6 +36,7 @@ class CharacterTest(Screen):
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     self.game.change_screen(self.game.main_menu)
+                    self.game.main_menu.on_resume()
 
     def update(self):
         dt = self.game.clock.tick(60) / 1000.0  # trying delta time
