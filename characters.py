@@ -1,7 +1,19 @@
 import pygame
 
 class Character(pygame.sprite.Sprite):
+    """
+        class for all characters in the game
+    """
     def __init__(self, name, health, speed, strength):
+
+        """
+            method to control the attributes of the characters
+            Args:
+                name: name of the character
+                health: health of the character
+                speed: speed of the character
+                strength: strength of the character
+        """
         super().__init__()
         self.name = name
         self.health = health
@@ -14,6 +26,11 @@ class Character(pygame.sprite.Sprite):
         self.direction = pygame.math.Vector2()
 
     def move(self, dt):
+        """
+            method to move the character
+            Args:
+                dt: time between frames
+        """
         keys = pygame.key.get_pressed()
         self.direction.x = keys[pygame.K_d] - keys[pygame.K_a]
         self.direction.y = keys[pygame.K_s] - keys[pygame.K_w]
@@ -26,47 +43,97 @@ class Character(pygame.sprite.Sprite):
         self.rect.topleft = int(self.position.x), int(self.position.y)
 
     def attack(self):
+        """
+            method to attack the character
+        """
         mouse = pygame.mouse.get_pressed()
         if mouse[0]:  # Left mouse button
             print(f"{self.name} is attacking!")
             # Implement attack logic here
+        elif mouse[2]:  # Right mouse button
+            print(f"{self.name} is using powerful attack!")
 
     def update(self, dt):
+        """
+            method to update the character
+            Args:
+                dt: time between frames
+        """
         self.move(dt)
         self.attack()
 
 class Regar(Character):
+    """
+        class for Regar character
+    Args:
+        Character: parent class
+    """
     def __init__(self):
+        """
+            method to control the attributes of the character
+            Args:
+                name: name of the character
+                health: health of the character
+                speed: speed of the character
+                strength: strength of the character
+        """
         super().__init__("Regar", health=120, speed=200, strength=10)
         self.image.fill((0, 0, 255))  # Blue color for Regar
     
-    def special_ability(self):
-        print("Regar uses his mighty strength!")
-        # Implement Regar's special ability here
 
 class Susan(Character):
+    """
+        class for Susan character
+    Args:
+        Character: parent class
+    """
     def __init__(self):
+        """
+            method to control the attributes of the character
+            Args:
+                name: name of the character
+                health: health of the character
+                speed: speed of the character
+                strength: strength of the character
+        """
         super().__init__("Susan", health=100, speed=250, strength=8)
         self.image.fill((0, 255, 0))  # Green color for Susan
     
-    def special_ability(self):
-        print("Susan activates her tech gadgets!")
-        # Implement Susan's special ability here
 
 class Emily(Character):
+    """
+        class for Emily character
+    Args:
+        Character: parent class
+    """
     def __init__(self):
+        """
+            method to control the attributes of the character
+            Args:
+                name: name of the character
+                health: health of the character
+                speed: speed of the character
+                strength: strength of the character
+        """
         super().__init__("Emily", health=90, speed=300, strength=7)
         self.image.fill((255, 255, 0))  # Yellow color for Emily
     
-    def special_ability(self):
-        print("Emily uses her agility to dodge!")
-        # Implement Emily's special ability here
 
 class Bart(Character):
+    """
+        class for Bart character
+    Args:
+        Character: parent class
+    """
     def __init__(self):
+        """
+            method to control the attributes of the character
+            Args:
+                name: name of the character
+                health: health of the character
+                speed: speed of the character
+                strength: strength of the character
+        """
         super().__init__("Bart", health=150, speed=180, strength=12)
         self.image.fill((255, 0, 255))  # Magenta color for Bart
     
-    def special_ability(self):
-        print("Bart unleashes his brute force!")
-        # Implement Bart's special ability here
