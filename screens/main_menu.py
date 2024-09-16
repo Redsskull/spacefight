@@ -1,5 +1,7 @@
 import pygame
 from .base import Screen
+from .story_screen import StoryScreen
+from characters import Regar, Susan, Emily, Bart
 
 class MainMenu(Screen):
     """
@@ -68,7 +70,23 @@ class MainMenu(Screen):
         Perform the action associated with the currently selected menu item.
         """
         if self.selected_index == 0:  # Start
-            print("Start game")  # Replace with actual game start logic
+            pygame.mixer.music.stop()
+            # Create characters
+            regar = Regar()
+            susan = Susan()
+            emily = Emily()
+            bart = Bart()
+
+            # Define story segments
+            story_segments = [
+                {'character': regar, 'text': "Regar: I'm very hungry, I stole some food from the kitchen!"},
+                {'character': susan, 'text': "Susan: Regar, you're going to get us in trouble!"},
+                {'character': emily, 'text': "Bart: Hey little lady, you're looking mighty fine today!"},
+                {'character': bart, 'text': "Emily: Grrr, I'm not your little lady!"},
+            ]
+
+            # Create and switch to the story screen
+            self.game.change_screen(StoryScreen(self.game, story_segments))
         elif self.selected_index == 1:  # Options
             print("Open options")  # Replace with options screen logic
         elif self.selected_index == 2:  # Test Characters
@@ -88,7 +106,7 @@ class MainMenu(Screen):
 
         mouse_pos = pygame.mouse.get_pos()
 
-        #Track the mouse and the selection
+        # Track the mouse and the selection
         for i, (text, rect) in enumerate(self.menu_rects):
             color = (255, 255, 255)
             if rect.collidepoint(mouse_pos):
@@ -96,10 +114,9 @@ class MainMenu(Screen):
                 break
 
         for i, (text, rect) in enumerate(self.menu_rects):
-            color = (255, 255, 255) #Default color
+            color = (255, 255, 255)  # Default color
             if i == self.selected_index:
-                color = (0, 255, 0) #Selected color1
-
+                color = (0, 255, 0)  # Selected color
 
             text = self.font.render(self.menu_items[i], True, color)
             self.screen.blit(text, rect)
