@@ -29,13 +29,13 @@ class StoryScreen(Screen):
         self.emily = Emily()
         self.bart = Bart()
 
-        # Define story segments
+         # Define story segments with positions
         self.story_segments = [
-            {'character': None, 'text': "Welcome to the SpaceFight story intro."},
-            {'character': self.regar, 'text': "Regar: I'm very hungry, I stole some food from the kitchen!"},
-            {'character': self.susan, 'text': "Susan: Regar, you're going to get us in trouble!"},
-            {'character': self.emily, 'text': "Bart: Hey little lady, you're looking mighty fine today!"},
-            {'character': self.bart, 'text': "Emily: Grrr, I'm not your little lady!"},
+            {'character': None, 'text': "Welcome to the SpaceFight story intro.", 'position': (50, 50)},
+            {'character': self.regar, 'text': "Regar: I'm very hungry, I stole some food from the kitchen!", 'position': (350, 150)},
+            {'character': self.susan, 'text': "Susan: Regar, you're going to get us in trouble!", 'position': (50, 250)},
+            {'character': self.emily, 'text': "Bart: Hey little lady, you're looking mighty fine today!", 'position': (350, 350)},
+            {'character': self.bart, 'text': "Emily: Grrr, I'm not your little lady!", 'position': (50, 450)},
         ]
 
         # Initialize music
@@ -71,15 +71,22 @@ class StoryScreen(Screen):
         """
         self.screen.blit(self.background, (0, 0))
 
-        # Draw text box
-        pygame.draw.rect(self.screen, (0, 0, 0), self.text_box)
-        pygame.draw.rect(self.screen, (255, 255, 255), self.text_box, 2)
-
         # Draw current story segment
         if self.current_segment < len(self.story_segments):
             segment = self.story_segments[self.current_segment]
             text = self.font.render(segment['text'], True, (255, 255, 255))
-            text_rect = text.get_rect(center=self.text_box.center)
+            text_rect = text.get_rect(topleft=segment['position'])
+
+            #Calculate text box size
+            self.text_box_width = text_rect.width + 20
+            self.text_box_height = text_rect.height + 20
+
+            # Draw text box
+            text_box = pygame.Rect(text_rect.x - 10, text_rect.y - 10, self.text_box_width, self.text_box_height)
+            pygame.draw.rect(self.screen, (0, 0, 0), text_box)
+            pygame.draw.rect(self.screen, (255, 255, 255), text_box, 2)
+
+            # Draw text
             self.screen.blit(text, text_rect)
 
     def on_resume(self):
