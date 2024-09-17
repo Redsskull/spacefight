@@ -1,11 +1,9 @@
-# story_screen.py
 import pygame
 from .base import Screen
-from characters import Regar, Susan, Emily, Bart
 
 class StoryScreen(Screen):
     """
-    The story screen where the intro text appears and characters speak.
+    The story screen where the intro text appears.
     """
 
     def __init__(self, game):
@@ -21,21 +19,14 @@ class StoryScreen(Screen):
         )
 
         self.font = pygame.font.Font(None, 36)
-        self.text_box = pygame.Rect(50, 50, self.game.SCREEN_WIDTH - 100, self.game.SCREEN_HEIGHT - 100)
 
-        # Initialize characters
-        self.regar = Regar()
-        self.susan = Susan()
-        self.emily = Emily()
-        self.bart = Bart()
-
-         # Define story segments with positions
+        # Define story segments with positions
         self.story_segments = [
-            {'character': None, 'text': "Welcome to the SpaceFight story intro.", 'position': (50, 50)},
-            {'character': self.regar, 'text': "Regar: I'm very hungry, I stole some food from the kitchen!", 'position': (350, 150)},
-            {'character': self.susan, 'text': "Susan: Regar, you're going to get us in trouble!", 'position': (50, 250)},
-            {'character': self.emily, 'text': "Bart: Hey little lady, you're looking mighty fine today!", 'position': (350, 350)},
-            {'character': self.bart, 'text': "Emily: Grrr, I'm not your little lady!", 'position': (50, 450)},
+            {'text': "Welcome to the SpaceFight story intro.", 'position': (50, 50)},
+            {'text': "Our heroes are about to embark on an epic journey.", 'position': (350, 150)},
+            {'text': "But first, let's get to know them a bit better.", 'position': (50, 250)},
+            {'text': "They are ready to face whatever challenges come their way.", 'position': (350, 350)},
+            {'text': "Let's join them on their adventure!", 'position': (50, 450)},
         ]
 
         # Initialize music
@@ -77,12 +68,12 @@ class StoryScreen(Screen):
             text = self.font.render(segment['text'], True, (255, 255, 255))
             text_rect = text.get_rect(topleft=segment['position'])
 
-            #Calculate text box size
-            self.text_box_width = text_rect.width + 20
-            self.text_box_height = text_rect.height + 20
+            # Calculate text box size based on text size
+            text_box_width = text_rect.width + 20
+            text_box_height = text_rect.height + 20
 
             # Draw text box
-            text_box = pygame.Rect(text_rect.x - 10, text_rect.y - 10, self.text_box_width, self.text_box_height)
+            text_box = pygame.Rect(text_rect.x - 10, text_rect.y - 10, text_box_width, text_box_height)
             pygame.draw.rect(self.screen, (0, 0, 0), text_box)
             pygame.draw.rect(self.screen, (255, 255, 255), text_box, 2)
 

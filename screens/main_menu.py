@@ -23,7 +23,7 @@ class MainMenu(Screen):
         self.title = self.font.render("SpaceFight", True, (255, 255, 255))
         self.title_rect = self.title.get_rect(center=(self.game.SCREEN_WIDTH // 2, 100))
 
-        self.menu_items = ["Start", "Options", "Test Characters", "Quit"]
+        self.menu_items = ["Start", "Options", "Quit"]
         self.menu_rects = []
         for i, item in enumerate(self.menu_items):
             text = self.font.render(item, True, (255, 255, 255))
@@ -74,11 +74,7 @@ class MainMenu(Screen):
             self.game.change_screen(StoryScreen(self.game))
         elif self.selected_index == 1:  # Options
             print("Open options")  # Replace with options screen logic
-        elif self.selected_index == 2:  # Test Characters
-            from .characters_test import CharacterTest
-            pygame.mixer.music.stop()
-            self.game.change_screen(CharacterTest(self.game))
-        elif self.selected_index == 3:  # Quit
+        elif self.selected_index == 2:  # Quit
             pygame.mixer.music.stop()
             self.game.running = False
 
