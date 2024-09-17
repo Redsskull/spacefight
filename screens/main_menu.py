@@ -1,7 +1,6 @@
+# main_menu.py
 import pygame
 from .base import Screen
-from .story_screen import StoryScreen
-from characters import Regar, Susan, Emily, Bart
 
 class MainMenu(Screen):
     """
@@ -71,22 +70,8 @@ class MainMenu(Screen):
         """
         if self.selected_index == 0:  # Start
             pygame.mixer.music.stop()
-            # Create characters
-            regar = Regar()
-            susan = Susan()
-            emily = Emily()
-            bart = Bart()
-
-            # Define story segments
-            story_segments = [
-                {'character': regar, 'text': "Regar: I'm very hungry, I stole some food from the kitchen!"},
-                {'character': susan, 'text': "Susan: Regar, you're going to get us in trouble!"},
-                {'character': emily, 'text': "Bart: Hey little lady, you're looking mighty fine today!"},
-                {'character': bart, 'text': "Emily: Grrr, I'm not your little lady!"},
-            ]
-
-            # Create and switch to the story screen
-            self.game.change_screen(StoryScreen(self.game, story_segments))
+            from .story_screen import StoryScreen  # Import here to avoid circular import
+            self.game.change_screen(StoryScreen(self.game))
         elif self.selected_index == 1:  # Options
             print("Open options")  # Replace with options screen logic
         elif self.selected_index == 2:  # Test Characters

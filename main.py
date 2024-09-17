@@ -1,6 +1,6 @@
 import pygame
 from game import Game
-from screens import Screen , MainMenu
+from screens.main_menu import MainMenu
 
 SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
