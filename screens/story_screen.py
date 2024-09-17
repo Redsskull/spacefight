@@ -35,6 +35,13 @@ class StoryScreen(Screen):
         # Track the current story segment
         self.current_segment = 0
 
+        # Timer to control text appearance
+        self.text_timer = pygame.time.get_ticks()
+        self.text_delay = 5000  # 5 seconds delay between text segments
+        self.fade_duration = 2000  # 2 seconds for fade in and fade out
+        self.fade_timer = 0
+        self.fade_direction = 1  # 1 for fade in, -1 for fade out
+
     def initialize_music(self):
         """
         Initialize the music for the story screen.
@@ -51,10 +58,34 @@ class StoryScreen(Screen):
         for event in events:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
+                    self.current_segment = len(self.story_segments)  # Skip to the end
+
+    def update(self):
+        """
+        Update the story screen.
+        """
+        current_time = pygame.time.get_ticks()
+        if self.current_segment < len(self.story_segments):
+            if self.fade_direction == 1:  # Fade in
+                self.fade_timer += self.game.clock.get_time()
+                if self.fade_timer >= self.fade_duration:
+                    self.fade_direction = 0
+                    self.fade_timer = self.fade_duration
+            elif self.fade_direction == 0:  # Stay
+                if current_time - self.text_timer >= self.text_delay:
+                    self.fade_direction = -1
+                    self.fade_timer = self.fade_duration
+            elif self.fade_direction == -1:  # Fade out
+                self.fade_timer -= self.game.clock.get_time()
+                if self.fade_timer <= 0:
+                    self.fade_direction = 1
+                    self.fade_timer = 0
                     self.current_segment += 1
-                    if self.current_segment >= len(self.story_segments):
-                        from .main_menu import MainMenu  # Import here to avoid circular import
-                        self.game.change_screen(MainMenu(self.game))  # Return to main menu after story
+                    self.text_timer = current_time
+
+        if self.current_segment >= len(self.story_segments):
+            from .main_menu import MainMenu  # Import here to avoid circular import
+            self.game.change_screen(MainMenu(self.game))  # Return to main menu after story
 
     def draw(self):
         """
@@ -72,12 +103,14 @@ class StoryScreen(Screen):
             text_box_width = text_rect.width + 20
             text_box_height = text_rect.height + 20
 
-            # Draw text box
-            text_box = pygame.Rect(text_rect.x - 10, text_rect.y - 10, text_box_width, text_box_height)
-            pygame.draw.rect(self.screen, (0, 0, 0), text_box)
-            pygame.draw.rect(self.screen, (255, 255, 255), text_box, 2)
+            # Draw text box with fade effect
+            alpha = int((self.fade_timer / self.fade_duration) * 255)
+            text_box = pygame.Surface((text_box_width, text_box_height), pygame.SRCALPHA)
+            text_box.fill((0, 0, 0, alpha))
+            self.screen.blit(text_box, (text_rect.x - 10, text_rect.y - 10))
 
-            # Draw text
+            # Draw text with fade effect
+            text.set_alpha(alpha)
             self.screen.blit(text, text_rect)
 
     def on_resume(self):
