@@ -1,6 +1,8 @@
 import pygame
 import textwrap
 from .base import Screen
+from characters import Regar, Susan, Emily, Bart  # Import character classes
+
 
 class StoryScreen(Screen):
     """
@@ -22,13 +24,42 @@ class StoryScreen(Screen):
         self.font = pygame.font.Font(None, 36)
 
         # Define story segments with positions
-        self.story_segments = [
-            {'text': "On the space cargo ship Hyperactive captain by Captain Regar, the skeleton crew make their way to a new uncharted system.", 'position': (50, 50)},
-            {'text': "A month ago a myterious order came in to an unknown location.", 'position': (350, 150)},
-            {'text': "After much thoght on the matter and a bit of an explorers itch, Regar decided to go.", 'position': (50, 250)},
-            {'text': "There will be many challenges along the way", 'position': (350, 350)},
-            {'text': "This is the Hypers adventure!", 'position': (50, 450)},
+        self.intro_segments = [
+            {
+                "text": "On the space cargo ship Hyperactive captain by Captain Regar, the skeleton crew make their way to a new uncharted system.",
+                "position": (50, 50),
+            },
+            {
+                "text": "A month ago a myterious order came in to an unknown location.",
+                "position": (350, 150),
+            },
+            {
+                "text": "After much thoght on the matter and a bit of an explorers itch, Regar decided to go.",
+                "position": (50, 250),
+            },
+            {
+                "text": "There will be many challenges along the way",
+                "position": (350, 350),
+            },
+            {"text": "This is the Hypers adventure!", "position": (50, 450)},
         ]
+
+        self.inside_ship_segments = [
+            {
+                "text": "Captain Regar: 'Alright crew, we're approaching the uncharted system. Everyone on alert!'",
+                "position": (50, 500),
+            },
+            {
+                "text": "Engineer Susan: 'The engines are running smoothly, Captain.'",
+                "position": (50, 550),
+            },
+            {
+                "text": "Navigator Emily: 'I've plotted the course. We should arrive in a few hours.'",
+                "position": (50, 600),
+            },
+        ]
+
+        self.story_segments = self.intro_segments
 
         # Initialize music
         self.initialize_music()
@@ -42,6 +73,12 @@ class StoryScreen(Screen):
         self.fade_duration = 2000  # 2 seconds for fade in and fade out
         self.fade_timer = 0
         self.fade_direction = 1  # 1 for fade in, -1 for fade out
+
+        # State variable
+        self.state = "intro"
+
+        # Create character instances
+        self.characters = [Regar(), Susan(), Emily(), Bart()]
 
     def initialize_music(self):
         """
@@ -85,8 +122,16 @@ class StoryScreen(Screen):
                     self.text_timer = current_time
 
         if self.current_segment >= len(self.story_segments):
-            from .main_menu import MainMenu  # Import here to avoid circular import
-            self.game.change_screen(MainMenu(self.game))  # Return to main menu after story
+            if self.state == "intro":
+                self.state = "inside_ship"
+                self.story_segments = self.inside_ship_segments
+                self.current_segment = 0
+            else:
+                from .main_menu import MainMenu  # Import here to avoid circular import
+
+                self.game.change_screen(
+                    MainMenu(self.game)
+                )  # Return to main menu after story
 
     def draw(self):
         """
@@ -94,44 +139,62 @@ class StoryScreen(Screen):
         """
         self.screen.blit(self.background, (0, 0))
 
+        if self.state == "inside_ship":
+            self.draw_placeholder_art()
+
         # Draw the current story segment
         if self.current_segment < len(self.story_segments):
             segment = self.story_segments[self.current_segment]
-            text = segment['text']
-            position = segment['position']
+            text = segment["text"]
+            position = segment["position"]
 
-
-            #Wrap the text
-            wrapped_text = textwrap.fill(text, width=40)#might need to adjust width
+            # Wrap the text
+            wrapped_text = textwrap.fill(text, width=60)  # might need to adjust width
 
             # Render the wrapped text
-            text_lines = wrapped_text.split('\n')
-            text_surfaces = [self.font.render(line, True, (255, 255, 255)) for line in text_lines]
-
+            text_lines = wrapped_text.split("\n")
+            text_surfaces = [
+                self.font.render(line, True, (255, 255, 255)) for line in text_lines
+            ]
 
             # Calculate the text box size based on wrapped text
-            text_box_width = max([text_surface.get_width() for text_surface in text_surfaces]) + 20
-            text_box_height = sum([text_surface.get_height() for text_surface in text_surfaces]) + 20
+            text_box_width = (
+                max([text_surface.get_width() for text_surface in text_surfaces]) + 20
+            )
+            text_box_height = (
+                sum([text_surface.get_height() for text_surface in text_surfaces]) + 20
+            )
 
-            
             # Draw the text box with fade in/out effect
             alpha = int(self.fade_timer / self.fade_duration * 255)
-            text_box_surface = pygame.Surface((text_box_width, text_box_height), pygame.SRCALPHA)
+            text_box_surface = pygame.Surface(
+                (text_box_width, text_box_height), pygame.SRCALPHA
+            )
             text_box_surface.fill((0, 0, 0, alpha))
-            self.screen.blit(text_box_surface,position)
+            self.screen.blit(text_box_surface, position)
 
-
-            #Draw the wrapped text with fade effect
+            # Draw the wrapped text with fade effect
             y_offset = 0
             for surface in text_surfaces:
                 surface.set_alpha(alpha)
-                self.screen.blit(surface, (position[0] + 10, position[1] + 10 + y_offset))
+                self.screen.blit(
+                    surface, (position[0] + 10, position[1] + 10 + y_offset)
+                )
                 y_offset += surface.get_height()
 
+    def draw_placeholder_art(self):
+        """
+        Draw placeholder art for the inside of the ship.
+        """
+        # Draw a simple rectangle to represent the ship's interior
+        pygame.draw.rect(
+            self.screen, (100, 100, 100), (0, 400, self.game.SCREEN_WIDTH, 200)
+        )
 
-
-
-
+        # Draw circles to represent characters
+        for i, character in enumerate(self.characters):
+            character.rect.topleft = (100 + i * 100, 500)
+            self.screen.blit(character.image, character.rect.topleft)
 
     def on_resume(self):
         """
