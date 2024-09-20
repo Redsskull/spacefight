@@ -1,4 +1,5 @@
 import pygame
+import textwrap
 from .base import Screen
 
 class StoryScreen(Screen):
@@ -22,11 +23,11 @@ class StoryScreen(Screen):
 
         # Define story segments with positions
         self.story_segments = [
-            {'text': "Welcome to the SpaceFight story intro.", 'position': (50, 50)},
-            {'text': "Our heroes are about to embark on an epic journey.", 'position': (350, 150)},
-            {'text': "But first, let's get to know them a bit better.", 'position': (50, 250)},
-            {'text': "They are ready to face whatever challenges come their way.", 'position': (350, 350)},
-            {'text': "Let's join them on their adventure!", 'position': (50, 450)},
+            {'text': "On the space cargo ship Hyperactive captain by Captain Regar, the skeleton crew make their way to a new uncharted system.", 'position': (50, 50)},
+            {'text': "A month ago a myterious order came in to an unknown location.", 'position': (350, 150)},
+            {'text': "After much thoght on the matter and a bit of an explorers itch, Regar decided to go.", 'position': (50, 250)},
+            {'text': "There will be many challenges along the way", 'position': (350, 350)},
+            {'text': "This is the Hypers adventure!", 'position': (50, 450)},
         ]
 
         # Initialize music
@@ -93,25 +94,44 @@ class StoryScreen(Screen):
         """
         self.screen.blit(self.background, (0, 0))
 
-        # Draw current story segment
+        # Draw the current story segment
         if self.current_segment < len(self.story_segments):
             segment = self.story_segments[self.current_segment]
-            text = self.font.render(segment['text'], True, (255, 255, 255))
-            text_rect = text.get_rect(topleft=segment['position'])
+            text = segment['text']
+            position = segment['position']
 
-            # Calculate text box size based on text size
-            text_box_width = text_rect.width + 20
-            text_box_height = text_rect.height + 20
 
-            # Draw text box with fade effect
-            alpha = int((self.fade_timer / self.fade_duration) * 255)
-            text_box = pygame.Surface((text_box_width, text_box_height), pygame.SRCALPHA)
-            text_box.fill((0, 0, 0, alpha))
-            self.screen.blit(text_box, (text_rect.x - 10, text_rect.y - 10))
+            #Wrap the text
+            wrapped_text = textwrap.fill(text, width=40)#might need to adjust width
 
-            # Draw text with fade effect
-            text.set_alpha(alpha)
-            self.screen.blit(text, text_rect)
+            # Render the wrapped text
+            text_lines = wrapped_text.split('\n')
+            text_surfaces = [self.font.render(line, True, (255, 255, 255)) for line in text_lines]
+
+
+            # Calculate the text box size based on wrapped text
+            text_box_width = max([text_surface.get_width() for text_surface in text_surfaces]) + 20
+            text_box_height = sum([text_surface.get_height() for text_surface in text_surfaces]) + 20
+
+            
+            # Draw the text box with fade in/out effect
+            alpha = int(self.fade_timer / self.fade_duration * 255)
+            text_box_surface = pygame.Surface((text_box_width, text_box_height), pygame.SRCALPHA)
+            text_box_surface.fill((0, 0, 0, alpha))
+            self.screen.blit(text_box_surface,position)
+
+
+            #Draw the wrapped text with fade effect
+            y_offset = 0
+            for surface in text_surfaces:
+                surface.set_alpha(alpha)
+                self.screen.blit(surface, (position[0] + 10, position[1] + 10 + y_offset))
+                y_offset += surface.get_height()
+
+
+
+
+
 
     def on_resume(self):
         """
