@@ -2,6 +2,7 @@ import pygame
 import textwrap
 from .base import Screen
 from characters import Regar, Susan, Emily, Bart
+import random
 
 class StoryScreen(Screen):
     """
@@ -15,7 +16,7 @@ class StoryScreen(Screen):
             game (Game): The game object
         """
         super().__init__(game)
-        self.background = pygame.image.load("assets/spaceship.png").convert()
+        self.background = pygame.image.load("assets/deep_space.png").convert()
         self.background = pygame.transform.scale(
             self.background, (self.game.SCREEN_WIDTH, self.game.SCREEN_HEIGHT)
         )
@@ -25,29 +26,34 @@ class StoryScreen(Screen):
         # Define story segments with positions
         self.intro_segments = [
             {
-                "text": "On the space cargo ship Hyperactive captained by Captain Regar, the skeleton crew make their way to a new uncharted system.",
+                "text": "In the vast expanse of deep space, the mining vessel 'Hyperion' drifts silently, its hull scarred by two years of relentless cosmic wear.",
                 "position": (50, 50),
             },
             {
-                "text": "A month ago a mysterious order came in to an unknown location.",
+                "text": "Inside, the skeleton crew of four carries the weight of isolation and the yearning for home.",
                 "position": (350, 150),
             },
             {
-                "text": "After much thought on the matter and a bit of an explorer's itch, Regar decided to go.",
+                "text": "Captain Regar stands at the helm, his weathered face a testament to countless decisions that have kept them alive.",
                 "position": (50, 250),
             },
             {
-                "text": "There will be many challenges along the way",
+                "text": "As they approach the final leg of their journey, an unexpected signal breaks the monotony of space...",
                 "position": (350, 350),
             },
-            {"text": "This is the Hyper's adventure!", "position": (50, 450)},
+            {"text": "Little do they know, their greatest adventure is about to begin!", "position": (50, 450)},
         ]
 
         self.inside_ship_segments = [
-            {"text": "Regar: Alright crew, we're approaching the uncharted system. Everyone on alert!"},
-            {"text": "Susan: The engines are running smoothly, Captain."},
-            {"text": "Emily: I've plotted the course. We should arrive in a few hours."},
-            {"text": "Bart: All systems are green, Captain. We're ready for anything!"}
+            {"text": "Regar: Alright people, we've got an unidentified signal. This close to home, I'm not taking any chances. Status report!"},
+            {"text": "Susan: Analyzing the signal now, Captain. It doesn't match any known patterns in our database."},
+            {"text": "Bart: Hey Em, want to check out this 'signal' in the observatory later? I hear the view is... stellar."},
+            {"text": "Emily: In your dreams, flyboy. But speaking of dreams, the engines are operating beyond expected parameters. We might just get home early."},
+            {"text": "Regar: Focus, people. Susan, any theories on that signal?"},
+            {"text": "Susan: It could be a distress call, or... something else entirely. Logic suggests we proceed with caution."},
+            {"text": "Bart: Or it could be a party invitation! Two years out here, I'd kill for a good party."},
+            {"text": "Emily: The only thing you're killing is my concentration, Bart. But... I wouldn't mind a little celebration when we crack this mystery."},
+            {"text": "Regar: Steady on, crew. Whatever's out there, we face it together. Just like we have for the past two years. Prepare for potential contact."}
         ]
 
         self.story_segments = self.intro_segments
@@ -141,31 +147,39 @@ class StoryScreen(Screen):
         Draw the interior of the spaceship.
         """
         # Draw the main body of the spaceship
-        self.screen.fill((100, 100, 100))  # Original grey color
+        self.screen.fill((50, 50, 70))  # Darker, cooler grey for a more atmospheric feel
         
-        # Draw windows
+        # Draw windows showing deep space
         for i in range(3):
-            pygame.draw.ellipse(self.screen, (150, 200, 255), (50 + i * (self.game.SCREEN_WIDTH // 3), 50, 200, 100))
+            pygame.draw.ellipse(self.screen, (10, 10, 40), (50 + i * (self.game.SCREEN_WIDTH // 3), 50, 200, 100))
+            # Add some stars
+            for _ in range(20):
+                x = 50 + i * (self.game.SCREEN_WIDTH // 3) + random.randint(0, 200)
+                y = 50 + random.randint(0, 100)
+                pygame.draw.circle(self.screen, (255, 255, 255), (x, y), 1)
         
-        # Draw control panel
+        # Draw control panel with more details
         panel_width = self.game.SCREEN_WIDTH - 100
-        pygame.draw.rect(self.screen, (70, 70, 70), (50, self.game.SCREEN_HEIGHT - 120, panel_width, 80))
+        pygame.draw.rect(self.screen, (70, 70, 80), (50, self.game.SCREEN_HEIGHT - 120, panel_width, 80))
         for i in range(5):
-            pygame.draw.circle(self.screen, (255, 0, 0), (100 + i * (panel_width // 5), self.game.SCREEN_HEIGHT - 80), 15)
+            pygame.draw.circle(self.screen, (200, 50, 50), (100 + i * (panel_width // 5), self.game.SCREEN_HEIGHT - 80), 15)
+            pygame.draw.circle(self.screen, (50, 200, 50), (130 + i * (panel_width // 5), self.game.SCREEN_HEIGHT - 100), 10)
 
-        # Draw character "seats"
-        seat_width = (self.game.SCREEN_WIDTH - 150) // 4
+        # Draw character "stations" instead of seats
+        station_width = (self.game.SCREEN_WIDTH - 150) // 4
         for i in range(4):
-            pygame.draw.rect(self.screen, (120, 120, 120), (50 + i * (seat_width + 25), 250, seat_width, 200))
+            pygame.draw.rect(self.screen, (60, 60, 80), (50 + i * (station_width + 25), 250, station_width, 200))
+            # Add some details to each station
+            pygame.draw.rect(self.screen, (80, 80, 100), (60 + i * (station_width + 25), 260, station_width - 20, 50))
 
     def draw_characters(self):
         """
         Draw the characters in the spaceship.
         """
-        seat_width = (self.game.SCREEN_WIDTH - 150) // 4
+        station_width = (self.game.SCREEN_WIDTH - 150) // 4
         for i, character in enumerate(self.characters):
             # Calculate character position
-            x = 75 + i * (seat_width + 25)
+            x = 75 + i * (station_width + 25)
             y = 300
             
             # Draw character
@@ -184,8 +198,8 @@ class StoryScreen(Screen):
             speaker_index = next(i for i, char in enumerate(self.characters) if char.name == speaker)
             
             # Calculate bubble position
-            seat_width = (self.game.SCREEN_WIDTH - 150) // 4
-            x = 75 + speaker_index * (seat_width + 25)
+            station_width = (self.game.SCREEN_WIDTH - 150) // 4
+            x = 75 + speaker_index * (station_width + 25)
             y = 200
             
             # Draw the text bubble
@@ -207,8 +221,8 @@ class StoryScreen(Screen):
         bubble_height = sum(surface.get_height() for surface in text_surfaces) + 20
         
         # Draw bubble
-        pygame.draw.rect(self.screen, (255, 255, 255), (x, y, bubble_width, bubble_height), border_radius=10)
-        pygame.draw.rect(self.screen, (0, 0, 0), (x, y, bubble_width, bubble_height), 2, border_radius=10)
+        pygame.draw.rect(self.screen, (200, 200, 220), (x, y, bubble_width, bubble_height), border_radius=10)
+        pygame.draw.rect(self.screen, (100, 100, 120), (x, y, bubble_width, bubble_height), 2, border_radius=10)
         
         # Draw text
         y_offset = 10
