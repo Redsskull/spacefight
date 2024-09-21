@@ -141,27 +141,35 @@ class StoryScreen(Screen):
         Draw the interior of the spaceship.
         """
         # Draw the main body of the spaceship
-        pygame.draw.rect(self.screen, (100, 100, 100), (0, 0, self.game.SCREEN_WIDTH, self.game.SCREEN_HEIGHT))
+        self.screen.fill((100, 100, 100))  # Original grey color
         
         # Draw windows
         for i in range(3):
-            pygame.draw.ellipse(self.screen, (150, 200, 255), (50 + i * 250, 120, 200, 100))
+            pygame.draw.ellipse(self.screen, (150, 200, 255), (50 + i * (self.game.SCREEN_WIDTH // 3), 50, 200, 100))
         
         # Draw control panel
-        pygame.draw.rect(self.screen, (50, 50, 50), (0, 400, self.game.SCREEN_WIDTH, 100))
+        panel_width = self.game.SCREEN_WIDTH - 100
+        pygame.draw.rect(self.screen, (70, 70, 70), (50, self.game.SCREEN_HEIGHT - 120, panel_width, 80))
         for i in range(5):
-            pygame.draw.circle(self.screen, (255, 0, 0), (100 + i * 150, 450), 20)
+            pygame.draw.circle(self.screen, (255, 0, 0), (100 + i * (panel_width // 5), self.game.SCREEN_HEIGHT - 80), 15)
+
+        # Draw character "seats"
+        seat_width = (self.game.SCREEN_WIDTH - 150) // 4
+        for i in range(4):
+            pygame.draw.rect(self.screen, (120, 120, 120), (50 + i * (seat_width + 25), 250, seat_width, 200))
 
     def draw_characters(self):
         """
         Draw the characters in the spaceship.
         """
+        seat_width = (self.game.SCREEN_WIDTH - 150) // 4
         for i, character in enumerate(self.characters):
-            # Draw character "seat"
-            pygame.draw.rect(self.screen, (70, 70, 70), (50 + i * 180, 300, 150, 200))
+            # Calculate character position
+            x = 75 + i * (seat_width + 25)
+            y = 300
             
             # Draw character
-            character.rect.topleft = (75 + i * 180, 325)
+            character.rect.topleft = (x, y)
             self.screen.blit(character.image, character.rect.topleft)
 
     def draw_current_dialogue(self):
@@ -175,8 +183,13 @@ class StoryScreen(Screen):
             # Find the speaking character's index
             speaker_index = next(i for i, char in enumerate(self.characters) if char.name == speaker)
             
+            # Calculate bubble position
+            seat_width = (self.game.SCREEN_WIDTH - 150) // 4
+            x = 75 + speaker_index * (seat_width + 25)
+            y = 200
+            
             # Draw the text bubble
-            self.draw_text_bubble(text, 50 + speaker_index * 180, 200)
+            self.draw_text_bubble(text, x, y)
 
     def draw_text_bubble(self, text, x, y):
         """
