@@ -197,37 +197,61 @@ class StoryScreen(Screen):
             # Find the speaking character's index
             speaker_index = next(i for i, char in enumerate(self.characters) if char.name == speaker)
             
-            # Calculate bubble position
+            # Calculate speaker position
             station_width = (self.game.SCREEN_WIDTH - 150) // 4
-            x = 75 + speaker_index * (station_width + 25)
-            y = 200
+            speaker_x = 75 + speaker_index * (station_width + 25)
+            speaker_y = 300
             
             # Draw the text bubble
-            self.draw_text_bubble(text, x, y)
+            self.draw_text_bubble(text, speaker_x, speaker_y, speaker_x, speaker_y)
 
-    def draw_text_bubble(self, text, x, y):
+    def draw_text_bubble(self, text, speaker_x, speaker_y, bubble_x, bubble_y):
         """
-        Draw a text bubble with the given text.
+        Draw a circular text bubble with an arrow coming out from it, pointing to the speaker.
         Args:
-            text (str): The text to display in the bubble
-            x (int): The x-coordinate of the bubble
-            y (int): The y-coordinate of the bubble
+            text (str): The text to display in the bubble.
+            speaker_x (int): The x-coordinate of the speaker.
+            speaker_y (int): The y-coordinate of the speaker.
+            bubble_x (int): The x-coordinate of the bubble.
+            bubble_y (int): The y-coordinate of the bubble.
         """
         wrapped_text = textwrap.fill(text, width=20)
         text_surfaces = [self.font.render(line, True, (0, 0, 0)) for line in wrapped_text.split('\n')]
         
-        # Calculate bubble size
         bubble_width = max(surface.get_width() for surface in text_surfaces) + 20
         bubble_height = sum(surface.get_height() for surface in text_surfaces) + 20
-        
-        # Draw bubble
-        pygame.draw.rect(self.screen, (200, 200, 220), (x, y, bubble_width, bubble_height), border_radius=10)
-        pygame.draw.rect(self.screen, (100, 100, 120), (x, y, bubble_width, bubble_height), 2, border_radius=10)
-        
-        # Draw text
-        y_offset = 10
+        bubble_radius = max(bubble_width, bubble_height) // 2 + 20  # Circular bubble
+
+        # Adjust position based on speaker location, and prevent bubble from going off-screen
+        if speaker_x < self.game.SCREEN_WIDTH // 2:
+            bubble_x = min(speaker_x + 50, self.game.SCREEN_WIDTH - bubble_radius * 2)  # Right of speaker
+        else:
+            bubble_x = max(speaker_x - bubble_radius * 2 - 50, 0)  # Left of speaker
+
+        bubble_y = speaker_y - bubble_radius - 50  # Above the speaker
+
+        # Draw the bubble and arrow
+        pygame.draw.ellipse(self.screen, (200, 200, 220), (bubble_x, bubble_y, bubble_radius * 2, bubble_radius * 2))
+        pygame.draw.ellipse(self.screen, (100, 100, 120), (bubble_x, bubble_y, bubble_radius * 2, bubble_radius * 2), 2)
+
+        # Arrow pointing to the speaker
+        if speaker_x < self.game.SCREEN_WIDTH // 2:
+            pygame.draw.polygon(self.screen, (200, 200, 220), [
+                (speaker_x + 40, speaker_y),  # Tip
+                (bubble_x, bubble_y + bubble_radius),  # Base
+                (bubble_x + 10, bubble_y + bubble_radius - 10)
+            ])
+        else:
+            pygame.draw.polygon(self.screen, (200, 200, 220), [
+                (speaker_x - 40, speaker_y),
+                (bubble_x + bubble_radius * 2, bubble_y + bubble_radius),
+                (bubble_x + bubble_radius * 2 - 10, bubble_y + bubble_radius - 10)
+            ])
+
+        y_offset = bubble_radius - (bubble_height // 2) + 10
         for surface in text_surfaces:
-            self.screen.blit(surface, (x + 10, y + y_offset))
+            text_x = bubble_x + bubble_radius - (surface.get_width() // 2)
+            self.screen.blit(surface, (text_x, bubble_y + y_offset))
             y_offset += surface.get_height()
 
     def draw_story_segment(self):
