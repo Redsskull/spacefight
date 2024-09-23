@@ -53,13 +53,22 @@ class StoryScreen(Screen):
             {"text": "Susan: It could be a distress call, or... something else entirely. Logic suggests we proceed with caution."},
             {"text": "Bart: Or it could be a party invitation! Two years out here, I'd kill for a good party."},
             {"text": "Emily: The only thing you're killing is my concentration, Bart. But... I wouldn't mind a little celebration when we crack this mystery."},
-            {"text": "Regar: Steady on, crew. Whatever's out there, we face it together. Just like we have for the past two years. Prepare for potential contact."}
+            {"text": "Regar: Steady on, crew. Whatever's out there, we face it together. Just like we have for the past two years. Prepare for potential contact."},
+            {"text": "Susan: Captain! Proximity alarm triggered! Something's approaching fast!"},
+            {"text": "Bart: Emily, if this is our last moment, I just want you to know... your hair looks fantastic even in a crisis."},
+            {"text": "Emily: Bart, I swear, if we survive this, I'm going to-"},
+            {"text": "Evil Bug Lord Sneaky: Greetings, humans of the Hyperion. Prepare to be assimilated into our glorious hive!"},
+            {"text": "Regar: What in the blazes? Who are you? Crew, battle stations!"},
+            {"text": "Susan: Captain, they're boarding the ship! Hostiles incoming!"},
+            {"text": "Bart: Hey Em, how about we fight these bugs together? I promise I'm great at swatting!"},
+            {"text": "Emily: This is hardly the time, Bart! But... stick close. We might need each other."},
+            {"text": "Regar: All hands, prepare for combat! We're not going down without a fight!"}
         ]
 
         self.story_segments = self.intro_segments
 
-        # Initialize music
-        self.initialize_music()
+        # Initialize sounds
+        self.initialize_sounds()
 
         # Track the current story segment
         self.current_segment = 0
@@ -77,12 +86,19 @@ class StoryScreen(Screen):
         # Create character instances
         self.characters = [Regar(), Susan(), Emily(), Bart()]
 
-    def initialize_music(self):
+        # Screen shake effect
+        self.shake_duration = 1000  # 1 second of shaking
+        self.shake_intensity = 5  # pixels
+        self.shake_start_time = 0
+        self.shaking = False
+
+    def initialize_sounds(self):
         """
-        Initialize the music for the story screen.
+        Initialize the sounds for the story screen.
         """
         pygame.mixer.music.load("assets/battlegamenoises.mp3")
         pygame.mixer.music.play(-1)
+        self.alarm_sound = pygame.mixer.Sound("assets/alarm.wav")
 
     def handle_events(self, events):
         """
@@ -123,9 +139,21 @@ class StoryScreen(Screen):
                 self.state = "inside_ship"
                 self.story_segments = self.inside_ship_segments
                 self.current_segment = 0
-            else:
+            elif self.state == "inside_ship" and self.current_segment >= len(self.inside_ship_segments):
                 from .main_menu import MainMenu  # Import here to avoid circular import
                 self.game.change_screen(MainMenu(self.game))  # Return to main menu after story
+
+        # Trigger alarm and screen shake when proximity alarm is mentioned
+        if self.state == "inside_ship" and self.current_segment == 9:  # Adjust index as needed
+            if not self.shaking:
+                self.alarm_sound.play()
+                self.shake_start_time = current_time
+                self.shaking = True
+
+        # Update screen shake
+        if self.shaking:
+            if current_time - self.shake_start_time > self.shake_duration:
+                self.shaking = False
 
     def draw(self):
         """
@@ -138,9 +166,19 @@ class StoryScreen(Screen):
             self.draw_spaceship_interior()
             self.draw_characters()
             self.draw_current_dialogue()
+
+            # Draw Evil Bug Lord Sneaky's dialogue
+            if self.current_segment == 12:  # Adjust index as needed
+                self.draw_evil_bug_lord_dialogue()
         else:
             self.screen.blit(self.background, (0, 0))
             self.draw_story_segment()
+
+        # Apply screen shake if active
+        if self.shaking:
+            dx = random.randint(-self.shake_intensity, self.shake_intensity)
+            dy = random.randint(-self.shake_intensity, self.shake_intensity)
+            self.screen.blit(self.screen, (dx, dy))
 
     def draw_spaceship_interior(self):
         """
@@ -195,15 +233,50 @@ class StoryScreen(Screen):
             speaker, text = segment["text"].split(": ", 1)
             
             # Find the speaking character's index
-            speaker_index = next(i for i, char in enumerate(self.characters) if char.name == speaker)
+            speaker_index = next((i for i, char in enumerate(self.characters) if char.name == speaker), None)
             
-            # Calculate speaker position
-            station_width = (self.game.SCREEN_WIDTH - 150) // 4
-            speaker_x = 75 + speaker_index * (station_width + 25)
-            speaker_y = 300
-            
-            # Draw the text bubble
-            self.draw_text_bubble(text, speaker_x, speaker_y, speaker_x, speaker_y)
+            if speaker_index is not None:
+                # Calculate speaker position
+                station_width = (self.game.SCREEN_WIDTH - 150) // 4
+                speaker_x = 75 + speaker_index * (station_width + 25)
+                speaker_y = 300
+                
+                # Draw the text bubble
+                self.draw_text_bubble(text, speaker_x, speaker_y, speaker_x, speaker_y)
+
+    def draw_evil_bug_lord_dialogue(self):
+        """
+        Draw the dialogue for Evil Bug Lord Sneaky as a rectangular bubble on the left side of the screen.
+        """
+        text = "Greetings, humans of the Hyperion. Prepare to be assimilated into our glorious hive!"
+        self.draw_rectangular_bubble(text, 20, 50)
+
+    def draw_rectangular_bubble(self, text, x, y):
+        """
+        Draw a rectangular text bubble that grows to fit the text.
+        Args:
+            text (str): The text to display in the bubble.
+            x (int): The x-coordinate of the top-left corner of the bubble.
+            y (int): The y-coordinate of the top-left corner of the bubble.
+        """
+        # Wrap and render the text
+        wrapped_text = textwrap.fill(text, width=40)  # Adjust width for text wrapping
+        text_surfaces = [self.font.render(line, True, (0, 0, 0)) for line in wrapped_text.split('\n')]
+
+        # Dynamically calculate bubble width and height
+        bubble_width = max(surface.get_width() for surface in text_surfaces) + 20  # 20 px padding
+        bubble_height = sum(surface.get_height() for surface in text_surfaces) + 20  # 20 px padding
+
+        # Draw the rectangle with the calculated dimensions
+        pygame.draw.rect(self.screen, (200, 200, 220), (x, y, bubble_width, bubble_height))
+        pygame.draw.rect(self.screen, (100, 100, 120), (x, y, bubble_width, bubble_height), 2)
+
+        # Draw the text inside the bubble
+        y_offset = 10
+        for surface in text_surfaces:
+            text_x = x + 10  # 10 px padding from the left
+            self.screen.blit(surface, (text_x, y + y_offset))
+            y_offset += surface.get_height() + 5  # Add line spacing
 
     def draw_text_bubble(self, text, speaker_x, speaker_y, bubble_x, bubble_y):
         """
@@ -228,26 +301,22 @@ class StoryScreen(Screen):
         else:
             bubble_x = max(speaker_x - bubble_radius * 2 - 50, 0)  # Left of speaker
 
-        bubble_y = speaker_y - bubble_radius - 50  # Above the speaker
+        bubble_y = max(speaker_y - bubble_radius - 50, 0)  # Above the speaker, but not off-screen
 
-        # Draw the bubble and arrow
+        # Draw the bubble
         pygame.draw.ellipse(self.screen, (200, 200, 220), (bubble_x, bubble_y, bubble_radius * 2, bubble_radius * 2))
         pygame.draw.ellipse(self.screen, (100, 100, 120), (bubble_x, bubble_y, bubble_radius * 2, bubble_radius * 2), 2)
 
-        # Arrow pointing to the speaker
-        if speaker_x < self.game.SCREEN_WIDTH // 2:
-            pygame.draw.polygon(self.screen, (200, 200, 220), [
-                (speaker_x + 40, speaker_y),  # Tip
-                (bubble_x, bubble_y + bubble_radius),  # Base
-                (bubble_x + 10, bubble_y + bubble_radius - 10)
-            ])
-        else:
-            pygame.draw.polygon(self.screen, (200, 200, 220), [
-                (speaker_x - 40, speaker_y),
-                (bubble_x + bubble_radius * 2, bubble_y + bubble_radius),
-                (bubble_x + bubble_radius * 2 - 10, bubble_y + bubble_radius - 10)
-            ])
+        # Draw the arrow pointing to the speaker
+        arrow_start_x = bubble_x + bubble_radius if speaker_x < self.game.SCREEN_WIDTH // 2 else bubble_x + bubble_radius
+        arrow_start_y = bubble_y + bubble_radius * 2
+        pygame.draw.polygon(self.screen, (200, 200, 220), [
+            (speaker_x, speaker_y),  # Tip of the arrow (at the speaker)
+            (arrow_start_x - 10, arrow_start_y),  # Left base of the arrow
+            (arrow_start_x + 10, arrow_start_y)  # Right base of the arrow
+        ])
 
+        # Draw the text
         y_offset = bubble_radius - (bubble_height // 2) + 10
         for surface in text_surfaces:
             text_x = bubble_x + bubble_radius - (surface.get_width() // 2)
@@ -296,4 +365,4 @@ class StoryScreen(Screen):
         """
         Resume the story screen.
         """
-        self.initialize_music()
+        self.initialize_sounds()
