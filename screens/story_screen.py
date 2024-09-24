@@ -16,7 +16,7 @@ class StoryScreen(Screen):
             game (Game): The game object
         """
         super().__init__(game)
-        self.background = pygame.image.load("assets/deep_space.png").convert()
+        self.background = pygame.image.load("assets/art/deep_space.png").convert()
         self.background = pygame.transform.scale(
             self.background, (self.game.SCREEN_WIDTH, self.game.SCREEN_HEIGHT)
         )
@@ -96,9 +96,9 @@ class StoryScreen(Screen):
         """
         Initialize the sounds for the story screen.
         """
-        pygame.mixer.music.load("assets/battlegamenoises.mp3")
+        pygame.mixer.music.load("assets/sound/battlegamenoises.mp3")
         pygame.mixer.music.play(-1)
-        self.alarm_sound = pygame.mixer.Sound("assets/alarm.wav")
+        self.alarm_sound = pygame.mixer.Sound("assets/sound/alarm.wav")
 
     def handle_events(self, events):
         """

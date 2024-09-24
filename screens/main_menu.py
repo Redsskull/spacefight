@@ -14,7 +14,7 @@ class MainMenu(Screen):
             game (Game): The game object
         """
         super().__init__(game)
-        self.background = pygame.image.load("assets/main_menu_background.png").convert()
+        self.background = pygame.image.load("assets/art/main_menu_background.png").convert()
         self.background = pygame.transform.scale(
             self.background, (self.game.SCREEN_WIDTH, self.game.SCREEN_HEIGHT)
         )
@@ -40,7 +40,7 @@ class MainMenu(Screen):
         """
         Initialize the music for the main menu screen.
         """
-        pygame.mixer.music.load("assets/main_menu.mp3")
+        pygame.mixer.music.load("assets/sound/main_menu.mp3")
         pygame.mixer.music.play(-1)
 
     def handle_events(self, events):
