@@ -5,7 +5,7 @@ from .base import Screen
 import random
 from managers.character_manager import CharacterManager
 from managers.sound_manager import SoundManager
-from managers.screen_effects import ScreenEffectsManager  
+from managers.screen_effects import ScreenEffectsManager
 
 class StoryScreen(Screen):
     """
@@ -20,6 +20,14 @@ class StoryScreen(Screen):
         """
         super().__init__(game)
         self.game = game
+        self.initialize_assets()
+        self.initialize_managers()
+        self.initialize_state()
+
+    def initialize_assets(self):
+        """
+        Initialize the assets for the story screen.
+        """
         self.background = pygame.image.load("assets/art/deep_space.png").convert()
         self.background = pygame.transform.scale(self.background, (self.game.SCREEN_WIDTH, self.game.SCREEN_HEIGHT))
         self.font = pygame.font.Font(None, 36)
@@ -31,10 +39,24 @@ class StoryScreen(Screen):
         # Start with the intro segments
         self.story_segments = self.story_data["intro"]
 
-        # Initialize sound manager
+    def initialize_managers(self):
+        """
+        Initialize the managers for the story screen.
+        """
         self.sound_manager = SoundManager()
         self.initialize_sounds()
 
+        # Create character instances
+        self.character_manager = CharacterManager(self.game)
+        self.character_manager.initialize_characters()
+
+        # Initialize screen effects manager
+        self.screen_effects_manager = ScreenEffectsManager(self.screen, self.game.SCREEN_WIDTH, self.game.SCREEN_HEIGHT)
+
+    def initialize_state(self):
+        """
+        Initialize the state variables for the story screen.
+        """
         # Track the current story segment
         self.current_segment = 0
 
@@ -47,13 +69,6 @@ class StoryScreen(Screen):
 
         # State variable
         self.state = "intro"
-
-        # Create character instances
-        self.character_manager = CharacterManager(self.game)
-        self.character_manager.initialize_characters()
-
-        # Initialize screen effects manager
-        self.screen_effects_manager = ScreenEffectsManager(self.screen, self.game.SCREEN_WIDTH, self.game.SCREEN_HEIGHT)
 
     def initialize_sounds(self):
         """
@@ -198,32 +213,6 @@ class StoryScreen(Screen):
                 # Draw the text bubble for the speaking character
                 self.draw_text_bubble(text, speaker_x, speaker_y, speaker_x, speaker_y)
 
-    def draw_evil_bug_lord_dialogue(self):
-        """
-        Draw the dialogue for Evil Bug Lord Sneaky as a rectangular bubble on the left side of the screen.
-        """
-        text = "Greetings, humans of the Hyperion. Prepare to be assimilated into our glorious hive!"
-        self.draw_rectangular_bubble(text, 20, 50)
-
-    def draw_rectangular_bubble(self, text, x, y):
-        """
-        Draw a rectangular text bubble that grows to fit the text.
-        """
-        wrapped_text = textwrap.fill(text, width=40)
-        text_surfaces = [self.font.render(line, True, (0, 0, 0)) for line in wrapped_text.split('\n')]
-
-        bubble_width = max(surface.get_width() for surface in text_surfaces) + 20
-        bubble_height = sum(surface.get_height() for surface in text_surfaces) + 20
-
-        pygame.draw.rect(self.screen, (200, 200, 220), (x, y, bubble_width, bubble_height))
-        pygame.draw.rect(self.screen, (100, 100, 120), (x, y, bubble_width, bubble_height), 2)
-
-        y_offset = 10
-        for surface in text_surfaces:
-            text_x = x + 10
-            self.screen.blit(surface, (text_x, y + y_offset))
-            y_offset += surface.get_height() + 5
-
     def draw_text_bubble(self, text, speaker_x, speaker_y, bubble_x, bubble_y):
         """
         Draw a circular text bubble with an arrow coming out from it, pointing to the speaker.
@@ -259,6 +248,32 @@ class StoryScreen(Screen):
             text_x = bubble_x + bubble_radius - (surface.get_width() // 2)
             self.screen.blit(surface, (text_x, bubble_y + y_offset))
             y_offset += surface.get_height()
+
+    def draw_evil_bug_lord_dialogue(self):
+        """
+        Draw the dialogue for Evil Bug Lord Sneaky as a rectangular bubble on the left side of the screen.
+        """
+        text = "Greetings, humans of the Hyperion. Prepare to be assimilated into our glorious hive!"
+        self.draw_rectangular_bubble(text, 20, 50)
+
+    def draw_rectangular_bubble(self, text, x, y):
+        """
+        Draw a rectangular text bubble that grows to fit the text.
+        """
+        wrapped_text = textwrap.fill(text, width=40)
+        text_surfaces = [self.font.render(line, True, (0, 0, 0)) for line in wrapped_text.split('\n')]
+
+        bubble_width = max(surface.get_width() for surface in text_surfaces) + 20
+        bubble_height = sum(surface.get_height() for surface in text_surfaces) + 20
+
+        pygame.draw.rect(self.screen, (200, 200, 220), (x, y, bubble_width, bubble_height))
+        pygame.draw.rect(self.screen, (100, 100, 120), (x, y, bubble_width, bubble_height), 2)
+
+        y_offset = 10
+        for surface in text_surfaces:
+            text_x = x + 10
+            self.screen.blit(surface, (text_x, y + y_offset))
+            y_offset += surface.get_height() + 5
 
     def draw_story_segment(self):
         """
