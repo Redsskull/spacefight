@@ -1,6 +1,6 @@
-# main_menu.py
 import pygame
 from .base import Screen
+from managers.sound_manager import SoundManager 
 
 class MainMenu(Screen):
     """
@@ -30,7 +30,8 @@ class MainMenu(Screen):
             rect = text.get_rect(center=(self.game.SCREEN_WIDTH // 2, 300 + i * 50))
             self.menu_rects.append((text, rect))
 
-        # Initialize music
+        # Initialize sound manager
+        self.sound_manager = SoundManager()
         self.initialize_music()
 
         # Track the currently selected menu item
@@ -38,10 +39,10 @@ class MainMenu(Screen):
 
     def initialize_music(self):
         """
-        Initialize the music for the main menu screen.
+        Initialize the music for the main menu screen using SoundManager.
         """
-        pygame.mixer.music.load("assets/sound/main_menu.mp3")
-        pygame.mixer.music.play(-1)
+        self.sound_manager.load_music("assets/sound/main_menu.mp3")
+        self.sound_manager.play_music(-1)
 
     def handle_events(self, events):
         """
@@ -69,13 +70,13 @@ class MainMenu(Screen):
         Perform the action associated with the currently selected menu item.
         """
         if self.selected_index == 0:  # Start
-            pygame.mixer.music.stop()
+            self.sound_manager.stop_music()
             from .story_screen import StoryScreen  # Import here to avoid circular import
             self.game.change_screen(StoryScreen(self.game))
         elif self.selected_index == 1:  # Options
             print("Open options")  # Replace with options screen logic
         elif self.selected_index == 2:  # Quit
-            pygame.mixer.music.stop()
+            self.sound_manager.stop_music()
             self.game.running = False
 
     def draw(self):

@@ -4,6 +4,8 @@ import json
 from .base import Screen
 import random
 from managers.character_manager import CharacterManager
+from managers.sound_manager import SoundManager
+from managers.screen_effects import ScreenEffectsManager  
 
 class StoryScreen(Screen):
     """
@@ -29,7 +31,8 @@ class StoryScreen(Screen):
         # Start with the intro segments
         self.story_segments = self.story_data["intro"]
 
-        # Initialize sounds
+        # Initialize sound manager
+        self.sound_manager = SoundManager()
         self.initialize_sounds()
 
         # Track the current story segment
@@ -49,19 +52,16 @@ class StoryScreen(Screen):
         self.character_manager = CharacterManager(self.game)
         self.character_manager.initialize_characters()
 
-        # Screen shake effect
-        self.shake_duration = 1000  # 1 second of shaking
-        self.shake_intensity = 5  # pixels
-        self.shake_start_time = 0
-        self.shaking = False
+        # Initialize screen effects manager
+        self.screen_effects_manager = ScreenEffectsManager(self.screen, self.game.SCREEN_WIDTH, self.game.SCREEN_HEIGHT)
 
     def initialize_sounds(self):
         """
-        Initialize the sounds for the story screen.
+        Initialize the sounds for the story screen using SoundManager.
         """
-        pygame.mixer.music.load("assets/sound/battlegamenoises.mp3")
-        pygame.mixer.music.play(-1)
-        self.alarm_sound = pygame.mixer.Sound("assets/sound/alarm.wav")
+        self.sound_manager.load_music("assets/sound/battlegamenoises.mp3")
+        self.sound_manager.play_music(-1)
+        self.sound_manager.load_sound("alarm", "assets/sound/alarm.wav")
 
     def handle_events(self, events):
         """
@@ -85,7 +85,6 @@ class StoryScreen(Screen):
         self.character_manager.update_characters(dt)
         self.character_manager.handle_character_movement(dt)
         self.character_manager.handle_character_attack()
-
 
         if self.current_segment < len(self.story_segments):
             # Fade in
@@ -121,15 +120,12 @@ class StoryScreen(Screen):
 
         # Trigger alarm and screen shake when proximity alarm is mentioned (segment 9 in inside_ship)
         if self.state == "inside_ship" and self.current_segment == 9:  # Adjust index as needed
-            if not self.shaking:
-                self.alarm_sound.play()
-                self.shake_start_time = current_time
-                self.shaking = True
+            if not self.screen_effects_manager.shaking:
+                self.sound_manager.play_sound("alarm")
+                self.screen_effects_manager.start_shake(1000, 5)
 
         # Update screen shake logic
-        if self.shaking:
-            if current_time - self.shake_start_time > self.shake_duration:
-                self.shaking = False
+        self.screen_effects_manager.update()
 
     def draw(self):
         """
@@ -151,10 +147,7 @@ class StoryScreen(Screen):
             self.draw_story_segment()
 
         # Apply screen shake if active
-        if self.shaking:
-            dx = random.randint(-self.shake_intensity, self.shake_intensity)
-            dy = random.randint(-self.shake_intensity, self.shake_intensity)
-            self.screen.blit(self.screen, (dx, dy))
+        self.screen_effects_manager.apply_shake()
 
     def draw_spaceship_interior(self):
         """
@@ -183,7 +176,6 @@ class StoryScreen(Screen):
             pygame.draw.rect(self.screen, (60, 60, 80), (50 + i * (station_width + 25), 250, station_width, 200))
             pygame.draw.rect(self.screen, (80, 80, 100), (60 + i * (station_width + 25), 260, station_width - 20, 50))
 
-
     def draw_current_dialogue(self):
         """
         Draw the current dialogue for the speaking character.
@@ -200,7 +192,7 @@ class StoryScreen(Screen):
                 # Calculate speaker position
                 station_width = (self.game.SCREEN_WIDTH - 150) // 4
                 speaker_index = self.character_manager.characters.index(speaking_character)
-                speaker_x = 75 + speaker_index* (station_width + 25)
+                speaker_x = 75 + speaker_index * (station_width + 25)
                 speaker_y = 300
 
                 # Draw the text bubble for the speaking character
@@ -303,4 +295,3 @@ class StoryScreen(Screen):
         Resume the story screen.
         """
         self.initialize_sounds()
-
