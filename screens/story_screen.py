@@ -2,8 +2,8 @@ import pygame
 import textwrap
 import json
 from .base import Screen
-from characters import Regar, Susan, Emily, Bart
 import random
+from managers.character_manager import CharacterManager
 
 class StoryScreen(Screen):
     """
@@ -46,7 +46,8 @@ class StoryScreen(Screen):
         self.state = "intro"
 
         # Create character instances
-        self.characters = [Regar(), Susan(), Emily(), Bart()]
+        self.character_manager = CharacterManager(self.game)
+        self.character_manager.initialize_characters()
 
         # Screen shake effect
         self.shake_duration = 1000  # 1 second of shaking
@@ -78,6 +79,13 @@ class StoryScreen(Screen):
         Update the story screen.
         """
         current_time = pygame.time.get_ticks()
+        dt = self.game.clock.get_time() / 1000
+
+        # Update characters
+        self.character_manager.update_characters(dt)
+        self.character_manager.handle_character_movement(dt)
+        self.character_manager.handle_character_attack()
+
 
         if self.current_segment < len(self.story_segments):
             # Fade in
@@ -132,7 +140,7 @@ class StoryScreen(Screen):
             self.screen.fill((0, 0, 0))
 
             self.draw_spaceship_interior()
-            self.draw_characters()
+            self.character_manager.draw_characters(self.screen)
             self.draw_current_dialogue()
 
             # Draw Evil Bug Lord Sneaky's dialogue
@@ -175,17 +183,6 @@ class StoryScreen(Screen):
             pygame.draw.rect(self.screen, (60, 60, 80), (50 + i * (station_width + 25), 250, station_width, 200))
             pygame.draw.rect(self.screen, (80, 80, 100), (60 + i * (station_width + 25), 260, station_width - 20, 50))
 
-    def draw_characters(self):
-        """
-        Draw the characters in the spaceship.
-        """
-        station_width = (self.game.SCREEN_WIDTH - 150) // 4
-        for i, character in enumerate(self.characters):
-            # Calculate character position
-            x = 75 + i * (station_width + 25)
-            y = 300
-            character.rect.topleft = (x, y)
-            self.screen.blit(character.image, character.rect.topleft)
 
     def draw_current_dialogue(self):
         """
@@ -197,12 +194,13 @@ class StoryScreen(Screen):
             text = segment["text"]
 
             # Find the speaking character's index based on the speaker name
-            speaker_index = next((i for i, char in enumerate(self.characters) if char.name == speaker), None)
+            speaking_character = self.character_manager.get_character_by_name(speaker)
 
-            if speaker_index is not None:
+            if speaking_character:
                 # Calculate speaker position
                 station_width = (self.game.SCREEN_WIDTH - 150) // 4
-                speaker_x = 75 + speaker_index * (station_width + 25)
+                speaker_index = self.character_manager.characters.index(speaking_character)
+                speaker_x = 75 + speaker_index* (station_width + 25)
                 speaker_y = 300
 
                 # Draw the text bubble for the speaking character

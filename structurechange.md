@@ -38,26 +38,6 @@ story.json: Stores all the story segments, dialogue, and other story-related tex
 ## implamentation
 
 
-## Day 3-4: Introduce Character Manager
-### Objective: 
-Move character-related tasks (initialization, drawing, movement) into a `CharacterManager`, keeping `story_screen.py` clean.
-
-### Steps:
-1. **Create `CharacterManager`**:
-   - In the `/managers` folder, create a new `character_manager.py` file.
-   - Move the character initialization and drawing logic from `story_screen.py` into this file.
-
-2. **Refactor `characters.py`**:
-   - Ensure `characters.py` only contains character definitions, with all interaction happening through the `CharacterManager`.
-
-3. **Update `story_screen.py`**:
-   - Replace direct character references with calls to `CharacterManager`.
-
-### Outcome:
-Character handling is centralized, making `story_screen.py` easier to manage.
-
----
-
 ## Day 5-6: Introduce Sound Manager
 ### Objective: 
 Manage all sound effects and background music in a separate `SoundManager` to avoid cluttering `story_screen.py`.
