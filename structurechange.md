@@ -37,23 +37,6 @@ story.json: Stores all the story segments, dialogue, and other story-related tex
 
 ## implamentation
 
-## Day 1-2: Move Story Text to JSON
-### Objective: 
-Separate story text and dialogue from the game code to keep things modular and easy to maintain.
-
-### Steps:
-1. **Create `story.json`**:
-   - In the `/assets` folder, create a new JSON file (e.g., `story.json`).
-   - Copy the story text from `story_screen.py` and organize it into segments in the JSON format. Each segment will have a `text` field and, optionally, a `speaker`.
-
-2. **Modify `story_screen.py`**:
-   - Replace the hardcoded story text with logic that reads from `story.json`.
-   - Ensure you load the JSON file and parse it at the start of `story_screen.py`.
-
-### Outcome:
-The story will be loaded from `story.json`, separating data from logic.
-
----
 
 ## Day 3-4: Introduce Character Manager
 ### Objective: 

@@ -30,9 +30,11 @@ class Game:
             logging.info("Game initialized successfully.")
         except pygame.error as e:
             logging.error(f"Pygame error during initialization: {e}")
+            print(e)
             self.running = False
         except Exception as e:
             logging.error(f"An unexpected error occurred during initialization: {e}")
+            print(e)
             self.running = False
 
     def start(self):

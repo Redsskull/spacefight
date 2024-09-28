@@ -1,0 +1,99 @@
+{
+  "intro": [
+    {
+      "text": "In the vast expanse of deep space, the mining vessel 'Hyperion' drifts silently, its hull scarred by two years of relentless cosmic wear.",
+      "position": [50, 50]
+    },
+    {
+      "text": "Inside, the skeleton crew of four carries the weight of isolation and the yearning for home.",
+      "position": [350, 150]
+    },
+    {
+      "text": "Captain Regar stands at the helm, his weathered face a testament to countless decisions that have kept them alive.",
+      "position": [50, 250]
+    },
+    {
+      "text": "As they approach the final leg of their journey, an unexpected signal breaks the monotony of space...",
+      "position": [350, 350]
+    },
+    {
+      "text": "Little do they know, their greatest adventure is about to begin!",
+      "position": [50, 450]
+    }
+  ],
+  "inside_ship": [
+    {
+      "speaker": "Regar",
+      "text": "Alright people, we've got an unidentified signal. This close to home, I'm not taking any chances. Status report!"
+    },
+    {
+      "speaker": "Susan",
+      "text": "Analyzing the signal now, Captain. It doesn't match any known patterns in our database."
+    },
+    {
+      "speaker": "Bart",
+      "text": "Hey Em, want to check out this 'signal' in the observatory later? I hear the view is... stellar."
+    },
+    {
+      "speaker": "Emily",
+      "text": "In your dreams, flyboy. But speaking of dreams, the engines are operating beyond expected parameters. We might just get home early."
+    },
+    {
+      "speaker": "Regar",
+      "text": "Focus, people. Susan, any theories on that signal?"
+    },
+    {
+      "speaker": "Susan",
+      "text": "It could be a distress call, or... something else entirely. Logic suggests we proceed with caution."
+    },
+    {
+      "speaker": "Bart",
+      "text": "Or it could be a party invitation! Two years out here, I'd kill for a good party."
+    },
+    {
+      "speaker": "Emily",
+      "text": "The only thing you're killing is my concentration, Bart. But... I wouldn't mind a little celebration when we crack this mystery."
+    },
+    {
+      "speaker": "Regar",
+      "text": "Steady on, crew. Whatever's out there, we face it together. Just like we have for the past two years. Prepare for potential contact."
+    },
+    {
+      "speaker": "Susan",
+      "text": "Captain! Proximity alarm triggered! Something's approaching fast!"
+    },
+    {
+      "speaker": "Bart",
+      "text": "Emily, if this is our last moment, I just want you to know... your hair looks fantastic even in a crisis."
+    },
+    {
+      "speaker": "Emily",
+      "text": "Bart, I swear, if we survive this, I'm going to-"
+    },
+    {
+      "speaker": "Evil Bug Lord Sneaky",
+      "text": "Greetings, humans of the Hyperion. Prepare to be assimilated into our glorious hive!"
+    },
+    {
+      "speaker": "Regar",
+      "text": "What in the blazes? Who are you? Crew, battle stations!"
+    },
+    {
+      "speaker": "Susan",
+      "text": "Captain, they're boarding the ship! Hostiles incoming!"
+    },
+    {
+      "speaker": "Bart",
+      "text": "Hey Em, how about we fight these bugs together? I promise I'm great at swatting!"
+    },
+    {
+      "speaker": "Emily",
+      "text": "This is hardly the time, Bart! But... stick close. We might need each other."
+    },
+    {
+      "speaker": "Regar",
+      "text": "All hands, prepare for combat! We're not going down without a fight!"
+    }
+  ]
+}
+
