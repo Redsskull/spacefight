@@ -7,6 +7,7 @@ from managers.character_manager import CharacterManager
 from managers.sound_manager import SoundManager
 from managers.screen_effects import ScreenEffectsManager
 
+
 class StoryScreen(Screen):
     """
     The story screen where the intro text appears and characters interact.
@@ -29,11 +30,13 @@ class StoryScreen(Screen):
         Initialize the assets for the story screen.
         """
         self.background = pygame.image.load("assets/art/deep_space.png").convert()
-        self.background = pygame.transform.scale(self.background, (self.game.SCREEN_WIDTH, self.game.SCREEN_HEIGHT))
+        self.background = pygame.transform.scale(
+            self.background, (self.game.SCREEN_WIDTH, self.game.SCREEN_HEIGHT)
+        )
         self.font = pygame.font.Font(None, 36)
 
         # Load story from JSON file
-        with open('assets/story.json', 'r') as f:
+        with open("assets/story.json", "r") as f:
             self.story_data = json.load(f)
 
         # Start with the intro segments
@@ -51,7 +54,9 @@ class StoryScreen(Screen):
         self.character_manager.initialize_characters()
 
         # Initialize screen effects manager
-        self.screen_effects_manager = ScreenEffectsManager(self.screen, self.game.SCREEN_WIDTH, self.game.SCREEN_HEIGHT)
+        self.screen_effects_manager = ScreenEffectsManager(
+            self.screen, self.game.SCREEN_WIDTH, self.game.SCREEN_HEIGHT
+        )
 
     def initialize_state(self):
         """
@@ -129,12 +134,17 @@ class StoryScreen(Screen):
                 self.state = "inside_ship"
                 self.story_segments = self.story_data["inside_ship"]  # Load from JSON
                 self.current_segment = 0
-            elif self.state == "inside_ship" and self.current_segment >= len(self.story_segments):
-                from .main_menu import MainMenu  # Import here to avoid circular import
-                self.game.change_screen(MainMenu(self.game))  # Return to main menu after the story
+
+
+        if self.current_segment >= len(self.story_segments):
+            self.sound_manager.stop_music()
+            from .character_selector import CharacterSelector
+            self.game.change_screen(CharacterSelector(self.game))
 
         # Trigger alarm and screen shake when proximity alarm is mentioned (segment 9 in inside_ship)
-        if self.state == "inside_ship" and self.current_segment == 9:  # Adjust index as needed
+        if (
+            self.state == "inside_ship" and self.current_segment == 9
+        ):  # Adjust index as needed
             if not self.screen_effects_manager.shaking:
                 self.sound_manager.play_sound("alarm")
                 self.screen_effects_manager.start_shake(1000, 5)
@@ -168,11 +178,17 @@ class StoryScreen(Screen):
         """
         Draw the interior of the spaceship.
         """
-        self.screen.fill((50, 50, 70))  # Darker, cooler grey for a more atmospheric feel
+        self.screen.fill(
+            (50, 50, 70)
+        )  # Darker, cooler grey for a more atmospheric feel
 
         # Draw windows showing deep space
         for i in range(3):
-            pygame.draw.ellipse(self.screen, (10, 10, 40), (50 + i * (self.game.SCREEN_WIDTH // 3), 50, 200, 100))
+            pygame.draw.ellipse(
+                self.screen,
+                (10, 10, 40),
+                (50 + i * (self.game.SCREEN_WIDTH // 3), 50, 200, 100),
+            )
             for _ in range(20):
                 x = 50 + i * (self.game.SCREEN_WIDTH // 3) + random.randint(0, 200)
                 y = 50 + random.randint(0, 100)
@@ -180,16 +196,38 @@ class StoryScreen(Screen):
 
         # Draw control panel with more details
         panel_width = self.game.SCREEN_WIDTH - 100
-        pygame.draw.rect(self.screen, (70, 70, 80), (50, self.game.SCREEN_HEIGHT - 120, panel_width, 80))
+        pygame.draw.rect(
+            self.screen,
+            (70, 70, 80),
+            (50, self.game.SCREEN_HEIGHT - 120, panel_width, 80),
+        )
         for i in range(5):
-            pygame.draw.circle(self.screen, (200, 50, 50), (100 + i * (panel_width // 5), self.game.SCREEN_HEIGHT - 80), 15)
-            pygame.draw.circle(self.screen, (50, 200, 50), (130 + i * (panel_width // 5), self.game.SCREEN_HEIGHT - 100), 10)
+            pygame.draw.circle(
+                self.screen,
+                (200, 50, 50),
+                (100 + i * (panel_width // 5), self.game.SCREEN_HEIGHT - 80),
+                15,
+            )
+            pygame.draw.circle(
+                self.screen,
+                (50, 200, 50),
+                (130 + i * (panel_width // 5), self.game.SCREEN_HEIGHT - 100),
+                10,
+            )
 
         # Draw character "stations" instead of seats
         station_width = (self.game.SCREEN_WIDTH - 150) // 4
         for i in range(4):
-            pygame.draw.rect(self.screen, (60, 60, 80), (50 + i * (station_width + 25), 250, station_width, 200))
-            pygame.draw.rect(self.screen, (80, 80, 100), (60 + i * (station_width + 25), 260, station_width - 20, 50))
+            pygame.draw.rect(
+                self.screen,
+                (60, 60, 80),
+                (50 + i * (station_width + 25), 250, station_width, 200),
+            )
+            pygame.draw.rect(
+                self.screen,
+                (80, 80, 100),
+                (60 + i * (station_width + 25), 260, station_width - 20, 50),
+            )
 
     def draw_current_dialogue(self):
         """
@@ -206,7 +244,9 @@ class StoryScreen(Screen):
             if speaking_character:
                 # Calculate speaker position
                 station_width = (self.game.SCREEN_WIDTH - 150) // 4
-                speaker_index = self.character_manager.characters.index(speaking_character)
+                speaker_index = self.character_manager.characters.index(
+                    speaking_character
+                )
                 speaker_x = 75 + speaker_index * (station_width + 25)
                 speaker_y = 300
 
@@ -218,7 +258,9 @@ class StoryScreen(Screen):
         Draw a circular text bubble with an arrow coming out from it, pointing to the speaker.
         """
         wrapped_text = textwrap.fill(text, width=20)
-        text_surfaces = [self.font.render(line, True, (0, 0, 0)) for line in wrapped_text.split('\n')]
+        text_surfaces = [
+            self.font.render(line, True, (0, 0, 0)) for line in wrapped_text.split("\n")
+        ]
 
         bubble_width = max(surface.get_width() for surface in text_surfaces) + 20
         bubble_height = sum(surface.get_height() for surface in text_surfaces) + 20
@@ -232,16 +274,33 @@ class StoryScreen(Screen):
 
         bubble_y = max(speaker_y - bubble_radius - 50, 0)
 
-        pygame.draw.ellipse(self.screen, (200, 200, 220), (bubble_x, bubble_y, bubble_radius * 2, bubble_radius * 2))
-        pygame.draw.ellipse(self.screen, (100, 100, 120), (bubble_x, bubble_y, bubble_radius * 2, bubble_radius * 2), 2)
+        pygame.draw.ellipse(
+            self.screen,
+            (200, 200, 220),
+            (bubble_x, bubble_y, bubble_radius * 2, bubble_radius * 2),
+        )
+        pygame.draw.ellipse(
+            self.screen,
+            (100, 100, 120),
+            (bubble_x, bubble_y, bubble_radius * 2, bubble_radius * 2),
+            2,
+        )
 
-        arrow_start_x = bubble_x + bubble_radius if speaker_x < self.game.SCREEN_WIDTH // 2 else bubble_x + bubble_radius
+        arrow_start_x = (
+            bubble_x + bubble_radius
+            if speaker_x < self.game.SCREEN_WIDTH // 2
+            else bubble_x + bubble_radius
+        )
         arrow_start_y = bubble_y + bubble_radius * 2
-        pygame.draw.polygon(self.screen, (200, 200, 220), [
-            (speaker_x, speaker_y),
-            (arrow_start_x - 10, arrow_start_y),
-            (arrow_start_x + 10, arrow_start_y)
-        ])
+        pygame.draw.polygon(
+            self.screen,
+            (200, 200, 220),
+            [
+                (speaker_x, speaker_y),
+                (arrow_start_x - 10, arrow_start_y),
+                (arrow_start_x + 10, arrow_start_y),
+            ],
+        )
 
         y_offset = bubble_radius - (bubble_height // 2) + 10
         for surface in text_surfaces:
@@ -261,13 +320,19 @@ class StoryScreen(Screen):
         Draw a rectangular text bubble that grows to fit the text.
         """
         wrapped_text = textwrap.fill(text, width=40)
-        text_surfaces = [self.font.render(line, True, (0, 0, 0)) for line in wrapped_text.split('\n')]
+        text_surfaces = [
+            self.font.render(line, True, (0, 0, 0)) for line in wrapped_text.split("\n")
+        ]
 
         bubble_width = max(surface.get_width() for surface in text_surfaces) + 20
         bubble_height = sum(surface.get_height() for surface in text_surfaces) + 20
 
-        pygame.draw.rect(self.screen, (200, 200, 220), (x, y, bubble_width, bubble_height))
-        pygame.draw.rect(self.screen, (100, 100, 120), (x, y, bubble_width, bubble_height), 2)
+        pygame.draw.rect(
+            self.screen, (200, 200, 220), (x, y, bubble_width, bubble_height)
+        )
+        pygame.draw.rect(
+            self.screen, (100, 100, 120), (x, y, bubble_width, bubble_height), 2
+        )
 
         y_offset = 10
         for surface in text_surfaces:
@@ -286,13 +351,21 @@ class StoryScreen(Screen):
 
             wrapped_text = textwrap.fill(text, width=60)
             text_lines = wrapped_text.split("\n")
-            text_surfaces = [self.font.render(line, True, (255, 255, 255)) for line in text_lines]
+            text_surfaces = [
+                self.font.render(line, True, (255, 255, 255)) for line in text_lines
+            ]
 
-            text_box_width = max([text_surface.get_width() for text_surface in text_surfaces]) + 20
-            text_box_height = sum([text_surface.get_height() for text_surface in text_surfaces]) + 20
+            text_box_width = (
+                max([text_surface.get_width() for text_surface in text_surfaces]) + 20
+            )
+            text_box_height = (
+                sum([text_surface.get_height() for text_surface in text_surfaces]) + 20
+            )
 
             alpha = int(self.fade_timer / self.fade_duration * 255)
-            text_box_surface = pygame.Surface((text_box_width, text_box_height), pygame.SRCALPHA)
+            text_box_surface = pygame.Surface(
+                (text_box_width, text_box_height), pygame.SRCALPHA
+            )
             text_box_surface.fill((0, 0, 0, alpha))
             self.screen.blit(text_box_surface, position)
 
@@ -305,8 +378,8 @@ class StoryScreen(Screen):
                 self.screen.blit(text_surface, (x_pos, y_pos))
                 y_offset += text_surface.get_height()
 
-    def on_resume(self):
-        """
-        Resume the story screen.
-        """
-        self.initialize_sounds()
+    # def on_resume(self):
+    #     """
+    #     Resume the story screen.
+    #     """
+    #     self.initialize_sounds()

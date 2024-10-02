@@ -32,12 +32,12 @@ class MainMenu(Screen):
 
         # Initialize sound manager
         self.sound_manager = SoundManager()
-        self.main_menu_music = "assets/sound/main_menu.mp3"
+        self.initialize_sounds()
 
         # Track the currently selected menu item
         self.selected_index = 0
 
-    def initialize_music(self):
+    def initialize_sounds(self):
         """
         Initialize the music for the main menu screen using SoundManager.
         """
@@ -107,10 +107,6 @@ class MainMenu(Screen):
         """
         Resume the main menu screen.
         """
-        # Check if current music is not the main menu music
-        if pygame.mixer.music.get_busy() and pygame.mixer.music.get_pos() > 0:
-            current_music = pygame.mixer.music.get_pos()
-            if current_music != self.main_menu_music:
-                self.initialize_music()
-            else:
-                self.initialize_music()
+        # Check to make sure the music is playing
+        if not self.sound_manager.is_music_playing():
+            self.initialize_sounds()

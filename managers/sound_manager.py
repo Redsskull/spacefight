@@ -34,7 +34,16 @@ class SoundManager:
         """
         Stop the background music.
         """
+        print("stop music")
         pygame.mixer.music.stop()
+
+    def is_music_playing(self):
+        """
+        Check if the background music is currently playing.
+        Returns:
+            bool: True if music is playing, False otherwise.
+        """
+        return pygame.mixer.music.get_busy()
 
     def load_sound(self, sound_name, sound_file):
         """
