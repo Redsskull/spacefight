@@ -3,9 +3,6 @@ import textwrap
 import json
 from .base import Screen
 import random
-from managers.character_manager import CharacterManager
-from managers.sound_manager import SoundManager
-from managers.screen_effects import ScreenEffectsManager
 
 
 class StoryScreen(Screen):
@@ -13,7 +10,7 @@ class StoryScreen(Screen):
     The story screen where the intro text appears and characters interact.
     """
 
-    def __init__(self, game):
+    def __init__(self, game, init_sound=True):
         """
         Initialize the story screen.
         Args:
@@ -22,8 +19,10 @@ class StoryScreen(Screen):
         super().__init__(game)
         self.game = game
         self.initialize_assets()
-        self.initialize_managers()
         self.initialize_state()
+
+        if init_sound:
+            self.initialize_sounds()
 
     def initialize_assets(self):
         """
@@ -42,21 +41,6 @@ class StoryScreen(Screen):
         # Start with the intro segments
         self.story_segments = self.story_data["intro"]
 
-    def initialize_managers(self):
-        """
-        Initialize the managers for the story screen.
-        """
-        self.sound_manager = SoundManager()
-        self.initialize_sounds()
-
-        # Create character instances
-        self.character_manager = CharacterManager(self.game)
-        self.character_manager.initialize_characters()
-
-        # Initialize screen effects manager
-        self.screen_effects_manager = ScreenEffectsManager(
-            self.screen, self.game.SCREEN_WIDTH, self.game.SCREEN_HEIGHT
-        )
 
     def initialize_state(self):
         """
@@ -79,9 +63,9 @@ class StoryScreen(Screen):
         """
         Initialize the sounds for the story screen using SoundManager.
         """
-        self.sound_manager.load_music("assets/sound/battlegamenoises.mp3")
-        self.sound_manager.play_music(-1)
-        self.sound_manager.load_sound("alarm", "assets/sound/alarm.wav")
+        self.game.sound_manager.load_music("assets/sound/battlegamenoises.mp3")
+        self.game.sound_manager.play_music(-1)
+        self.game.sound_manager.load_sound("alarm", "assets/sound/alarm.wav")
 
     def handle_events(self, events):
         """
@@ -102,9 +86,7 @@ class StoryScreen(Screen):
         dt = self.game.clock.get_time() / 1000
 
         # Update characters
-        self.character_manager.update_characters(dt)
-        self.character_manager.handle_character_movement(dt)
-        self.character_manager.handle_character_attack()
+        self.game.character_manager.update_characters(dt)
 
         if self.current_segment < len(self.story_segments):
             # Fade in
@@ -137,7 +119,7 @@ class StoryScreen(Screen):
 
 
         if self.current_segment >= len(self.story_segments):
-            self.sound_manager.stop_music()
+            self.game.sound_manager.stop_music()
             from .character_selector import CharacterSelector
             self.game.change_screen(CharacterSelector(self.game))
 
@@ -145,12 +127,12 @@ class StoryScreen(Screen):
         if (
             self.state == "inside_ship" and self.current_segment == 9
         ):  # Adjust index as needed
-            if not self.screen_effects_manager.shaking:
-                self.sound_manager.play_sound("alarm")
-                self.screen_effects_manager.start_shake(1000, 5)
+            if not self.game.screen_effects.shaking:
+                self.game.sound_manager.play_sound("alarm")
+                self.game.screen_effects.start_shake(1000, 5)
 
         # Update screen shake logic
-        self.screen_effects_manager.update()
+        self.game.screen_effects.update()
 
     def draw(self):
         """
@@ -161,7 +143,7 @@ class StoryScreen(Screen):
             self.screen.fill((0, 0, 0))
 
             self.draw_spaceship_interior()
-            self.character_manager.draw_characters(self.screen)
+            self.game.character_manager.draw_characters(self.screen)
             self.draw_current_dialogue()
 
             # Draw Evil Bug Lord Sneaky's dialogue
@@ -172,7 +154,7 @@ class StoryScreen(Screen):
             self.draw_story_segment()
 
         # Apply screen shake if active
-        self.screen_effects_manager.apply_shake()
+        self.game.screen_effects.apply_shake()
 
     def draw_spaceship_interior(self):
         """
@@ -239,12 +221,12 @@ class StoryScreen(Screen):
             text = segment["text"]
 
             # Find the speaking character's index based on the speaker name
-            speaking_character = self.character_manager.get_character_by_name(speaker)
+            speaking_character = self.game.character_manager.get_character_by_name(speaker)
 
             if speaking_character:
                 # Calculate speaker position
                 station_width = (self.game.SCREEN_WIDTH - 150) // 4
-                speaker_index = self.character_manager.characters.index(
+                speaker_index = self.game.character_manager.characters.index(
                     speaking_character
                 )
                 speaker_x = 75 + speaker_index * (station_width + 25)

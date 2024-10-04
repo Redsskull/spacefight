@@ -1,6 +1,9 @@
 import pygame
 import logging
 from screens.main_menu import MainMenu
+from managers.sound_manager import SoundManager
+from managers.character_manager import CharacterManager
+from managers.screen_effects import ScreenEffectsManager
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -26,8 +29,15 @@ class Game:
             self.clock = pygame.time.Clock()
             self.running = True
             self.current_screen = None
-            self.main_menu = MainMenu(self)  # I think I need this here..
+
+            #initialize the game managers:
+            self.sound_manager = SoundManager()
+            self.character_manager = CharacterManager(self)
+            self.character_manager.initialize_characters()
+            self.screen_effects = ScreenEffectsManager(self.screen, self.SCREEN_WIDTH, self.SCREEN_HEIGHT)
+
             logging.info("Game initialized successfully.")
+
         except pygame.error as e:
             logging.error(f"Pygame error during initialization: {e}")
             print(e)
