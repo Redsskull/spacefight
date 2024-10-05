@@ -34,7 +34,6 @@ class SoundManager:
         """
         Stop the background music.
         """
-        print("stop music")
         pygame.mixer.music.stop()
 
     def is_music_playing(self):

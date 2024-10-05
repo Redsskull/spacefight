@@ -119,7 +119,7 @@ class StoryScreen(Screen):
 
 
         if self.current_segment >= len(self.story_segments):
-            self.game.sound_manager.stop_music()
+            self.game.sound_manager.stop_music()# I was having difficuly with this, I stop the music here and the next screen to be sure for now
             from .character_selector import CharacterSelector
             self.game.change_screen(CharacterSelector(self.game))
 
@@ -137,6 +137,7 @@ class StoryScreen(Screen):
     def draw(self):
         """
         Draw the story screen.
+        This draw method and the ones it calls are all temporary until art is added
         """
         if self.state == "inside_ship":
             # Clear the screen with a solid color
