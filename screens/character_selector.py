@@ -118,10 +118,10 @@ class CharacterSelector(Screen):
         """
         Start the game with the selected characters
         """
-        selected_characters = []
+        selected_indices = []
 
         if 0 <= self.player1_index < len(self.game.character_manager.characters):
-            selected_characters.append(
+            selected_indices.append(
                 self.game.character_manager.characters[self.player1_index]
             )
         else:
@@ -130,27 +130,28 @@ class CharacterSelector(Screen):
 
         if self.player2_joined:
             if 0 <= self.player2_index < len(self.game.character_manager.characters):
-                selected_characters.append(
+                selected_indices.append(
                     self.game.character_manager.characters[self.player2_index]
                 )
             else:
                 self.show_error("Error: Invalid player 2 character index")
                 return
 
-        if not selected_characters:
+        if not selected_indices:
             self.show_error("Error: No characters selected")
             return
 
         print(
-            f"Starting game with characters: {[char.name for char in selected_characters]}"
+            f"Starting game with characters: {[char.name for char in selected_indices]}"
         )
         self.game.sound_manager.stop_music()
 
-        # Here I  would transition to your game screen
-        # For now, I will just go back to the main menu as a placeholder
-        from .main_menu import MainMenu
+        # Set the selected characters and start the game
+        self.game.set_selected_characters([char.index for char in selected_indices])
 
-        self.game.change_screen(MainMenu(self.game))
+        # Transition to the level screen
+        from .level_screen import LevelScreen
+        self.game.current_screen = LevelScreen(self.game)
 
     def show_error(self, message):
         """

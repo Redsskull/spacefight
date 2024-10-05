@@ -24,20 +24,25 @@ class Character(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.position = pygame.math.Vector2(self.rect.topleft)
         self.direction = pygame.math.Vector2()
+        self.player_number = None # May have to change to 0
 
     def move(self, dt):
         """
-            method to move the character
-            Args:
-                dt: time between frames
+        method to control the character movements
+        Args:
+            dt: time between frames
         """
         keys = pygame.key.get_pressed()
-        self.direction.x = keys[pygame.K_d] - keys[pygame.K_a]
-        self.direction.y = keys[pygame.K_s] - keys[pygame.K_w]
-        
+        if self.player_number == 1:
+            self.direction.x = keys[pygame.K_d] - keys[pygame.K_a]
+            self.direction.y = keys[pygame.K_s] - keys[pygame.K_w]
+        elif self.player_number == 2:
+            self.direction.x = keys[pygame.K_RIGHT] - keys[pygame.K_LEFT]
+            self.direction.y = keys[pygame.K_DOWN] - keys[pygame.K_UP]
+
         if self.direction.length() > 0:
             self.direction = self.direction.normalize()
-        
+
         movement = self.direction * self.speed * dt
         self.position += movement
         self.rect.topleft = int(self.position.x), int(self.position.y)
@@ -61,6 +66,15 @@ class Character(pygame.sprite.Sprite):
         """
         self.move(dt)
         self.attack()
+
+    def set_player_number(self, number):
+        """
+        sets player 1 or 2
+        Args:
+            number:number assigned to the player
+        """
+        self.player_number = number
+
 
 class Regar(Character):
     """

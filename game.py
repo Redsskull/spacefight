@@ -4,6 +4,7 @@ from screens.main_menu import MainMenu
 from managers.sound_manager import SoundManager
 from managers.character_manager import CharacterManager
 from managers.screen_effects import ScreenEffectsManager
+import traceback
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -33,6 +34,7 @@ class Game:
             #initialize the game managers:
             self.sound_manager = SoundManager()
             self.character_manager = CharacterManager(self)
+            self.selected_characters = []
             self.character_manager.initialize_characters()
             self.screen_effects = ScreenEffectsManager(self.screen, self.SCREEN_WIDTH, self.SCREEN_HEIGHT)
 
@@ -46,6 +48,24 @@ class Game:
             logging.error(f"An unexpected error occurred during initialization: {e}")
             print(e)
             self.running = False
+
+    def set_selected_characters(self, character_indices):
+        """
+        Set the selected characters for the game.
+
+        Args:
+            character_indices (list): The list of character indices selected by the players.
+        """
+        self.selected_characters = [self.character_manager.characters[i] for i in character_indices]
+
+    def get_selected_characters(self):
+        """
+        Get the selected characters for the game.
+
+        Returns:
+            list: The list of selected characters.
+        """
+        return self.selected_characters
 
     def start(self):
         """
@@ -68,6 +88,7 @@ class Game:
             logging.info("Game loop exited gracefully.")
         except Exception as e:
             logging.error(f"An unexpected error occurred during the game loop: {e}")
+            traceback.print_exc()
         finally:
             pygame.quit()
 
