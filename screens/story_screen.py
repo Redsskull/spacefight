@@ -15,6 +15,7 @@ class StoryScreen(Screen):
         Initialize the story screen.
         Args:
             game (Game): The game object
+            init_sound (bool): Whether to initialize the sounds for the story screen
         """
         super().__init__(game)
         self.game = game
@@ -239,6 +240,12 @@ class StoryScreen(Screen):
     def draw_text_bubble(self, text, speaker_x, speaker_y, bubble_x, bubble_y):
         """
         Draw a circular text bubble with an arrow coming out from it, pointing to the speaker.
+        Args:
+            text (str): The text to display in the bubble
+            speaker_x (int): The x-coordinate of the speaker character
+            speaker_y (int): The y-coordinate of the speaker character
+            bubble_x (int): The x-coordinate of the bubble_x
+            bubble_y (int): The y-coordinate of the bubble_y
         """
         wrapped_text = textwrap.fill(text, width=20)
         text_surfaces = [
@@ -301,6 +308,10 @@ class StoryScreen(Screen):
     def draw_rectangular_bubble(self, text, x, y):
         """
         Draw a rectangular text bubble that grows to fit the text.
+        Args:
+            text (str): The text to display in the bubble
+            x (int): The x-coordinate of the bubble
+            y (int): The y-coordinate of the bubble
         """
         wrapped_text = textwrap.fill(text, width=40)
         text_surfaces = [

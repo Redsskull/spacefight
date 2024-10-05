@@ -1,17 +1,4 @@
 # SpaceFight Development: Next Steps
-
-## 1. Create `characters.py`
-- Define a base `Character` class with common attributes and methods
-- Create subclasses for each character (Regar, Susan, Emily, Bart) with unique abilities
-
-## 2. Implement `StoryScreen` class
-- Display story text and handle dialogue transitions
-- Implement a simple text rendering system for character dialogue
-
-## 3. Create `CharacterSelectionScreen` class
-- Display character portraits and names
-- Allow player to select their character
-
 ## 4. Develop `LevelScreen` class
 - Handle main gameplay for combat against enemies
 - Implement simple physics for character movement and collisions
