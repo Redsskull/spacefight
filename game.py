@@ -57,6 +57,8 @@ class Game:
             character_indices (list): The list of character indices selected by the players.
         """
         self.selected_characters = [self.character_manager.characters[i] for i in character_indices]
+        for i, character in enumerate(self.selected_characters):
+            character.set_player_number(i + 1)
 
     def get_selected_characters(self):
         """

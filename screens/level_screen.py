@@ -16,7 +16,7 @@ class LevelScreen(Screen):
         """
         super().__init__(game)
         self.game = game
-        self.initialize_assets
+        self.initialize_assets()
         self.initialize_sounds()
         self.initialize_characters()
 
@@ -25,25 +25,25 @@ class LevelScreen(Screen):
         """
         Initialize the assets for the level one screen
         """
-        self.background = pygame.image.load("assets/backgrounds/level_one.webp").convert()
-        self.background = pygame.transform.scale(self.background, (self.game.WIDTH, self.game.HEIGHT))
+        self.background = pygame.image.load("assets/art/level_one.webp").convert()
+        self.background = pygame.transform.scale(self.background, (self.game.SCREEN_WIDTH, self.game.SCREEN_HEIGHT))
 
     def initialize_sounds(self):
         """
         Initialize the sounds for the level one screen
         """
         self.game.sound_manager.stop_music()
-        self.game.sound_manager.load_music("assets/sound/battlegamenoise.mp3")
+        self.game.sound_manager.load_music("assets/sound/battlegamenoises.mp3")
         self.game.sound_manager.play_music(-1)
 
     def initialize_characters(self):
         """
         Initialize the players for the level one screen
         """
-        self.characters = self.game.get_selected_characters
+        self.characters = self.game.get_selected_characters()
         
         for i, character in enumerate(self.characters):
-            character.rect.topleft = 100 + (i +1), 300 # Temporary position
+            character.rect.topleft = (100 + (i +1), 300) # Temporary position
 
 
     def update(self):
@@ -61,9 +61,7 @@ class LevelScreen(Screen):
             screen (Surface): The surface to draw on
         """
         self.screen.blit(self.background, (0, 0))
-
-        for character in self.characters:
-            character.draw(self.screen)
+        self.game.character_manager.draw_characters(self.screen)
 
 
     def handle_events(self, events):
