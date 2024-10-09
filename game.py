@@ -35,7 +35,7 @@ class Game:
             self.sound_manager = SoundManager()
             self.character_manager = CharacterManager(self)
             self.selected_characters = []
-            self.character_manager.initialize_characters()
+            self.character_manager = CharacterManager(self)
             self.screen_effects = ScreenEffectsManager(self.screen, self.SCREEN_WIDTH, self.SCREEN_HEIGHT)
 
             logging.info("Game initialized successfully.")
@@ -49,14 +49,14 @@ class Game:
             print(e)
             self.running = False
 
-    def set_selected_characters(self, character_indices):
+    def set_selected_characters(self, selected_characters):
         """
         Set the selected characters for the game.
 
         Args:
-            character_indices (list): The list of character indices selected by the players.
+            selected_characters (list): The list of selected characters.
         """
-        self.selected_characters = [self.character_manager.characters[i] for i in character_indices]
+        self.selected_characters = selected_characters
         for i, character in enumerate(self.selected_characters):
             character.set_player_number(i + 1)
 

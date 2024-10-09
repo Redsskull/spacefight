@@ -31,6 +31,9 @@ class CharacterSelector(Screen):
         self.error_message = None
         self.error_timer = 0
 
+        # intialize characters for the story
+        self.game.character_manager.initialize_characters_for_story()
+
     def initialize_sounds(self):
         """
         Initialize the sounds for the character selector screen
@@ -87,13 +90,13 @@ class CharacterSelector(Screen):
         if is_player1:
             if not self.player1_locked:
                 self.player1_index = (self.player1_index + direction) % len(
-                    self.game.character_manager.characters
+                    self.game.character_manager.all_characters
                 )
                 self.game.sound_manager.play_sound("move")
         else:
             if self.player2_joined and not self.player2_locked:
                 self.player2_index = (self.player2_index + direction) % len(
-                    self.game.character_manager.characters
+                    self.game.character_manager.all_characters
                 )
                 self.game.sound_manager.play_sound("move")
 
@@ -118,10 +121,10 @@ class CharacterSelector(Screen):
         """
         Start the game with the selected characters
         """
-        selected_indices = []
+        selected_characters = []
 
-        if 0 <= self.player1_index < len(self.game.character_manager.characters):
-            selected_indices.append(
+        if 0 <= self.player1_index < len(self.game.character_manager.all_characters):
+            selected_characters.append(
                 self.player1_index
             )
         else:
@@ -129,23 +132,23 @@ class CharacterSelector(Screen):
             return
 
         if self.player2_joined:
-            if 0 <= self.player2_index < len(self.game.character_manager.characters):
-                selected_indices.append(
+            if 0 <= self.player2_index < len(self.game.character_manager.all_characters):
+                selected_characters.append(
                     self.player2_index
                 )
             else:
                 self.show_error("Error: Invalid player 2 character index")
                 return
 
-        if not selected_indices:
+        if not selected_characters:
             self.show_error("Error: No characters selected")
             return
 
-        print(f"Starting game with characters: {[self.game.character_manager.characters[i].name for i in selected_indices]}")
+       # print(f"Starting game with characters: {[char.name for char in selected_characters]}")
         self.game.sound_manager.stop_music()
 
         # Set the selected characters and start the game
-        self.game.set_selected_characters(selected_indices)
+        self.game.set_selected_characters(selected_characters)
 
         # Transition to the level screen
         from .level_screen import LevelScreen
@@ -184,8 +187,8 @@ class CharacterSelector(Screen):
         self.game.character_manager.draw_characters(self.screen)
 
         # Draw selection boxes around Player 1 and Player 2's selected characters
-        if 0 <= self.player1_index < len(self.game.character_manager.characters):
-            player1_character = self.game.character_manager.characters[self.player1_index]
+        if 0 <= self.player1_index < len(self.game.character_manager.all_characters):
+            player1_character = self.game.character_manager.all_characters[self.player1_index]
             pygame.draw.rect(
                 self.screen, (0, 255, 0), player1_character.rect, 3
             )  # Green for Player 1
@@ -193,7 +196,7 @@ class CharacterSelector(Screen):
         if self.player2_joined and 0 <= self.player2_index < len(
             self.game.character_manager.characters
         ):
-            player2_character = self.game.character_manager.characters[self.player2_index]
+            player2_character = self.game.character_manager.all_characters[self.player2_index]
             pygame.draw.rect(
                 self.screen, (255, 0, 0), player2_character.rect, 3
             )  # Red for Player 2

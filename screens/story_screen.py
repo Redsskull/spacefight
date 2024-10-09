@@ -21,6 +21,7 @@ class StoryScreen(Screen):
         self.game = game
         self.initialize_assets()
         self.initialize_state()
+        self.game.character_manager.initialize_characters_for_story()
 
         if init_sound:
             self.initialize_sounds()
@@ -228,7 +229,7 @@ class StoryScreen(Screen):
             if speaking_character:
                 # Calculate speaker position
                 station_width = (self.game.SCREEN_WIDTH - 150) // 4
-                speaker_index = self.game.character_manager.characters.index(
+                speaker_index = self.game.character_manager.active_characters.index(
                     speaking_character
                 )
                 speaker_x = 75 + speaker_index * (station_width + 25)

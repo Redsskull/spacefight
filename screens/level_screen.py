@@ -40,10 +40,8 @@ class LevelScreen(Screen):
         """
         Initialize the players for the level one screen
         """
-        self.characters = self.game.get_selected_characters()
-        
-        for i, character in enumerate(self.characters):
-            character.rect.topleft = (100 + (i +1), 300) # Temporary position
+        selected_characters = self.game.get_selected_characters()
+        self.game.character_manager.initialize_characters_for_level(selected_characters)
 
 
     def update(self):
@@ -51,8 +49,7 @@ class LevelScreen(Screen):
         Update the level one screen
         """
         dt = self.game.clock.get_time() / 1000 # Convert to seconds
-        for character in self.characters:
-            character.update(dt)
+        self.game.character_manager.update_characters(dt)
 
     def draw(self):
         """
@@ -62,7 +59,6 @@ class LevelScreen(Screen):
         """
         self.screen.blit(self.background, (0, 0))
         self.game.character_manager.draw_characters(self.screen)
-
 
     def handle_events(self, events):
         """
