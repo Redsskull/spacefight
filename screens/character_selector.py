@@ -9,6 +9,7 @@ class CharacterSelector(Screen):
             Args:
                 Sxcreen (Screen): Base class for all screens
     """
+
     def __init__(self, game):
         """
         Initialize the character selector screen
@@ -18,8 +19,9 @@ class CharacterSelector(Screen):
         super().__init__(game)
         self.game = game
         self.initialize_sounds()
-        self.story_screen = StoryScreen(self.game, init_sound=False) #TODO: When I have proper backgrounds, I don't need to import and intiliaze this at all. 
-
+        self.story_screen = StoryScreen(
+            self.game, init_sound=False
+        )  # TODO: When I have proper backgrounds, I don't need to import and intiliaze this at all.
 
         self.player1_index = 0
         self.player2_index = 0
@@ -41,7 +43,7 @@ class CharacterSelector(Screen):
 
         """
         self.game.sound_manager.stop_music()
-        self.game.sound_manager.load_music( "assets/sound/Choose_your_character.mp3")
+        self.game.sound_manager.load_music("assets/sound/Choose_your_character.mp3")
         self.game.sound_manager.play_music(-1)
         self.game.sound_manager.load_sound("move", "assets/sound/punch.mp3")
         self.game.sound_manager.load_sound("lock", "assets/sound/metal_sound.mp3")
@@ -125,16 +127,20 @@ class CharacterSelector(Screen):
 
         if 0 <= self.player1_index < len(self.game.character_manager.all_characters):
             selected_characters.append(
-                self.player1_index
+                self.game.character_manager.all_characters[self.player1_index]
             )
         else:
             self.show_error("Error: Invalid player 1 character index")
             return
 
         if self.player2_joined:
-            if 0 <= self.player2_index < len(self.game.character_manager.all_characters):
+            if (
+                0
+                <= self.player2_index
+                < len(self.game.character_manager.all_characters)
+            ):
                 selected_characters.append(
-                    self.player2_index
+                    self.game.character_manager.all_characters[self.player2_index]
                 )
             else:
                 self.show_error("Error: Invalid player 2 character index")
@@ -144,7 +150,7 @@ class CharacterSelector(Screen):
             self.show_error("Error: No characters selected")
             return
 
-       # print(f"Starting game with characters: {[char.name for char in selected_characters]}")
+        print(f"Starting game with characters: {[char.__class__.__name__ for char in selected_characters]}")
         self.game.sound_manager.stop_music()
 
         # Set the selected characters and start the game
@@ -152,6 +158,7 @@ class CharacterSelector(Screen):
 
         # Transition to the level screen
         from .level_screen import LevelScreen
+
         self.game.change_screen(LevelScreen(self.game))
 
     def show_error(self, message):
@@ -188,7 +195,9 @@ class CharacterSelector(Screen):
 
         # Draw selection boxes around Player 1 and Player 2's selected characters
         if 0 <= self.player1_index < len(self.game.character_manager.all_characters):
-            player1_character = self.game.character_manager.all_characters[self.player1_index]
+            player1_character = self.game.character_manager.all_characters[
+                self.player1_index
+            ]
             pygame.draw.rect(
                 self.screen, (0, 255, 0), player1_character.rect, 3
             )  # Green for Player 1
@@ -196,7 +205,9 @@ class CharacterSelector(Screen):
         if self.player2_joined and 0 <= self.player2_index < len(
             self.game.character_manager.characters
         ):
-            player2_character = self.game.character_manager.all_characters[self.player2_index]
+            player2_character = self.game.character_manager.all_characters[
+                self.player2_index
+            ]
             pygame.draw.rect(
                 self.screen, (255, 0, 0), player2_character.rect, 3
             )  # Red for Player 2

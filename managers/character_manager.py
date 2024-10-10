@@ -42,9 +42,7 @@ class CharacterManager:
         Args:
             selected_characters (list): The characters selected by the player
         """
-        self.active_characters = [
-            char for char in self.all_characters if char.name in selected_characters
-        ]
+        self.active_characters = selected_characters
         for i, character in enumerate(self.active_characters):
             x = 100 + (i * 100)
             y = self.game.SCREEN_HEIGHT - 150
@@ -110,4 +108,8 @@ class CharacterManager:
         Returns:
             list: A list of tuples containing character information
         """
-        return [(char.name, char.health, char.speed, char.strength) for char in self.all_characters]
+        return [
+            (char.name, char.health, char.speed, char.strength)
+            for char in self.all_characters
+        ]
+
