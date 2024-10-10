@@ -70,7 +70,7 @@ class CharacterSelector(Screen):
                     if not self.player2_joined:
                         self.player2_joined = True
                         self.player2_index = (self.player1_index + 1) % len(
-                            self.game.character_manager.characters
+                            self.game.character_manager.all_characters
                         )
                     else:
                         self.lock_character(is_player1=False)
@@ -203,7 +203,7 @@ class CharacterSelector(Screen):
             )  # Green for Player 1
 
         if self.player2_joined and 0 <= self.player2_index < len(
-            self.game.character_manager.characters
+            self.game.character_manager.all_characters
         ):
             player2_character = self.game.character_manager.all_characters[
                 self.player2_index
