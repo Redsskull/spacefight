@@ -47,6 +47,10 @@ class Character(pygame.sprite.Sprite):
         self.position += movement
         self.rect.topleft = int(self.position.x), int(self.position.y)
 
+        if self.direction.length() > 0:
+            print(f"{self.name} is moving to {self.position}")
+
+
     def attack(self):
         """
             method to attack the character
