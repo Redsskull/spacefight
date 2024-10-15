@@ -19,7 +19,7 @@ class Character(pygame.sprite.Sprite):
         self.health = health
         self.speed = speed
         self.strength = strength
-        self.image = pygame.Surface((50, 50))  # Placeholder rectangle
+        self.image = pygame.Surface((50, 100))  # Placeholder rectangle
         self.image.fill((255, 0, 0))  # Red color as placeholder
         self.rect = self.image.get_rect()
         self.position = pygame.math.Vector2(self.rect.topleft)
