@@ -24,7 +24,7 @@ class LevelScreen(Screen):
         # Define boundries
 
         self.floor_y = 447 # Upper boundry
-        self.ceiling_y = 634 # Lower boundry
+        self.ceiling_y = 575 # Lower boundry
         self.left_x = 187 # Left boundry
         self.right_x = 1058 # Right boundry
 
