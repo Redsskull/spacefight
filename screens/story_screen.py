@@ -80,7 +80,7 @@ class StoryScreen(Screen):
                 if event.key == pygame.K_RETURN:
                     self.current_segment = len(self.story_segments)  # Skip to the end
 
-    def update(self):
+    def update(self, dt):
         """
         Update the story screen.
         """

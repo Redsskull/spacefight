@@ -19,7 +19,7 @@ class Screen:
     def handle_events(self, events):
         pass
 
-    def update(self):
+    def update(self, dt):
         pass
 
     def draw(self):

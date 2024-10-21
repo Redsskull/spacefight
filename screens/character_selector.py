@@ -171,7 +171,7 @@ class CharacterSelector(Screen):
         self.error_message = message
         self.error_timer = 3000  # Show error for 3 seconds
 
-    def update(self):
+    def update(self, dt):
         """
         Update the character selector screen
         """

@@ -52,7 +52,7 @@ class LevelScreen(Screen):
         selected_characters = self.game.get_selected_characters()
         self.game.character_manager.initialize_characters_for_level(selected_characters)
 
-    def update(self):
+    def update(self, dt):
         """
         Update the level one screen
         """

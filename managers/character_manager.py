@@ -58,6 +58,15 @@ class CharacterManager:
             screen (pygame.Surface): The screen surface
         """
         self.character_group.draw(screen)
+        for character in self.active_characters:
+            if character.attacking:
+                attack_rect = character.attack_range.get_rect()
+
+                if character.facing_right:
+                    attack_rect.midleft = (character.rect.centerx, character.rect.centery)
+                else:
+                    attack_rect.midright = (character.rect.centerx, character.rect.centery)
+                screen.blit(character.attack_range, attack_rect)
 
     def get_character_by_name(self, name):
         """
@@ -90,14 +99,14 @@ class CharacterManager:
             character.direction.y = keys[pygame.K_s] - keys[pygame.K_w]
             character.move(dt)
 
-    def handle_character_attack(self):
+    def handle_character_attack(self, dt):
         """
         Handle character attacks.
         """
         mouse = pygame.mouse.get_pressed()
         if mouse[0] or mouse[2]:  # Left or right mouse button
             for character in self.active_characters:
-                character.attack()
+                character.attack(dt)
 
     # TODO: Add player2 conrols
     # TODO: add controller support
@@ -112,4 +121,3 @@ class CharacterManager:
             (char.name, char.health, char.speed, char.strength)
             for char in self.all_characters
         ]
-

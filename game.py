@@ -47,6 +47,7 @@ class Game:
         except Exception as e:
             logging.error(f"An unexpected error occurred during initialization: {e}")
             print(e)
+            traceback.print_exc()
             self.running = False
 
     def set_selected_characters(self, selected_characters):
@@ -82,11 +83,11 @@ class Game:
         """
         try:
             while self.running:
+                dt = self.clock.tick(60) / 1000.0 # convert to seconds
                 self.handle_events()
-                self.update()
+                self.update(dt)
                 self.draw()
                 pygame.display.flip()
-                self.clock.tick(60)
             logging.info("Game loop exited gracefully.")
         except Exception as e:
             logging.error(f"An unexpected error occurred during the game loop: {e}")
@@ -105,12 +106,14 @@ class Game:
         if self.current_screen:
             self.current_screen.handle_events(events)
 
-    def update(self):
+    def update(self,dt):
         """
         Update the current screen.
+        Args:
+            dt (float): Time since last update
         """
         if self.current_screen:
-            self.current_screen.update()
+            self.current_screen.update(dt)
 
     def draw(self):
         """
