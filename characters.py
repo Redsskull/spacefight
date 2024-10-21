@@ -20,8 +20,9 @@ class Character(pygame.sprite.Sprite):
         self.health = health
         self.speed = speed
         self.strength = strength
+        self.color = (255, 0, 0)  # Default color is red
         self.image = pygame.Surface((50, 100))  # Placeholder rectangle
-        self.image.fill((255, 0, 0))  # Red color as placeholder
+        self.image.fill(self.color)
         self.facing_right = True
         self.direction_indicator = pygame.Surface((10, 10))  # Placeholder rectangle
         self.direction_indicator.fill((0, 255, 0)) # Green color
@@ -40,7 +41,7 @@ class Character(pygame.sprite.Sprite):
         """
         method to update the sprite
         """
-        self.image.fill((255, 0, 0))  # Rest to red
+        self.image.fill(self.color)
         if self.facing_right:
             self.image.blit(self.direction_indicator, (40, 45))
         else:
@@ -133,7 +134,8 @@ class Regar(Character):
             strength: strength of the character
         """
         super().__init__("Regar", health=120, speed=200, strength=10)
-        self.image.fill((0, 0, 255))  # Blue color for Regar
+        self.color = (0,0,255) # Blue color for Regar
+        self.image.fill(self.color)
         self.update_sprite()
 
 
@@ -154,7 +156,8 @@ class Susan(Character):
             strength: strength of the character
         """
         super().__init__("Susan", health=100, speed=250, strength=8)
-        self.image.fill((0, 255, 0))  # Green color for Susan
+        self.color = (0, 255, 0) # Green color for Susan
+        self.image.fill(self.color)
         self.update_sprite()
 
 
@@ -175,7 +178,8 @@ class Emily(Character):
             strength: strength of the character
         """
         super().__init__("Emily", health=90, speed=300, strength=7)
-        self.image.fill((255, 255, 0))  # Yellow color for Emily
+        self.color = (255, 255, 0) # Yellow color for Emily
+        self.image.fill(self.color)
         self.update_sprite()
 
 
@@ -196,5 +200,6 @@ class Bart(Character):
             strength: strength of the character
         """
         super().__init__("Bart", health=150, speed=180, strength=12)
-        self.image.fill((255, 0, 255))  # Magenta color for Bart
+        self.color = (255, 0, 255) # Magenta color for Bart
+        self.image.fill(self.color)
         self.update_sprite()
