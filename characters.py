@@ -6,7 +6,7 @@ class Character(pygame.sprite.Sprite):
     class for all characters in the game
     """
 
-    def __init__(self, name, health, speed, strength):
+    def __init__(self, name, health, speed, strength, game):
         """
         method to control the attributes of the characters
         Args:
@@ -20,6 +20,7 @@ class Character(pygame.sprite.Sprite):
         self.health = health
         self.speed = speed
         self.strength = strength
+        self.game = game
         self.color = (255, 0, 0)  # Default color is red
         self.image = pygame.Surface((50, 100))  # Placeholder rectangle
         self.image.fill(self.color)
@@ -79,20 +80,29 @@ class Character(pygame.sprite.Sprite):
             print(f"{self.name} is moving to {self.position}")
 
     def attack(self, dt):
-        """
-        method to attack the character
-        Args:
-            dt: time between frames
-        """
         mouse = pygame.mouse.get_pressed()
         if mouse[0]:  # Left mouse button
             self.attacking = True
             self.attack_timer = self.attack_cooldown
+            if self.game:
+                print("Game instance exists")
+                print(f"Sound manager exists: {hasattr(self.game, 'sound_manager')}")
+                try:
+                    self.game.sound_manager.play_sound("assets/sound/punch.mp3")
+                    print("Sound played successfully")
+                except Exception as e:
+                    print(f"Error playing sound: {e}")
+            else:
+                print("No game instance")
             print(f"{self.name} is attacking!")
-            # Implement attack logic here
         elif mouse[2]:  # Right mouse button
             self.attacking = True
             self.attack_timer = self.attack_cooldown
+            if self.game:
+                try:
+                    self.game.sound_manager.play_sound("assets/sound/punch.mp3")
+                except Exception as e:
+                    print(f"Error playing sound: {e}")
             print(f"{self.name} is using powerful attack!")
         if self.attack_timer > 0:
             self.attack_timer -= dt
@@ -124,7 +134,7 @@ class Regar(Character):
         Character: parent class
     """
 
-    def __init__(self):
+    def __init__(self, game):
         """
         method to control the attributes of the character
         Args:
@@ -133,7 +143,7 @@ class Regar(Character):
             speed: speed of the character
             strength: strength of the character
         """
-        super().__init__("Regar", health=120, speed=200, strength=10)
+        super().__init__("Regar", health=120, speed=200, strength=10, game=game)
         self.color = (0,0,255) # Blue color for Regar
         self.image.fill(self.color)
         self.update_sprite()
@@ -146,7 +156,7 @@ class Susan(Character):
         Character: parent class
     """
 
-    def __init__(self):
+    def __init__(self, game):
         """
         method to control the attributes of the character
         Args:
@@ -155,7 +165,7 @@ class Susan(Character):
             speed: speed of the character
             strength: strength of the character
         """
-        super().__init__("Susan", health=100, speed=250, strength=8)
+        super().__init__("Susan", health=100, speed=250, strength=8, game=game)
         self.color = (0, 255, 0) # Green color for Susan
         self.image.fill(self.color)
         self.update_sprite()
@@ -168,7 +178,7 @@ class Emily(Character):
         Character: parent class
     """
 
-    def __init__(self):
+    def __init__(self, game):
         """
         method to control the attributes of the character
         Args:
@@ -177,7 +187,7 @@ class Emily(Character):
             speed: speed of the character
             strength: strength of the character
         """
-        super().__init__("Emily", health=90, speed=300, strength=7)
+        super().__init__("Emily", health=90, speed=300, strength=7, game=game)
         self.color = (255, 255, 0) # Yellow color for Emily
         self.image.fill(self.color)
         self.update_sprite()
@@ -190,7 +200,7 @@ class Bart(Character):
         Character: parent class
     """
 
-    def __init__(self):
+    def __init__(self, game):
         """
         method to control the attributes of the character
         Args:
@@ -199,7 +209,7 @@ class Bart(Character):
             speed: speed of the character
             strength: strength of the character
         """
-        super().__init__("Bart", health=150, speed=180, strength=12)
+        super().__init__("Bart", health=150, speed=180, strength=12, game=game)
         self.color = (255, 0, 255) # Magenta color for Bart
         self.image.fill(self.color)
         self.update_sprite()

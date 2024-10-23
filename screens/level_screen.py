@@ -44,6 +44,7 @@ class LevelScreen(Screen):
         self.game.sound_manager.stop_music()
         self.game.sound_manager.load_music("assets/sound/battlegamenoises.mp3")
         self.game.sound_manager.play_music(-1)
+        self.game.sound_manager.load_sound("punch", "assets/sound/punch.mp3")
 
     def initialize_characters(self):
         """

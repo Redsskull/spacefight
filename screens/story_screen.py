@@ -65,9 +65,8 @@ class StoryScreen(Screen):
         """
         Initialize the sounds for the story screen using SoundManager.
         """
-        self.game.sound_manager.load_music("assets/sound/battlegamenoises.mp3")
+        self.game.sound_manager.load_music("assets/sound/storysound.mp3")
         self.game.sound_manager.play_music(-1)
-        self.game.sound_manager.load_sound("alarm", "assets/sound/alarm.wav")
 
     def handle_events(self, events):
         """
@@ -130,7 +129,6 @@ class StoryScreen(Screen):
             self.state == "inside_ship" and self.current_segment == 9
         ):  # Adjust index as needed
             if not self.game.screen_effects.shaking:
-                self.game.sound_manager.play_sound("alarm")
                 self.game.screen_effects.start_shake(1000, 5)
 
         # Update screen shake logic

@@ -16,7 +16,7 @@ class CharacterManager:
         important, this is where the sorite group is created..
         """
         self.game = game
-        self.all_characters = [Regar(), Susan(), Emily(), Bart()]
+        self.all_characters = [Regar(game), Susan(game), Emily(game), Bart(game)]
         self.active_characters = []
         self.character_group = pygame.sprite.Group()
         for character in self.all_characters:
