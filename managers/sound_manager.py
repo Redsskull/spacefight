@@ -1,83 +1,104 @@
+# sound_manager.py
 import pygame
+from pathlib import Path
+from typing import Dict, Optional
 
 class SoundManager:
     """
-    Manages all sound effects and background music for the game.
+    Centralized sound management system for the entire game.
+    Handles preloading, caching, and playing of all game sounds.
     """
-
     def __init__(self):
-        """
-        Initialize the SoundManager.
-        """
+        """Initialize the sound manager with default settings and preload all game sounds."""
         self.music_volume = 0.5
         self.sound_volume = 0.5
-        self.sounds = {}
+        self.sounds: Dict[str, pygame.mixer.Sound] = {}
+        self.current_music: Optional[str] = None
+        
+        # Define sound categories and their associated files
+        self.sound_registry = {
+            'music': {
+                'main_menu': 'main_menu.mp3',
+                'character_select': 'Choose_your_character.mp3',
+                'battle': 'battlegamenoises.mp3',
+                'story': 'storysound.mp3'
+            },
+            'effects': {
+                'punch': 'punch.mp3',
+                'metal': 'metal_sound.mp3',
+                'alarm': 'alarm.wav'
+            }
+        }
+        
+        # Preload all sounds on initialization
+        self._preload_sounds()
+    
+    def _preload_sounds(self):
+        """Preload all sound effects into memory."""
+        sound_path = Path('assets/sound')
+        for category in self.sound_registry.values():
+            for sound_id, filename in category.items():
+                try:
+                    full_path = sound_path / filename
+                    self.sounds[sound_id] = pygame.mixer.Sound(str(full_path))
+                    self.sounds[sound_id].set_volume(self.sound_volume)
+                except Exception as e:
+                    print(f"Failed to load sound {sound_id} from {full_path}: {e}")
 
-    def load_music(self, music_file):
+    def play_sound(self, sound_id: str) -> bool:
         """
-        Load background music.
+        Play a sound effect by its ID.
+        
         Args:
-            music_file (str): Path to the music file.
+            sound_id: The identifier of the sound to play
+            
+        Returns:
+            bool: True if sound played successfully, False otherwise
         """
-        pygame.mixer.music.load(music_file)
+        if sound_id in self.sounds:
+            try:
+                self.sounds[sound_id].play()
+                return True
+            except Exception as e:
+                print(f"Failed to play sound {sound_id}: {e}")
+                return False
+        print(f"Sound {sound_id} not found in registry")
+        return False
 
-    def play_music(self, loops=-1):
+    def play_music(self, music_id: str, loops: int = -1):
         """
-        Play the loaded background music.
+        Play background music by its ID.
+        
         Args:
-            loops (int): Number of times to loop the music. -1 means infinite loop.
+            music_id: The identifier of the music track to play
+            loops: Number of times to loop (-1 for infinite)
         """
-        pygame.mixer.music.set_volume(self.music_volume)
-        pygame.mixer.music.play(loops)
+        if music_id == self.current_music:
+            return  # Already playing this track
+            
+        try:
+            music_file = self.sound_registry['music'].get(music_id)
+            if music_file:
+                full_path = Path('assets/sound') / music_file
+                pygame.mixer.music.load(str(full_path))
+                pygame.mixer.music.set_volume(self.music_volume)
+                pygame.mixer.music.play(loops)
+                self.current_music = music_id
+        except Exception as e:
+            print(f"Failed to play music {music_id}: {e}")
 
     def stop_music(self):
-        """
-        Stop the background music.
-        """
+        """Stop the currently playing music track."""
         pygame.mixer.music.stop()
+        self.current_music = None
 
-    def is_music_playing(self):
-        """
-        Check if the background music is currently playing.
-        Returns:
-            bool: True if music is playing, False otherwise.
-        """
-        return pygame.mixer.music.get_busy()
+    def set_music_volume(self, volume: float):
+        """Set the volume for background music (0.0 to 1.0)."""
+        self.music_volume = max(0.0, min(1.0, volume))
+        pygame.mixer.music.set_volume(self.music_volume)
 
-    def load_sound(self, sound_name, sound_file):
-        """
-        Load a sound effect.
-        Args:
-            sound_name (str): Name to reference the sound.
-            sound_file (str): Path to the sound file.
-        """
-        self.sounds[sound_name] = pygame.mixer.Sound(sound_file)
-
-    def play_sound(self, sound_name):
-        """
-        Play a loaded sound effect.
-        Args:
-            sound_name (str): Name of the sound to play.
-        """
-        if sound_name in self.sounds:
-            self.sounds[sound_name].set_volume(self.sound_volume)
-            self.sounds[sound_name].play()
-
-    def set_music_volume(self, volume):
-        """
-        Set the volume for background music.
-        Args:
-            volume (float): Volume level (0.0 to 1.0).
-        """
-        self.music_volume = volume
-        pygame.mixer.music.set_volume(volume)
-
-    def set_sound_volume(self, volume):
-        """
-        Set the volume for sound effects.
-        Args:
-            volume (float): Volume level (0.0 to 1.0).
-        """
-        self.sound_volume = volume
+    def set_sound_volume(self, volume: float):
+        """Set the volume for sound effects (0.0 to 1.0)."""
+        self.sound_volume = max(0.0, min(1.0, volume))
         for sound in self.sounds.values():
-            sound.set_volume(volume)
+            sound.set_volume(self.sound_volume)

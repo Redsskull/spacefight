@@ -65,8 +65,7 @@ class StoryScreen(Screen):
         """
         Initialize the sounds for the story screen using SoundManager.
         """
-        self.game.sound_manager.load_music("assets/sound/storysound.mp3")
-        self.game.sound_manager.play_music(-1)
+        self.game.sound_manager.play_music("story")
 
     def handle_events(self, events):
         """

@@ -39,8 +39,7 @@ class MainMenu(Screen):
         """
         Initialize the music for the main menu screen using SoundManager.
         """
-        self.game.sound_manager.load_music("assets/sound/main_menu.mp3")
-        self.game.sound_manager.play_music(-1)
+        self.game.sound_manager.play_music("main_menu")
 
     def handle_events(self, events):
         """

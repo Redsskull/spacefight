@@ -85,25 +85,15 @@ class Character(pygame.sprite.Sprite):
             self.attacking = True
             self.attack_timer = self.attack_cooldown
             if self.game:
-                print("Game instance exists")
-                print(f"Sound manager exists: {hasattr(self.game, 'sound_manager')}")
-                try:
-                    self.game.sound_manager.play_sound("assets/sound/punch.mp3")
-                    print("Sound played successfully")
-                except Exception as e:
-                    print(f"Error playing sound: {e}")
-            else:
-                print("No game instance")
-            print(f"{self.name} is attacking!")
+                self.game.sound_manager.play_sound("punch")
+            print(f"{self.name} is attacking!!")
         elif mouse[2]:  # Right mouse button
             self.attacking = True
             self.attack_timer = self.attack_cooldown
             if self.game:
-                try:
-                    self.game.sound_manager.play_sound("assets/sound/punch.mp3")
-                except Exception as e:
-                    print(f"Error playing sound: {e}")
-            print(f"{self.name} is using powerful attack!")
+                self.game.sound_manager.play_sound("punch")
+            print(f"{self.name} is attacking!!")
+
         if self.attack_timer > 0:
             self.attack_timer -= dt
         else:

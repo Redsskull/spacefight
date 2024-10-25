@@ -43,10 +43,7 @@ class CharacterSelector(Screen):
 
         """
         self.game.sound_manager.stop_music()
-        self.game.sound_manager.load_music("assets/sound/Choose_your_character.mp3")
-        self.game.sound_manager.play_music(-1)
-        self.game.sound_manager.load_sound("move", "assets/sound/punch.mp3")
-        self.game.sound_manager.load_sound("lock", "assets/sound/metal_sound.mp3")
+        self.game.sound_manager.play_music("character_select")
 
     def handle_events(self, events):
         """
@@ -94,13 +91,13 @@ class CharacterSelector(Screen):
                 self.player1_index = (self.player1_index + direction) % len(
                     self.game.character_manager.all_characters
                 )
-                self.game.sound_manager.play_sound("move")
+                self.game.sound_manager.play_sound("metal")
         else:
             if self.player2_joined and not self.player2_locked:
                 self.player2_index = (self.player2_index + direction) % len(
                     self.game.character_manager.all_characters
                 )
-                self.game.sound_manager.play_sound("move")
+                self.game.sound_manager.play_sound("metal")
 
     def lock_character(self, is_player1):
         """
@@ -110,11 +107,11 @@ class CharacterSelector(Screen):
         """
         if is_player1:
             self.player1_locked = True
-            self.game.sound_manager.play_sound("lock")
+            self.game.sound_manager.play_sound("metal")
         else:
             if self.player2_joined:
                 self.player2_locked = True
-                self.game.sound_manager.play_sound("lock")
+                self.game.sound_manager.play_sound("metal")
 
         if self.player1_locked and (not self.player2_joined or self.player2_locked):
             self.start_game()
