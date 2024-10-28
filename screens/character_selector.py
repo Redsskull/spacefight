@@ -107,11 +107,11 @@ class CharacterSelector(Screen):
         """
         if is_player1:
             self.player1_locked = True
-            self.game.sound_manager.play_sound("metal")
+            self.game.sound_manager.play_sound("punch")
         else:
             if self.player2_joined:
                 self.player2_locked = True
-                self.game.sound_manager.play_sound("metal")
+                self.game.sound_manager.play_sound("punch")
 
         if self.player1_locked and (not self.player2_joined or self.player2_locked):
             self.start_game()
