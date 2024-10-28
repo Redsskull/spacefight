@@ -1,4 +1,5 @@
 import pygame
+from game_states import GameState
 
 
 class Character(pygame.sprite.Sprite):
@@ -26,7 +27,7 @@ class Character(pygame.sprite.Sprite):
         self.image.fill(self.color)
         self.facing_right = True
         self.direction_indicator = pygame.Surface((10, 10))  # Placeholder rectangle
-        self.direction_indicator.fill((0, 255, 0)) # Green color
+        self.direction_indicator.fill((0, 255, 0))  # Green color
         self.update_sprite()
         self.rect = self.image.get_rect()
         self.position = pygame.math.Vector2(self.rect.topleft)
@@ -80,6 +81,13 @@ class Character(pygame.sprite.Sprite):
             print(f"{self.name} is moving to {self.position}")
 
     def attack(self, dt):
+        """
+        method to control the character attacks
+        Args:
+            dt: time between frames
+        """
+        if not self.game.is_in_state(GameState.LEVEL):
+            return
         mouse = pygame.mouse.get_pressed()
         if mouse[0]:  # Left mouse button
             self.attacking = True
@@ -134,7 +142,7 @@ class Regar(Character):
             strength: strength of the character
         """
         super().__init__("Regar", health=120, speed=200, strength=10, game=game)
-        self.color = (0,0,255) # Blue color for Regar
+        self.color = (0, 0, 255)  # Blue color for Regar
         self.image.fill(self.color)
         self.update_sprite()
 
@@ -156,7 +164,7 @@ class Susan(Character):
             strength: strength of the character
         """
         super().__init__("Susan", health=100, speed=250, strength=8, game=game)
-        self.color = (0, 255, 0) # Green color for Susan
+        self.color = (0, 255, 0)  # Green color for Susan
         self.image.fill(self.color)
         self.update_sprite()
 
@@ -178,7 +186,7 @@ class Emily(Character):
             strength: strength of the character
         """
         super().__init__("Emily", health=90, speed=300, strength=7, game=game)
-        self.color = (255, 255, 0) # Yellow color for Emily
+        self.color = (255, 255, 0)  # Yellow color for Emily
         self.image.fill(self.color)
         self.update_sprite()
 
@@ -200,6 +208,6 @@ class Bart(Character):
             strength: strength of the character
         """
         super().__init__("Bart", health=150, speed=180, strength=12, game=game)
-        self.color = (255, 0, 255) # Magenta color for Bart
+        self.color = (255, 0, 255)  # Magenta color for Bart
         self.image.fill(self.color)
         self.update_sprite()

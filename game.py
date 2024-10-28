@@ -1,17 +1,23 @@
 import pygame
 import logging
 from screens.main_menu import MainMenu
+from screens.character_selector import CharacterSelector
+from screens.story_screen import StoryScreen
+from screens.level_screen import LevelScreen
 from managers.sound_manager import SoundManager
 from managers.character_manager import CharacterManager
 from managers.screen_effects import ScreenEffectsManager
 import traceback
+from game_states import GameState
 
 logging.basicConfig(level=logging.DEBUG)
+
 
 class Game:
     """
     Main game class that handles the game loop, screen changes, and initialization.
     """
+
     def __init__(self, screen_width, screen_height):
         """
         Initialize the game.
@@ -25,18 +31,23 @@ class Game:
             pygame.mixer.init()
             self.SCREEN_WIDTH = screen_width
             self.SCREEN_HEIGHT = screen_height
-            self.screen = pygame.display.set_mode((self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
+            self.screen = pygame.display.set_mode(
+                (self.SCREEN_WIDTH, self.SCREEN_HEIGHT)
+            )
             pygame.display.set_caption("SpaceFight")
             self.clock = pygame.time.Clock()
             self.running = True
             self.current_screen = None
+            self.state = GameState.MAIN_MENU
 
-            #initialize the game managers:
+            # initialize the game managers:
             self.sound_manager = SoundManager()
             self.character_manager = CharacterManager(self)
             self.selected_characters = []
             self.character_manager = CharacterManager(self)
-            self.screen_effects = ScreenEffectsManager(self.screen, self.SCREEN_WIDTH, self.SCREEN_HEIGHT)
+            self.screen_effects = ScreenEffectsManager(
+                self.screen, self.SCREEN_WIDTH, self.SCREEN_HEIGHT
+            )
 
             logging.info("Game initialized successfully.")
 
@@ -83,7 +94,7 @@ class Game:
         """
         try:
             while self.running:
-                dt = self.clock.tick(60) / 1000.0 # convert to seconds
+                dt = self.clock.tick(60) / 1000.0  # convert to seconds
                 self.handle_events()
                 self.update(dt)
                 self.draw()
@@ -106,7 +117,7 @@ class Game:
         if self.current_screen:
             self.current_screen.handle_events(events)
 
-    def update(self,dt):
+    def update(self, dt):
         """
         Update the current screen.
         Args:
@@ -130,3 +141,25 @@ class Game:
             new_screen (Screen): The new screen to change to.
         """
         self.current_screen = new_screen
+        if isinstance(new_screen, MainMenu):
+            self.state = GameState.MAIN_MENU
+        elif isinstance(new_screen, CharacterSelector):
+            self.state = GameState.CHARACTER_SELECT
+        elif isinstance(new_screen, StoryScreen):
+            self.state = GameState.STORY
+        elif isinstance(new_screen, LevelScreen):
+            self.state = GameState.LEVEL
+
+        logging.info(f"Changed screen to {self.state}")
+
+    def is_in_state(self, state: GameState) -> bool:
+        """
+        Check if the game is in a certain state.
+
+        Args:
+            state (GameState): The state to check.
+
+        Returns:
+            bool: True if the game is in the state, False otherwise.
+        """
+        return self.state == state
