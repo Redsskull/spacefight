@@ -2,7 +2,7 @@
 
 ## Middle step:
 
-- add new music
+- Fix player 2 controls, even if only teporarily
 
 ## 5. Design enemy classes
 

@@ -87,30 +87,6 @@ class CharacterManager:
         for character in self.active_characters:
             character.update(dt)
 
-    def handle_character_movement(self, dt):
-        """
-        Handle character movement.
-        Args:
-            dt (float): Time since last update
-        """
-        keys = pygame.key.get_pressed()
-        for character in self.active_characters:
-            character.direction.x = keys[pygame.K_d] - keys[pygame.K_a]
-            character.direction.y = keys[pygame.K_s] - keys[pygame.K_w]
-            character.move(dt)
-
-    def handle_character_attack(self, dt):
-        """
-        Handle character attacks.
-        """
-        mouse = pygame.mouse.get_pressed()
-        if mouse[0] or mouse[2]:  # Left or right mouse button
-            for character in self.active_characters:
-                character.attack(dt)
-
-    # TODO: Add player2 conrols
-    # TODO: add controller support
-
     def get_character_info(self):
         """
         Get information about the characters.

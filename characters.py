@@ -88,20 +88,23 @@ class Character(pygame.sprite.Sprite):
         """
         if not self.game.is_in_state(GameState.LEVEL):
             return
-        mouse = pygame.mouse.get_pressed()
-        if mouse[0]:  # Left mouse button
-            self.attacking = True
-            self.attack_timer = self.attack_cooldown
-            if self.game:
-                self.game.sound_manager.play_sound("punch")
-            print(f"{self.name} is attacking!!")
-        elif mouse[2]:  # Right mouse button
-            self.attacking = True
-            self.attack_timer = self.attack_cooldown
-            if self.game:
-                self.game.sound_manager.play_sound("punch")
-            print(f"{self.name} is attacking!!")
 
+        if self.player_number == 1:
+            # player 1 attack with left/right mouse buttons
+            mouse = pygame.mouse.get_pressed()
+            is_attacking = mouse[0] or mouse[2] # left or right mouse button
+        elif self.player_number == 2:
+            # player 2 attacks with K_RCTRL (right ctrl) and K_RSHIFT (right shift)
+            keys = pygame.key.get_pressed()
+            is_attacking = keys[pygame.K_RCTRL] or keys[pygame.K_RSHIFT]
+
+        if is_attacking and not self.attacking and self.attack_timer <= 0:
+            self.attacking = True
+            self.attack_timer = self.attack_cooldown
+            if self.game:
+                self.game.sound_manager.play_sound("punch")
+            print(f"{self.name} (player {self.player_number}) is attacking")
+     
         if self.attack_timer > 0:
             self.attack_timer -= dt
         else:
