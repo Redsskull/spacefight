@@ -34,13 +34,18 @@ class Enemy(Character):
                 self.state = EnemyState.PURSUING
             return
 
-        if self.state == EnemyState.SPAWNING:
-            # If enemy has moved into the screen, switch to pursuing
-            if (
-                self.position.x > self.game.level_screen.left_x
-                and self.position.x < self.game.level_screen.right_x
-            ):
-                self.state = EnemyState.PURSUING
+        # Check if enemy is outside the screen, and move it towards the screen
+        if self.position.x < self.game.current_screen.left_x:
+            self.position.x += self.speed * dt
+        elif self.position.x > self.game.current_screen.right_x:
+            self.position.x -= self.speed * dt
+        elif self.position.y < self.game.current_screen.floor_y - self.rect.height:
+            self.position.y += self.speed * dt
+        elif self.position.y > self.game.current_screen.ceiling_y:
+            self.position.y -= self.speed * dt
+        else:
+            # Enemy is now inside the screen, switch to pursuing state
+            self.state = EnemyState.PURSUING
 
         if self.state == EnemyState.PURSUING:
             self._pursue_target(dt)

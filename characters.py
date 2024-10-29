@@ -112,9 +112,9 @@ class Character(pygame.sprite.Sprite):
             else:
                 attack_rect.midright = (self.rect.centerx, self.rect.centery)
 
-        # Collision detection
-        if self.game.is_in_state(GameState.LEVEL):
-            self.game.current_screen.enemy_manager.handle_collision(attack_rect, self.strength)
+            # Collision detection
+            if self.game.is_in_state(GameState.LEVEL):
+                self.game.current_screen.enemy_manager.handle_collision(attack_rect, self.strength)
 
         if self.attack_timer > 0:
             self.attack_timer -= dt
