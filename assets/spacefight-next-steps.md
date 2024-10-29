@@ -1,10 +1,8 @@
 # SpaceFight Development: Next Steps
 
 ## 5. Design enemy classes
-
-- Create a base `Enemy` class and subclasses for different enemy types
-- Add some kind of AI to detect collision and attacks between player and enemy
-- Implement basic AI for enemy movement and attacks
+- seperate concerns between enemy class and enemy manager
+- create health bars and death animations for enemies and characters
 
 ## 6. Implement sprite handling
 
