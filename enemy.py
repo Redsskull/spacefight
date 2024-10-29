@@ -23,7 +23,7 @@ class Enemy(Character):
         self.state = EnemyState.SPAWNING
         self.target = None
         self.attack_range_distance = 60  # Attack range in pixels
-        self.attack_range = pygame.Surface((60, 20))
+        self.attack_range = pygame.Surface((50, 100))
         self.attack_range.fill((255, 165, 0, 128))  # Semi-transparent orange
         self.stun_duration = 0.5  # seconds
         self.stun_timer = 0
@@ -118,6 +118,7 @@ class Enemy(Character):
         # If target moved out of range, switch back to pursuing
         if distance > self.attack_range_distance:
             self.state = EnemyState.PURSUING
+            self.attacking = False
             return
 
         # Perform attack if cooldown is finished
@@ -131,7 +132,17 @@ class Enemy(Character):
 
         # Reset attacking flag when cooldown is done
         if self.attack_timer <= 0:
-            self.attacking = False
+            if not self.attacking:
+                # Start a new attack
+                self.attacking = True
+                self.attack_timer = self.attack_cooldown
+                # Deak damage to target
+                if hasattr(self.target, "take_damage"):
+                    self.target.take_damage(self.strength)
+                    print(f"Enemy dealt {self.strength} damage to {self.target.name}")
+        else:
+             if self.attacking and self.attack_timer <= self.attack_cooldown * 0.3: # 30% of cooldown
+                 self.attacking = False # Reset attacking flag
 
     def take_damage(self, amount):
         """Handle enemy taking damage"""
