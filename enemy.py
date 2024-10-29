@@ -22,32 +22,37 @@ class Enemy(Character):
         self.rect.topleft = (int(self.position.x), int(self.position.y))
         self.state = EnemyState.SPAWNING
         self.target = None
-        self.attack_range = 60  # pixels
+        self.attack_range_distance = 60  # Attack range in pixels
+        self.attack_range = pygame.Surface((60, 20))
+        self.attack_range.fill((255, 165, 0, 128))  # Semi-transparent orange
         self.stun_duration = 0.5  # seconds
         self.stun_timer = 0
+        self.attack_cooldown = 1.0  # seconds
+        self.attack_timer = 0
+        self.attacking = False
 
     def update(self, dt):
         """Update enemy behavior based on current state"""
+        # First handle stun state
         if self.state == EnemyState.STUNNED:
             self.stun_timer -= dt
             if self.stun_timer <= 0:
                 self.state = EnemyState.PURSUING
             return
 
-        # Check if enemy is outside the screen, and move it towards the screen
-        if self.position.x < self.game.current_screen.left_x:
-            self.position.x += self.speed * dt
-        elif self.position.x > self.game.current_screen.right_x:
-            self.position.x -= self.speed * dt
-        elif self.position.y < self.game.current_screen.floor_y - self.rect.height:
-            self.position.y += self.speed * dt
-        elif self.position.y > self.game.current_screen.ceiling_y:
-            self.position.y -= self.speed * dt
-        else:
-            # Enemy is now inside the screen, switch to pursuing state
-            self.state = EnemyState.PURSUING
+        # Update attack timer
+        if self.attack_timer > 0:
+            self.attack_timer -= dt
 
-        if self.state == EnemyState.PURSUING:
+        # Handle spawning state
+        if self.state == EnemyState.SPAWNING:
+            if self._is_outside_screen():
+                self._move_towards_screen(dt)
+            else:
+                self.state = EnemyState.PURSUING
+
+        # Handle pursuing and attacking states
+        elif self.state == EnemyState.PURSUING:
             self._pursue_target(dt)
         elif self.state == EnemyState.ATTACKING:
             self._perform_attack(dt)
@@ -55,6 +60,27 @@ class Enemy(Character):
         # Update position and sprite
         self.rect.topleft = (int(self.position.x), int(self.position.y))
         self.update_sprite()
+
+    def _is_outside_screen(self):
+        """Check if enemy is outside the screen boundaries"""
+        return (
+            self.position.x < self.game.current_screen.left_x
+            or self.position.x > self.game.current_screen.right_x
+            or self.position.y < self.game.current_screen.floor_y - self.rect.height
+            or self.position.y > self.game.current_screen.ceiling_y
+        )
+
+    def _move_towards_screen(self, dt):
+        """Move the enemy towards the screen"""
+        if self.position.x < self.game.current_screen.left_x:
+            self.position.x += self.speed * dt
+        elif self.position.x > self.game.current_screen.right_x:
+            self.position.x -= self.speed * dt
+
+        if self.position.y < self.game.current_screen.floor_y - self.rect.height:
+            self.position.y += self.speed * dt
+        elif self.position.y > self.game.current_screen.ceiling_y:
+            self.position.y -= self.speed * dt
 
     def _pursue_target(self, dt):
         """Move towards the nearest player character"""
@@ -67,34 +93,44 @@ class Enemy(Character):
             self.target.position.y - self.position.y,
         )
 
-        if direction.length() > 0:
+        # Calculate distance to target
+        distance = direction.length()
+
+        if distance > 0:
             direction = direction.normalize()
             self.facing_right = direction.x > 0
 
-            # Move towards target
-            if direction.length() > self.attack_range:
-                self.position += direction * self.speed * dt
-            else:
+            # If within attack range, switch to attacking state
+            if distance <= self.attack_range_distance:
                 self.state = EnemyState.ATTACKING
+            else:
+                # Move towards target
+                self.position += direction * self.speed * dt
 
     def _perform_attack(self, dt):
         """Perform attack when in range"""
         if not self.target:
+            self.state = EnemyState.PURSUING
             return
 
         distance = (self.target.position - self.position).length()
-        if distance <= self.attack_range:
-            if not self.attacking and self.attack_timer <= 0:
-                self.attacking = True
-                self.attack_timer = self.attack_cooldown
-                # TODO: Implement damage dealing to target
-                print(f"Enemy attacking {self.target.name}")
-        else:
-            self.state = EnemyState.PURSUING
 
-        if self.attack_timer > 0:
-            self.attack_timer -= dt
-        else:
+        # If target moved out of range, switch back to pursuing
+        if distance > self.attack_range_distance:
+            self.state = EnemyState.PURSUING
+            return
+
+        # Perform attack if cooldown is finished
+        if not self.attacking and self.attack_timer <= 0:
+            self.attacking = True
+            self.attack_timer = self.attack_cooldown
+            # Deal damage to target
+            if hasattr(self.target, "take_damage"):
+                self.target.take_damage(self.strength)
+                print(f"Enemy dealt {self.strength} damage to {self.target.name}")
+
+        # Reset attacking flag when cooldown is done
+        if self.attack_timer <= 0:
             self.attacking = False
 
     def take_damage(self, amount):
