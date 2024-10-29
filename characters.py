@@ -92,7 +92,7 @@ class Character(pygame.sprite.Sprite):
         if self.player_number == 1:
             # player 1 attack with left/right mouse buttons
             mouse = pygame.mouse.get_pressed()
-            is_attacking = mouse[0] or mouse[2] # left or right mouse button
+            is_attacking = mouse[0] or mouse[2]  # left or right mouse button
         elif self.player_number == 2:
             # player 2 attacks with K_RCTRL (right ctrl) and K_RSHIFT (right shift)
             keys = pygame.key.get_pressed()
@@ -104,7 +104,18 @@ class Character(pygame.sprite.Sprite):
             if self.game:
                 self.game.sound_manager.play_sound("punch")
             print(f"{self.name} (player {self.player_number}) is attacking")
-     
+
+        if self.attacking:
+            attack_rect = self.attack_range.get_rect()
+            if self.facing_right:
+                attack_rect.midleft = (self.rect.centerx, self.rect.centery)
+            else:
+                attack_rect.midright = (self.rect.centerx, self.rect.centery)
+
+        # Collision detection
+        if self.game.is_in_state(GameState.LEVEL):
+            self.game.current_screen.enemy_manager.handle_collision(attack_rect, self.strength)
+
         if self.attack_timer > 0:
             self.attack_timer -= dt
         else:

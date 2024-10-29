@@ -1,9 +1,5 @@
 # SpaceFight Development: Next Steps
 
-## Middle step:
-
-- Fix player 2 controls, even if only teporarily
-
 ## 5. Design enemy classes
 
 - Create a base `Enemy` class and subclasses for different enemy types
