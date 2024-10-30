@@ -87,9 +87,8 @@ class EnemyManager:
         Args:
             screen (pygame.Surface): The screen surface to draw on
         """
-        self.enemies.draw(screen)
-        # Draw attack indicators if attacking
         for enemy in self.enemies:
+            enemy.draw(screen)
             if enemy.attacking:
                 attack_rect = enemy.attack_range.get_rect()
                 if enemy.facing_right:
@@ -97,6 +96,19 @@ class EnemyManager:
                 else:
                     attack_rect.midright = (enemy.rect.centerx, enemy.rect.centery)
                 screen.blit(enemy.attack_range, attack_rect)
+
+    def draw_ui(self, screen):
+        """New method to draw enemy count and collective health"""
+        font = pygame.font.Font(None, 24)
+        padding = 10
+        
+        # Draw enemy count
+        count_text = f"Enemies: {len(self.enemies)}/{self.max_enemies}"
+        count_surface = font.render(count_text, True, (255, 255, 255))
+        screen.blit(count_surface, (
+            screen.get_width() - count_surface.get_width() - padding,
+            padding
+        ))
 
     def handle_collision(self, player_attack_rect, player_strength):
         """

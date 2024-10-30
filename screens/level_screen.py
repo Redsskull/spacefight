@@ -90,6 +90,8 @@ class LevelScreen(Screen):
         self.screen.blit(self.background, (0, 0))
         self.game.character_manager.draw_characters(self.screen)
         self.game.enemy_manager.draw(self.screen)
+        self.game.character_manager.draw_ui(self.screen)
+        self.game.enemy_manager.draw_ui(self.screen)
 
 
     def handle_events(self, events):

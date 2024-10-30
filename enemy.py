@@ -154,6 +154,8 @@ class Enemy(Character):
         Args:
             amount (int): Amount of damage to take
         """
-        self.health -= amount
-        self.state = EnemyState.STUNNED
-        self.stun_timer = self.stun_duration
+        super().take_damage(amount)
+        if not self.is_dying:
+            self.state = EnemyState.STUNNED
+            self.stun_timer = self.stun_duration
+        

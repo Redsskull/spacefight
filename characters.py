@@ -38,6 +38,24 @@ class Character(pygame.sprite.Sprite):
         self.attack_timer = 0
         self.attack_range = pygame.Surface((50, 100))  # Placeholder rectangle
         self.attack_range.fill((144, 238, 144))  # Light green colort
+        self.max_health = health 
+        self.health = health
+        self.is_dying = False
+        self.death_blink_timer = 0
+        self.death_blink_duration = 0.05
+        self.death_total_time = 0.5
+        self.visible = True
+
+    def take_damage(self, amount):
+        """
+        method to control the damage taken by the character
+        Args:
+            amount: amount of damage taken
+        """
+        self.health = max(0, self.health - amount)
+        if self.health <= 0 and not self.is_dying:
+            self.is_dying = True
+            self.death_blink_timer = self.death_blink_duration
 
     def update_sprite(self):
         """
@@ -127,8 +145,54 @@ class Character(pygame.sprite.Sprite):
         Args:
             dt: time between frames
         """
+        if self.is_dying:
+            self.death_total_time -= dt
+            if self.death_blink_timer <= 0:
+                self.visible = not self.visible
+                self.death_blink_timer = self.death_blink_duration
+                self.death_total_time -= self.death_blink_duration
+                if self.death_total_time <= 0:
+                    self.kill()
+            return
+
         self.move(dt)
         self.attack(dt)
+
+    def draw(self, screen):
+        """New draw method to handle visibility during death animation"""
+        if not self.visible:
+            return
+            
+        screen.blit(self.image, self.rect)
+        if self.attacking:
+            attack_rect = self.attack_range.get_rect()
+            if self.facing_right:
+                attack_rect.midleft = (self.rect.centerx, self.rect.centery)
+            else:
+                attack_rect.midright = (self.rect.centerx, self.rect.centery)
+            screen.blit(self.attack_range, attack_rect)
+
+        # Draw health bar
+        health_bar_width = 50
+        health_bar_height = 5
+        health_percentage = self.health / self.max_health
+        current_health_width = health_bar_width * health_percentage
+        
+        # Background (red)
+        pygame.draw.rect(screen, (255, 0, 0), (
+            self.rect.x,
+            self.rect.y - 10,
+            health_bar_width,
+            health_bar_height
+        ))
+        
+        # Foreground (green)
+        pygame.draw.rect(screen, (0, 255, 0), (
+            self.rect.x,
+            self.rect.y - 10,
+            current_health_width,
+            health_bar_height
+        ))
 
     def set_player_number(self, number):
         """

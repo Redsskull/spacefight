@@ -57,16 +57,41 @@ class CharacterManager:
         Args:
             screen (pygame.Surface): The screen surface
         """
-        self.character_group.draw(screen)
         for character in self.active_characters:
-            if character.attacking:
-                attack_rect = character.attack_range.get_rect()
+            character.draw(screen)
 
-                if character.facing_right:
-                    attack_rect.midleft = (character.rect.centerx, character.rect.centery)
-                else:
-                    attack_rect.midright = (character.rect.centerx, character.rect.centery)
-                screen.blit(character.attack_range, attack_rect)
+    def draw_ui(self, screen):
+        """New method to draw character UI elements"""
+        padding = 10
+        bar_height = 20
+        bar_width = 200
+        y_position = padding
+        
+        for i, character in enumerate(self.active_characters):
+            # Draw character name
+            font = pygame.font.Font(None, 24)
+            name_surface = font.render(character.name, True, (255, 255, 255))
+            screen.blit(name_surface, (padding, y_position))
+            
+            # Draw health bar background (red)
+            pygame.draw.rect(screen, (255, 0, 0), (
+                padding + name_surface.get_width() + 5,
+                y_position,
+                bar_width,
+                bar_height
+            ))
+            
+            # Draw current health (green)
+            health_percentage = character.health / character.max_health
+            current_health_width = bar_width * health_percentage
+            pygame.draw.rect(screen, (0, 255, 0), (
+                padding + name_surface.get_width() + 5,
+                y_position,
+                current_health_width,
+                bar_height
+            ))
+            
+            y_position += bar_height + padding
 
     def get_character_by_name(self, name):
         """
