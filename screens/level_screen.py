@@ -1,6 +1,5 @@
 import pygame
 from .base import Screen
-from enemy import Enemy, EnemyManager
 
 
 class LevelScreen(Screen):
@@ -21,7 +20,6 @@ class LevelScreen(Screen):
         self.initialize_assets()
         self.initialize_sounds()
         self.initialize_characters()
-        self.enemy_manager = EnemyManager(self.game)
 
         # Define boundries
 
@@ -59,7 +57,7 @@ class LevelScreen(Screen):
         """
         dt = self.game.clock.get_time() / 1000  # Convert to seconds
         self.game.character_manager.update_characters(dt)
-        self.enemy_manager.update(dt)
+        self.game.enemy_manager.update(dt)
         self.limit_character_movement()
 
     def limit_character_movement(self):
@@ -91,7 +89,7 @@ class LevelScreen(Screen):
         """
         self.screen.blit(self.background, (0, 0))
         self.game.character_manager.draw_characters(self.screen)
-        self.enemy_manager.draw(self.screen)
+        self.game.enemy_manager.draw(self.screen)
 
 
     def handle_events(self, events):

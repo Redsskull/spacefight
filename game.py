@@ -9,6 +9,7 @@ from managers.character_manager import CharacterManager
 from managers.screen_effects import ScreenEffectsManager
 import traceback
 from game_states import GameState
+from managers.enemy_manager import EnemyManager
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -45,6 +46,7 @@ class Game:
             self.character_manager = CharacterManager(self)
             self.selected_characters = []
             self.character_manager = CharacterManager(self)
+            self.enemy_manager = EnemyManager(self)
             self.screen_effects = ScreenEffectsManager(
                 self.screen, self.SCREEN_WIDTH, self.SCREEN_HEIGHT
             )

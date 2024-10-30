@@ -114,7 +114,7 @@ class Character(pygame.sprite.Sprite):
 
             # Collision detection
             if self.game.is_in_state(GameState.LEVEL):
-                self.game.current_screen.enemy_manager.handle_collision(attack_rect, self.strength)
+                self.game.enemy_manager.handle_collision(attack_rect, self.strength)
 
         if self.attack_timer > 0:
             self.attack_timer -= dt
