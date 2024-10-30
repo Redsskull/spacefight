@@ -45,6 +45,9 @@ class Character(pygame.sprite.Sprite):
         self.death_blink_duration = 0.05
         self.death_total_time = 0.5
         self.visible = True
+        self.animation_complete = False
+        self.blink_count = 0
+        self.max_blinks = 5
 
     def take_damage(self, amount):
         """
@@ -56,6 +59,8 @@ class Character(pygame.sprite.Sprite):
         if self.health <= 0 and not self.is_dying:
             self.is_dying = True
             self.death_blink_timer = self.death_blink_duration
+            self.animation_complete = False
+            self.blink_count = 0
 
     def update_sprite(self):
         """
@@ -147,20 +152,24 @@ class Character(pygame.sprite.Sprite):
         """
         if self.is_dying:
             self.death_total_time -= dt
+            self.death_blink_timer -= dt
             if self.death_blink_timer <= 0:
                 self.visible = not self.visible
                 self.death_blink_timer = self.death_blink_duration
-                self.death_total_time -= self.death_blink_duration
-                if self.death_total_time <= 0:
-                    self.kill()
+                if self.visible:
+                    self.blink_count += 1
+
+            if self.blink_count >= self.max_blinks or self.death_total_time <= 0:
+                self.animation_complete = True
+                self.visible = False
             return
 
         self.move(dt)
         self.attack(dt)
 
     def draw(self, screen):
-        """New draw method to handle visibility during death animation"""
-        if not self.visible:
+        """Draw method with death animation support"""
+        if not self.visible or (self.is_dying and self.animation_complete):
             return
             
         screen.blit(self.image, self.rect)
@@ -172,27 +181,28 @@ class Character(pygame.sprite.Sprite):
                 attack_rect.midright = (self.rect.centerx, self.rect.centery)
             screen.blit(self.attack_range, attack_rect)
 
-        # Draw health bar
-        health_bar_width = 50
-        health_bar_height = 5
-        health_percentage = self.health / self.max_health
-        current_health_width = health_bar_width * health_percentage
-        
-        # Background (red)
-        pygame.draw.rect(screen, (255, 0, 0), (
-            self.rect.x,
-            self.rect.y - 10,
-            health_bar_width,
-            health_bar_height
-        ))
-        
-        # Foreground (green)
-        pygame.draw.rect(screen, (0, 255, 0), (
-            self.rect.x,
-            self.rect.y - 10,
-            current_health_width,
-            health_bar_height
-        ))
+        # Draw health bar only if not dying
+        if not self.is_dying:
+            health_bar_width = 50
+            health_bar_height = 5
+            health_percentage = self.health / self.max_health
+            current_health_width = health_bar_width * health_percentage
+            
+            # Background (red)
+            pygame.draw.rect(screen, (255, 0, 0), (
+                self.rect.x,
+                self.rect.y - 10,
+                health_bar_width,
+                health_bar_height
+            ))
+            
+            # Foreground (green)
+            pygame.draw.rect(screen, (0, 255, 0), (
+                self.rect.x,
+                self.rect.y - 10,
+                current_health_width,
+                health_bar_height
+            ))
 
     def set_player_number(self, number):
         """

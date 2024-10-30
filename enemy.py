@@ -41,6 +41,12 @@ class Enemy(Character):
         Args:
             dt (float): Time delta since last update
         """
+        # I will first check if dying and call on the super death animation
+        if self.is_dying:
+            super().update(dt)
+            return
+
+
         # First handle stun state
         if self.state == EnemyState.STUNNED:
             self.stun_timer -= dt

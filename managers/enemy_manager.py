@@ -42,13 +42,15 @@ class EnemyManager:
             self._try_spawn_enemy()
             self.spawn_timer = self.spawn_cooldown
 
-        # Update enemies
-        for enemy in self.enemies:
+        # Update enemies and remove those that have completed their death animation
+        for enemy in list(self.enemies):  # Create a copy of the list to safely modify during iteration
             enemy.target = self._find_nearest_target(enemy)
             enemy.update(dt)
-
-            # Remove dead enemies
-            if enemy.health <= 0:
+            
+            # Only remove the enemy after death animation completes
+            if enemy.health <= 0 and not enemy.is_dying:
+                enemy.is_dying = True  # Trigger death animation
+            elif enemy.health <= 0 and enemy.is_dying and enemy.animation_complete:  # Add animation_complete check
                 enemy.kill()
 
     def _try_spawn_enemy(self):
