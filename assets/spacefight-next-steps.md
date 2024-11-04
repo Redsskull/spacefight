@@ -1,8 +1,5 @@
 # SpaceFight Development: Next Steps
 
-## 5. Design enemy classes
-- fix an issue where health bars appear on top of characters even in story mode and in level mode.
-- fix an issue where there's a strange enemy count in the top right of the level.
 
 ## 6. Implement sprite handling
 
