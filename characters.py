@@ -38,7 +38,7 @@ class Character(pygame.sprite.Sprite):
         self.attack_timer = 0
         self.attack_range = pygame.Surface((50, 100))  # Placeholder rectangle
         self.attack_range.fill((144, 238, 144))  # Light green colort
-        self.max_health = health 
+        self.max_health = health
         self.health = health
         self.is_dying = False
         self.death_blink_timer = 0
@@ -171,7 +171,7 @@ class Character(pygame.sprite.Sprite):
         """Draw method with death animation support"""
         if not self.visible or (self.is_dying and self.animation_complete):
             return
-            
+
         screen.blit(self.image, self.rect)
         if self.attacking:
             attack_rect = self.attack_range.get_rect()
@@ -180,29 +180,6 @@ class Character(pygame.sprite.Sprite):
             else:
                 attack_rect.midright = (self.rect.centerx, self.rect.centery)
             screen.blit(self.attack_range, attack_rect)
-
-        # Draw health bar only if not dying
-        if not self.is_dying:
-            health_bar_width = 50
-            health_bar_height = 5
-            health_percentage = self.health / self.max_health
-            current_health_width = health_bar_width * health_percentage
-            
-            # Background (red)
-            pygame.draw.rect(screen, (255, 0, 0), (
-                self.rect.x,
-                self.rect.y - 10,
-                health_bar_width,
-                health_bar_height
-            ))
-            
-            # Foreground (green)
-            pygame.draw.rect(screen, (0, 255, 0), (
-                self.rect.x,
-                self.rect.y - 10,
-                current_health_width,
-                health_bar_height
-            ))
 
     def set_player_number(self, number):
         """

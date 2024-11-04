@@ -2,6 +2,7 @@ import pygame
 import random
 from enemy import Enemy
 
+
 class EnemyManager:
     """
     Manages enemy spawning, behavior, and lifecycle.
@@ -43,14 +44,18 @@ class EnemyManager:
             self.spawn_timer = self.spawn_cooldown
 
         # Update enemies and remove those that have completed their death animation
-        for enemy in list(self.enemies):  # Create a copy of the list to safely modify during iteration
+        for enemy in list(
+            self.enemies
+        ):  # Create a copy of the list to safely modify during iteration
             enemy.target = self._find_nearest_target(enemy)
             enemy.update(dt)
-            
+
             # Only remove the enemy after death animation completes
             if enemy.health <= 0 and not enemy.is_dying:
                 enemy.is_dying = True  # Trigger death animation
-            elif enemy.health <= 0 and enemy.is_dying and enemy.animation_complete:  # Add animation_complete check
+            elif (
+                enemy.health <= 0 and enemy.is_dying and enemy.animation_complete
+            ):  # Add animation_complete check
                 enemy.kill()
 
     def _try_spawn_enemy(self):
@@ -85,12 +90,15 @@ class EnemyManager:
 
     def draw(self, screen):
         """
-        Draw all enemies and their attack indicators
+        Draw all enemies, their attack indicators, and health bars
         Args:
             screen (pygame.Surface): The screen surface to draw on
         """
         for enemy in self.enemies:
+            # Draw enemy sprite
             enemy.draw(screen)
+
+            # Draw attack indicator if attacking
             if enemy.attacking:
                 attack_rect = enemy.attack_range.get_rect()
                 if enemy.facing_right:
@@ -99,18 +107,36 @@ class EnemyManager:
                     attack_rect.midright = (enemy.rect.centerx, enemy.rect.centery)
                 screen.blit(enemy.attack_range, attack_rect)
 
-    def draw_ui(self, screen):
-        """New method to draw enemy count and collective health"""
-        font = pygame.font.Font(None, 24)
-        padding = 10
-        
-        # Draw enemy count
-        count_text = f"Enemies: {len(self.enemies)}/{self.max_enemies}"
-        count_surface = font.render(count_text, True, (255, 255, 255))
-        screen.blit(count_surface, (
-            screen.get_width() - count_surface.get_width() - padding,
-            padding
-        ))
+            # Draw enemy health bar
+            if not enemy.is_dying:
+                health_bar_width = 50
+                health_bar_height = 5
+                health_percentage = enemy.health / enemy.max_health
+                current_health_width = health_bar_width * health_percentage
+
+                # Background (red)
+                pygame.draw.rect(
+                    screen,
+                    (255, 0, 0),
+                    (
+                        enemy.rect.x,
+                        enemy.rect.y - 10,
+                        health_bar_width,
+                        health_bar_height,
+                    ),
+                )
+
+                # Foreground (green)
+                pygame.draw.rect(
+                    screen,
+                    (0, 255, 0),
+                    (
+                        enemy.rect.x,
+                        enemy.rect.y - 10,
+                        current_health_width,
+                        health_bar_height,
+                    ),
+                )
 
     def handle_collision(self, player_attack_rect, player_strength):
         """
