@@ -1,5 +1,9 @@
 # SpaceFight Development: Next Steps
 
+## 5 implament Game Over screen
+
+-- have a basic game over message that goes back to main menu after 5 seconds.
+
 
 ## 6. Implement sprite handling
 

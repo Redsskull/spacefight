@@ -60,6 +60,13 @@ class LevelScreen(Screen):
         self.game.enemy_manager.update(dt)
         self.limit_character_movement()
 
+        # Check for game over condition
+        if all(
+            char.is_dying or char.health <= 0
+            for char in self.game.character_manager.active_characters
+        ):
+            self.game.trigger_game_over()
+
     def limit_character_movement(self):
         """
         Limit the characters vertical movement to the backgrounds floor

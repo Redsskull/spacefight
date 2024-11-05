@@ -165,3 +165,11 @@ class Game:
             bool: True if the game is in the state, False otherwise.
         """
         return self.state == state
+
+    def trigger_game_over(self):
+        """Trigger game over state from any screen"""
+        from screens.game_over import GameOverScreen
+
+        self.sound_manager.stop_music()
+        self.change_screen(GameOverScreen(self))
+        self.state = GameState.GAME_OVER
