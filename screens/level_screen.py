@@ -99,5 +99,7 @@ class LevelScreen(Screen):
             events (Event): The events to handle
         """
         for event in events:
-            if event.type == pygame.KEYDOWN:
-                pass
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                from .pause import PauseScreen
+
+                self.game.change_screen(PauseScreen(self.game, self))
