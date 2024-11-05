@@ -15,6 +15,7 @@ class Character(pygame.sprite.Sprite):
             health: health of the character
             speed: speed of the character
             strength: strength of the character
+            game: game object
         """
         super().__init__()
         self.name = name
@@ -42,12 +43,12 @@ class Character(pygame.sprite.Sprite):
         self.health = health
         self.is_dying = False
         self.death_blink_timer = 0
-        self.death_blink_duration = 0.05
-        self.death_total_time = 0.5
+        self.death_blink_duration = 0.2  # Slower blinks (was 0.05)
+        self.death_total_time = 2.0  # Longer total animation (was 0.5)
         self.visible = True
         self.animation_complete = False
         self.blink_count = 0
-        self.max_blinks = 5
+        self.max_blinks = 8  # More blinks (was 5)
 
     def take_damage(self, amount):
         """

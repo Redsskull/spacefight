@@ -60,12 +60,19 @@ class LevelScreen(Screen):
         self.game.enemy_manager.update(dt)
         self.limit_character_movement()
 
-        # Check for game over condition
-        if all(
-            char.is_dying or char.health <= 0
-            for char in self.game.character_manager.active_characters
-        ):
-            self.game.trigger_game_over()
+        # First check if any characters are still alive
+        all_dead = all(
+            char.health <= 0 for char in self.game.character_manager.active_characters
+        )
+
+        # Then check if all dead characters have finished their animations this is especially important if there is a player 2
+        if all_dead:
+            animations_complete = all(
+                char.animation_complete
+                for char in self.game.character_manager.active_characters
+            )
+            if animations_complete:
+                self.game.trigger_game_over()
 
     def limit_character_movement(self):
         """

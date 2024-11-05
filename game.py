@@ -173,3 +173,21 @@ class Game:
         self.sound_manager.stop_music()
         self.change_screen(GameOverScreen(self))
         self.state = GameState.GAME_OVER
+
+    def reset_game(self):
+        """Reset the entire game state to initial conditions"""
+        # Reset game state
+        self.state = GameState.MAIN_MENU
+        self.current_screen = None
+        self.selected_characters = []
+
+        # Reinitialize all managers
+        self.sound_manager = SoundManager()
+        self.character_manager = CharacterManager(self)
+        self.enemy_manager = EnemyManager(self)
+        self.screen_effects = ScreenEffectsManager(
+            self.screen, self.SCREEN_WIDTH, self.SCREEN_HEIGHT
+        )
+
+        # Create new main menu
+        self.change_screen(MainMenu(self))
