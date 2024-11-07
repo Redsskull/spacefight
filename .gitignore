@@ -1,7 +1,11 @@
 venv/
-__pycache__/
+**/__pycache__/
 *.pyc
 .structurechange.md
 *.py[cod]
 *$py.class
 *.pyo
+*.pyd
+.vscode/
+*.code-workspace
+.history/
