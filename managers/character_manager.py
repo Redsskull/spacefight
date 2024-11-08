@@ -61,7 +61,10 @@ class CharacterManager:
             character.draw(screen)
 
     def draw_ui(self, screen):
-        """Draw UI elements for player characters"""
+        """Draw UI elements for player characters
+        Args:
+            screen (pygame.Surface): The screen surface
+        """
         padding = 10
         bar_height = 20
         bar_width = 200

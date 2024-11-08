@@ -86,6 +86,7 @@ class SoundManager:
                 self.current_music = music_id
         except Exception as e:
             print(f"Failed to play music {music_id}: {e}")
+        # I added a try-except here because as I was building the sound mananger I was having a lot of issues. TODO: remove print statement and try-except block
 
     def stop_music(self):
         """Stop the currently playing music track."""

@@ -1,15 +1,26 @@
-import pygame
+# Standard library
 import logging
-from screens.main_menu import MainMenu
-from screens.character_selector import CharacterSelector
-from screens.story_screen import StoryScreen
-from screens.level_screen import LevelScreen
-from managers.sound_manager import SoundManager
-from managers.character_manager import CharacterManager
-from managers.screen_effects import ScreenEffectsManager
 import traceback
+
+# Third-party
+import pygame
+
+# Local packages
+from screens import (
+    MainMenu,
+    CharacterSelector,
+    StoryScreen,
+    LevelScreen,
+    PauseScreen,
+    GameOverScreen
+)
+from managers import (
+    SoundManager,
+    CharacterManager,
+    ScreenEffectsManager,
+    EnemyManager
+)
 from game_states import GameState
-from managers.enemy_manager import EnemyManager
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -116,6 +127,10 @@ class Game:
         for event in events:
             if event.type == pygame.QUIT:
                 self.running = False
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                if self.state == GameState.LEVEL:
+                    self.change_screen(PauseScreen(self, self.current_screen))
+        
         if self.current_screen:
             self.current_screen.handle_events(events)
 
@@ -138,9 +153,6 @@ class Game:
     def change_screen(self, new_screen):
         """
         Change the current screen to the new screen.
-
-        Args:
-            new_screen (Screen): The new screen to change to.
         """
         self.current_screen = new_screen
         if isinstance(new_screen, MainMenu):
@@ -151,8 +163,8 @@ class Game:
             self.state = GameState.STORY
         elif isinstance(new_screen, LevelScreen):
             self.state = GameState.LEVEL
-
-        logging.info(f"Changed screen to {self.state}")
+        elif isinstance(new_screen, PauseScreen):
+            self.state = GameState.PAUSE
 
     def is_in_state(self, state: GameState) -> bool:
         """

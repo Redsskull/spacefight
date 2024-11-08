@@ -3,14 +3,22 @@ from enum import Enum
 from characters import Character
 
 class EnemyState(Enum):
-    """Enum for tracking enemy AI states"""
+    """Enum for tracking enemy AI states
+    SPAWNING: Enemy is spawning into the level
+    PURSUING: Enemy is moving towards a target
+    ATTACKING: Enemy is attacking a target
+    STUNNED: Enemy is stunned and cannot move or attack
+    """
     SPAWNING = 1
     PURSUING = 2
     ATTACKING = 3
     STUNNED = 4
 
 class Enemy(Character):
-    """Enhanced enemy class with AI behavior"""
+    """Enhanced enemy class with AI behavior
+    Args:
+        Character (Character): The base character class
+    """
 
     def __init__(self, game, spawn_position):
         """
@@ -34,6 +42,11 @@ class Enemy(Character):
         self.attack_cooldown = 1.0  # seconds
         self.attack_timer = 0
         self.attacking = False
+        self.death_blink_speed = 0.07  # Twice as fast (was 0.1)
+        self.death_duration = 0.5      # Half duration (was 1.0)
+        self.death_blink_duration = 0.05  # Faster blinks
+        self.death_total_time = 0.5       # Shorter total duration
+        self.max_blinks = 15              # More blinks in shorter time
 
     def update(self, dt):
         """
@@ -83,7 +96,10 @@ class Enemy(Character):
         )
 
     def _move_towards_screen(self, dt):
-        """Move the enemy towards the screen"""
+        """Move the enemy towards the screen
+        Args:
+            dt (float): Time delta since last update
+        """
         if self.position.x < self.game.current_screen.left_x:
             self.position.x += self.speed * dt
         elif self.position.x > self.game.current_screen.right_x:
@@ -95,7 +111,10 @@ class Enemy(Character):
             self.position.y -= self.speed * dt
 
     def _pursue_target(self, dt):
-        """Move towards the nearest player character"""
+        """Move towards the nearest player character
+        Args:
+            dt (float): Time delta since last update
+        """
         if not self.target:
             return
 
@@ -120,7 +139,10 @@ class Enemy(Character):
                 self.position += direction * self.speed * dt
 
     def _perform_attack(self, dt):
-        """Perform attack when in range"""
+        """Perform attack when in range
+        Args:
+            dt (float): Time delta since last update
+        """
         if not self.target:
             self.state = EnemyState.PURSUING
             return
@@ -164,4 +186,3 @@ class Enemy(Character):
         if not self.is_dying:
             self.state = EnemyState.STUNNED
             self.stun_timer = self.stun_duration
-        

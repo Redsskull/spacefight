@@ -1,15 +1,23 @@
-# screens/pause.py
 import pygame
-from pygame.constants import KEYDOWN, K_ESCAPE
+from pygame.constants import KEYDOWN, K_ESCAPE # this is a new way I read aoout keydown in pygame. if it workss TODO: use it in the whole game
 from .base import Screen
 from game_states import GameState
 from managers.enemy_manager import EnemyManager
 
 
 class PauseScreen(Screen):
-    """Pause screen that overlays the game"""
+    """Pause screen that overlays the game
+    Args:
+        screen (pygame.Surface): The screen surface
+    """
 
     def __init__(self, game, previous_screen):
+        """
+        Initialize the pause screen.
+        Args:
+            game (Game): The game instance
+            previous_screen (Screen): The screen to return to when unpaused
+        """
         super().__init__(game)
         self.previous_screen = previous_screen
 
@@ -38,11 +46,14 @@ class PauseScreen(Screen):
             self.buttons.append((text, rect))
 
     def handle_events(self, events):
+        """
+        Handle events for the pause screen.
+        Args:
+            events (List[Event]): A list of pygame events
+        """
         for event in events:
             if event.type == KEYDOWN:
-                if event.key == K_ESCAPE:
-                    self.game.change_screen(self.previous_screen)
-                elif event.key == pygame.K_UP:
+                if event.key == pygame.K_UP:
                     self.selected_index = (self.selected_index - 1) % len(
                         self.menu_items
                     )
@@ -62,6 +73,9 @@ class PauseScreen(Screen):
                             self.select_menu_item()
 
     def select_menu_item(self):
+        """
+        Handle the selection of a menu item.
+        """
         if self.menu_items[self.selected_index] == "Resume":
             self.game.change_screen(self.previous_screen)
         elif self.menu_items[self.selected_index] == "Options":
@@ -69,10 +83,7 @@ class PauseScreen(Screen):
         elif self.menu_items[self.selected_index] == "Main Menu":
             # Reset entire game state by reinitializing MainMenu
             self.game.sound_manager.stop_music()
-            self.game.state = GameState.MAIN_MENU
-            self.game.current_screen = None  # Clear current screen
-            self.game.selected_characters = []  # Reset character selection
-            self.game.enemy_manager = EnemyManager(self.game)  # Reset enemy manager
+            self.game.reset_game()
             from .main_menu import MainMenu
 
             self.game.change_screen(MainMenu(self.game))
@@ -80,6 +91,9 @@ class PauseScreen(Screen):
             self.game.running = False
 
     def draw(self):
+        """
+        Draw the pause screen.
+        """
         # Draw semi-transparent overlay
         overlay = pygame.Surface((self.game.SCREEN_WIDTH, self.game.SCREEN_HEIGHT))
         overlay.fill((0, 0, 0))

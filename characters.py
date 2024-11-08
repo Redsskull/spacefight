@@ -5,6 +5,8 @@ from game_states import GameState
 class Character(pygame.sprite.Sprite):
     """
     class for all characters in the game
+    Args:
+        pygame.sprite.Sprite: parent class
     """
 
     def __init__(self, name, health, speed, strength, game):
@@ -42,13 +44,14 @@ class Character(pygame.sprite.Sprite):
         self.max_health = health
         self.health = health
         self.is_dying = False
-        self.death_blink_timer = 0
-        self.death_blink_duration = 0.2  # Slower blinks (was 0.05)
-        self.death_total_time = 2.0  # Longer total animation (was 0.5)
         self.visible = True
         self.animation_complete = False
         self.blink_count = 0
-        self.max_blinks = 8  # More blinks (was 5)
+        # Default timing values
+        self.death_blink_duration = 0.2  # Time between blinks
+        self.death_total_time = 2.0      # Total animation duration
+        self.max_blinks = 10             # Number of blinks before death
+        self.death_blink_timer = self.death_blink_duration
 
     def take_damage(self, amount):
         """
@@ -168,8 +171,19 @@ class Character(pygame.sprite.Sprite):
         self.move(dt)
         self.attack(dt)
 
+        if self.is_dying:
+            # Blink effect using death_blink_speed
+            current_time = pygame.time.get_ticks() / 1000  # Convert to seconds
+            if int(current_time / self.death_blink_speed) % 2 == 0:
+                self.image.fill(self.color)
+            else:
+                self.image.fill((0, 0, 0))  # Blink to black
+
     def draw(self, screen):
-        """Draw method with death animation support"""
+        """Draw method with death animation support
+        Args:
+            screen: screen to draw on
+        """
         if not self.visible or (self.is_dying and self.animation_complete):
             return
 

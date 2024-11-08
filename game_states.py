@@ -13,3 +13,4 @@ class GameState(Enum):
     STORY = auto()
     LEVEL = auto()
     GAME_OVER = auto()
+    PAUSE = auto()  

@@ -16,6 +16,7 @@ class StoryScreen(Screen):
         Args:
             game (Game): The game object
             init_sound (bool): Whether to initialize the sounds for the story screen
+            I am using story screens background elsewhere in the project but do not always want to initiate the sound. This will later be removed
         """
         super().__init__(game)
         self.game = game
@@ -81,6 +82,8 @@ class StoryScreen(Screen):
     def update(self, dt):
         """
         Update the story screen.
+        Args:
+            dt (float): Time since last update
         """
         current_time = pygame.time.get_ticks()
         dt = self.game.clock.get_time() / 1000

@@ -54,6 +54,8 @@ class LevelScreen(Screen):
     def update(self, dt):
         """
         Update the level one screen
+        Args:
+            dt (float): Time since last update
         """
         dt = self.game.clock.get_time() / 1000  # Convert to seconds
         self.game.character_manager.update_characters(dt)
@@ -98,22 +100,22 @@ class LevelScreen(Screen):
     def draw(self):
         """
         Draw the level one screen
-        Args:
-            screen (Surface): The surface to draw on
         """
         self.screen.blit(self.background, (0, 0))
         self.game.character_manager.draw_characters(self.screen)
         self.game.enemy_manager.draw(self.screen)
         self.game.character_manager.draw_ui(self.screen)
 
-    def handle_events(self, events):
-        """
-        Handle events for the level one screen
-        Args:
-            events (Event): The events to handle
-        """
-        for event in events:
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-                from .pause import PauseScreen
+    # def handle_events(self, events):
+    #     """
+    #     Handle events for the level one screen
+    #     Args:
+    #         events (Event): The events to handle
+    #     """
+    #     # Handle any level-specific events here
+    #     # (like character movement, attacks, etc)
+    #     self.game.character_manager.handle_events(events)
 
-                self.game.change_screen(PauseScreen(self.game, self))
+    # I don't appear to need a handle_events method here. 
+
+
