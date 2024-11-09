@@ -1,5 +1,6 @@
 import pygame
 from game_states import GameState
+import logging
 
 
 class Character(pygame.sprite.Sprite):
@@ -128,8 +129,11 @@ class Character(pygame.sprite.Sprite):
         if is_attacking and not self.attacking and self.attack_timer <= 0:
             self.attacking = True
             self.attack_timer = self.attack_cooldown
-            if self.game:
-                self.game.sound_manager.play_sound("punch")
+            if self.game and hasattr(self.game, 'sound_manager'):
+                try:
+                    self.game.sound_manager.play_sound("punch")
+                except AttributeError:
+                    logging.warning("Sound manager not available")
             print(f"{self.name} (player {self.player_number}) is attacking")
 
         if self.attacking:
@@ -141,7 +145,10 @@ class Character(pygame.sprite.Sprite):
 
             # Collision detection
             if self.game.is_in_state(GameState.LEVEL):
-                self.game.enemy_manager.handle_collision(attack_rect, self.strength)
+                if hasattr(self.game, 'enemy_manager'):
+                    self.game.enemy_manager.handle_collision(attack_rect, self.strength)
+                else:
+                    logging.warning("Enemy manager not available")
 
         if self.attack_timer > 0:
             self.attack_timer -= dt

@@ -1,6 +1,7 @@
 import pygame
 import random
 from enemy import Enemy
+import logging
 
 
 class EnemyManager:
@@ -59,15 +60,21 @@ class EnemyManager:
                 enemy.kill()
 
     def _try_spawn_enemy(self):
-        """
-        Attempt to spawn a new enemy if conditions are met
-        """
-        if len(self.enemies) >= self.max_enemies:
-            return
-
-        spawn_point = random.choice(self.spawn_points)
-        new_enemy = Enemy(self.game, spawn_point)
-        self.enemies.add(new_enemy)
+        """Attempt to spawn an enemy with error handling."""
+        try:
+            if len(self.enemies) >= self.max_enemies:
+                return
+                
+            spawn_point = random.choice(self.spawn_points)
+            # Pass spawn_point directly to Enemy constructor
+            enemy = Enemy(self.game, spawn_point)
+            # Position is now set in Enemy.__init__, no need to set it here
+            self.enemies.add(enemy)
+            
+        except (TypeError, ValueError) as e:
+            logging.error(f"Failed to spawn enemy: {e}")
+        except Exception as e:
+            logging.error(f"Unexpected error in enemy spawn: {e}")
 
     def _find_nearest_target(self, enemy):
         """

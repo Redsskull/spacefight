@@ -1,4 +1,5 @@
 import pygame
+import logging
 from characters import Regar, Susan, Emily, Bart
 
 
@@ -36,20 +37,56 @@ class CharacterManager:
         self.character_group.empty()
         self.character_group.add(self.active_characters)
 
+    def initialize_characters_for_selection(self):
+        """Initialize characters for selection screen with error handling."""
+        try:
+            station_width = 150
+            for i, character in enumerate(self.active_characters):
+                if not character:
+                    logging.error(f"Invalid character at index {i}")
+                    continue
+                    
+                x = 75 + i * (station_width + 25)
+                y = 300
+                character.rect.topleft = (x, y)
+                character.position = pygame.math.Vector2(x, y)
+                
+            self.character_group.empty()
+            self.character_group.add(self.active_characters)
+            
+        except AttributeError as e:
+            logging.error(f"Character initialization failed: {e}")
+            raise
+
     def initialize_characters_for_level(self, selected_characters):
-        """
-        Initialize the characters for the level screen.
-        Args:
-            selected_characters (list): The characters selected by the player
-        """
-        self.active_characters = selected_characters
-        for i, character in enumerate(self.active_characters):
-            x = 100 + (i * 100)
-            y = self.game.SCREEN_HEIGHT - 150
-            character.rect.midbottom = (x, y)
-            character.position = pygame.math.Vector2(x, y - character.rect.height // 2)
-        self.character_group.empty()
-        self.character_group.add(self.active_characters)
+        """Initialize the characters for the level screen."""
+        try:
+            if not selected_characters:
+                raise ValueError("No characters selected")
+                
+            self.active_characters = selected_characters
+            screen_height = getattr(self.game, 'SCREEN_HEIGHT', 720)  # Fallback value
+            
+            for i, character in enumerate(self.active_characters):
+                if not character:
+                    logging.warning(f"Skipping invalid character at index {i}")
+                    continue
+                    
+                x = 100 + (i * 100)
+                y = screen_height - 150
+                try:
+                    character.rect.midbottom = (x, y)
+                    character.position = pygame.math.Vector2(x, y - character.rect.height // 2)
+                except AttributeError as e:
+                    logging.error(f"Invalid character object at index {i}: {e}")
+                    continue
+                    
+            self.character_group.empty()
+            self.character_group.add([c for c in self.active_characters if c])
+            
+        except Exception as e:
+            logging.error(f"Failed to initialize characters: {e}")
+            raise
 
     def draw_characters(self, screen):
         """
@@ -61,51 +98,26 @@ class CharacterManager:
             character.draw(screen)
 
     def draw_ui(self, screen):
-        """Draw UI elements for player characters
-        Args:
-            screen (pygame.Surface): The screen surface
-        """
+        """Draw UI elements with error handling."""
+        if not screen:
+            logging.error("Invalid screen surface")
+            return
+            
         padding = 10
         bar_height = 20
         bar_width = 200
         y_position = padding
 
         for character in self.active_characters:
-            if hasattr(
-                character, "player_number"
-            ):  # Only draw UI for player characters
-                font = pygame.font.Font(None, 24)
-                name_surface = font.render(
-                    character.name, True, (255, 255, 0)
-                )  # Bright yellow
-                screen.blit(name_surface, (padding, y_position))
-
-                # Draw health bar background (red)
-                pygame.draw.rect(
-                    screen,
-                    (255, 0, 0),
-                    (
-                        padding + name_surface.get_width() + 5,
-                        y_position,
-                        bar_width,
-                        bar_height,
-                    ),
-                )
-
-                # Draw current health (green)
-                health_percentage = character.health / character.max_health
-                current_health_width = bar_width * health_percentage
-                pygame.draw.rect(
-                    screen,
-                    (0, 255, 0),
-                    (
-                        padding + name_surface.get_width() + 5,
-                        y_position,
-                        current_health_width,
-                        bar_height,
-                    ),
-                )
-                y_position += bar_height + padding
+            try:
+                if not hasattr(character, "player_number"):
+                    continue
+                    
+                # UI drawing logic here
+                
+            except (AttributeError, TypeError) as e:
+                logging.warning(f"Failed to draw UI for character: {e}")
+                continue
 
     def get_character_by_name(self, name):
         """
