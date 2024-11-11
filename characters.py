@@ -1,6 +1,7 @@
 import pygame
 from game_states import GameState
 import logging
+from typing import Optional, Tuple, List
 
 
 class Character(pygame.sprite.Sprite):
@@ -54,12 +55,8 @@ class Character(pygame.sprite.Sprite):
         self.max_blinks = 10             # Number of blinks before death
         self.death_blink_timer = self.death_blink_duration
 
-    def take_damage(self, amount):
-        """
-        method to control the damage taken by the character
-        Args:
-            amount: amount of damage taken
-        """
+    def take_damage(self, amount: int) -> None:
+        """Take damage"""
         self.health = max(0, self.health - amount)
         if self.health <= 0 and not self.is_dying:
             self.is_dying = True
@@ -77,12 +74,8 @@ class Character(pygame.sprite.Sprite):
         else:
             self.image.blit(self.direction_indicator, (0, 45))
 
-    def move(self, dt):
-        """
-        method to control the character movements
-        Args:
-            dt: time between frames
-        """
+    def move(self, dt: float) -> None:
+        """Move character"""
         keys = pygame.key.get_pressed()
         if self.player_number == 1:
             self.direction.x = keys[pygame.K_d] - keys[pygame.K_a]
@@ -108,12 +101,8 @@ class Character(pygame.sprite.Sprite):
         if self.direction.length() > 0:
             print(f"{self.name} is moving to {self.position}")
 
-    def attack(self, dt):
-        """
-        method to control the character attacks
-        Args:
-            dt: time between frames
-        """
+    def attack(self, dt: float) -> None:
+        """Perform attack"""
         if not self.game.is_in_state(GameState.LEVEL):
             return
 

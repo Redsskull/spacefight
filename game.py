@@ -1,11 +1,13 @@
 # Standard library
 import logging
 import traceback
+from typing import List, Optional, Tuple, Dict, Any
 
 # Third-party
 import pygame
 
 # Local packages
+from screens.base import Screen  # Import Screen directly
 from screens import (
     MainMenu,
     CharacterSelector,
@@ -14,12 +16,14 @@ from screens import (
     PauseScreen,
     GameOverScreen
 )
+
 from managers import (
     SoundManager,
     CharacterManager,
     ScreenEffectsManager,
     EnemyManager
 )
+from characters import Character
 from game_states import GameState
 
 logging.basicConfig(level=logging.DEBUG)
@@ -74,7 +78,7 @@ class Game:
             traceback.print_exc()
             self.running = False
 
-    def set_selected_characters(self, selected_characters):
+    def set_selected_characters(self, selected_characters: List[Character]) -> None:
         """
         Set the selected characters for the game.
 
@@ -150,7 +154,7 @@ class Game:
         if self.current_screen:
             self.current_screen.draw()
 
-    def change_screen(self, new_screen):
+    def change_screen(self, new_screen: Screen) -> None:
         """
         Change the current screen to the new screen.
         """

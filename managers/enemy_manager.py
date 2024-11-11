@@ -2,7 +2,8 @@ import pygame
 import random
 from enemy import Enemy
 import logging
-
+from typing import Optional, Tuple, List
+from characters import Character
 
 class EnemyManager:
     """

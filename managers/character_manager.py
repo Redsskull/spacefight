@@ -1,6 +1,7 @@
 import pygame
 import logging
-from characters import Regar, Susan, Emily, Bart
+from typing import List, Optional, Tuple
+from characters import Regar, Susan, Emily, Bart, Character 
 
 
 class CharacterManager:
@@ -9,7 +10,7 @@ class CharacterManager:
     I will call on this class whenever I need to update the characters, draw them, or handle their movement and attacks.
     """
 
-    def __init__(self, game):
+    def __init__(self, game: 'Game') -> None:
         """
         Initialize the CharacterManager.
         Args:
@@ -17,13 +18,13 @@ class CharacterManager:
         important, this is where the sorite group is created..
         """
         self.game = game
-        self.all_characters = [Regar(game), Susan(game), Emily(game), Bart(game)]
-        self.active_characters = []
-        self.character_group = pygame.sprite.Group()
+        self.all_characters: List[Character] = [Regar(game), Susan(game), Emily(game), Bart(game)]
+        self.active_characters: List[Character] = []
+        self.character_group: pygame.sprite.Group = pygame.sprite.Group()
         for character in self.all_characters:
             self.character_group.add(character)
 
-    def initialize_characters_for_story(self):
+    def initialize_characters_for_story(self) -> None:
         """
         Initialize the characters in the story screen.
         """
@@ -37,7 +38,7 @@ class CharacterManager:
         self.character_group.empty()
         self.character_group.add(self.active_characters)
 
-    def initialize_characters_for_selection(self):
+    def initialize_characters_for_selection(self) -> None:
         """Initialize characters for selection screen with error handling."""
         try:
             station_width = 150
@@ -59,7 +60,10 @@ class CharacterManager:
             raise
 
     def initialize_characters_for_level(self, selected_characters):
-        """Initialize the characters for the level screen."""
+        """Initialize the characters for the level screen.
+        Args:
+            selected_characters (List[Character]): The selected characters
+        """
         try:
             if not selected_characters:
                 raise ValueError("No characters selected")
@@ -119,7 +123,7 @@ class CharacterManager:
                 logging.warning(f"Failed to draw UI for character: {e}")
                 continue
 
-    def get_character_by_name(self, name):
+    def get_character_by_name(self, name: str) -> Optional[Character]:
         """
         Get a character by name.
         Args:
@@ -127,7 +131,10 @@ class CharacterManager:
         Returns:
             Character: The character with the given name, or None if not found
         """
-        return next((char for char in self.all_characters if char.name == name), None)
+        for character in self.all_characters:
+            if character.name == name:
+                return character
+        return None
 
     def update_characters(self, dt):
         """
