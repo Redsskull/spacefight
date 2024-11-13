@@ -1,9 +1,5 @@
 # SpaceFight Development: Next Steps
 
-## 1. Code Organization and Structure
-- Create a dedicated config.py for game constants
-- Add comprehensive docstrings and comments
-
 ## 2. Game Features
 - Add difficulty levels (Easy, Normal, Hard)
 - Implement a scoring system
