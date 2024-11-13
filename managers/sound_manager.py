@@ -2,6 +2,7 @@
 import pygame
 from pathlib import Path
 from typing import Dict, Optional
+from config import SOUND_SETTINGS, SOUND_REGISTRY
 
 class SoundManager:
     """
@@ -10,25 +11,13 @@ class SoundManager:
     """
     def __init__(self):
         """Initialize the sound manager with default settings and preload all game sounds."""
-        self.music_volume = 0.5
-        self.sound_volume = 0.5
+        self.music_volume = SOUND_SETTINGS['default_music_volume']
+        self.sound_volume = SOUND_SETTINGS['default_sound_volume']
         self.sounds: Dict[str, pygame.mixer.Sound] = {}
         self.current_music: Optional[str] = None
         
         # Define sound categories and their associated files
-        self.sound_registry = {
-            'music': {
-                'main_menu': 'main_menu.mp3',
-                'character_select': 'Choose_your_character.mp3',
-                'battle': 'battlegamenoises.mp3',
-                'story': 'storysound.mp3'
-            },
-            'effects': {
-                'punch': 'punch.mp3',
-                'metal': 'metal_sound.mp3',
-                'alarm': 'alarm.wav'
-            }
-        }
+        self.sound_registry = SOUND_REGISTRY
         
         # Preload all sounds on initialization
         self._preload_sounds()

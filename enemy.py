@@ -1,6 +1,7 @@
 import pygame
 from enum import Enum
 from characters import Character
+from config import ENEMY_STATS, ENEMY_ATTACK
 
 class EnemyState(Enum):
     """Enum for tracking enemy AI states
@@ -27,22 +28,38 @@ class Enemy(Character):
             game (Game): The game instance
             spawn_position (tuple): The x,y coordinates where the enemy spawns
         """
-        super().__init__("Enemy", health=50, speed=150, strength=5, game=game)
-        self.color = (255, 165, 0)  # Orange color for enemy
+        # Change from passing individual stats to just passing "Enemy" name
+        super().__init__("Enemy", game)
+        
+        # Override the stats from config after parent initialization
+        stats = ENEMY_STATS
+        self.health = stats["health"]
+        self.speed = stats["speed"]
+        self.strength = stats["strength"]
+        self.color = stats["color"]
+        
         self.image.fill(self.color)
         self.position = pygame.math.Vector2(spawn_position)
         self.rect.topleft = (int(self.position.x), int(self.position.y))
+        
+        # State management
         self.state = EnemyState.SPAWNING
         self.target = None
-        self.attack_range_distance = 60  # Attack range in pixels
-        self.attack_range = pygame.Surface((50, 100))
-        self.attack_range.fill((255, 165, 0, 128))  # Semi-transparent orange
-        self.stun_duration = 0.5  # seconds
-        self.stun_timer = 0
-        self.attack_cooldown = 1.0  # seconds
+        
+        # Attack properties
+        self.attack_range_distance = ENEMY_ATTACK["range_distance"]
+        self.attack_range = pygame.Surface(ENEMY_ATTACK["range_size"])
+        self.attack_range.fill(ENEMY_ATTACK["range_color"])
+        self.attack_cooldown = ENEMY_ATTACK["cooldown"]
         self.attack_timer = 0
         self.attacking = False
-        self.death_blink_speed = 0.07  # Twice as fast (was 0.1)
+        
+        # Stun properties
+        self.stun_duration = ENEMY_STATS["stun_duration"]
+        self.stun_timer = 0
+        
+        # Death animation
+        self.death_blink_speed = ENEMY_STATS["death_blink_speed"]
         self.death_duration = 0.5      # Half duration (was 1.0)
         self.death_blink_duration = 0.05  # Faster blinks
         self.death_total_time = 0.5       # Shorter total duration

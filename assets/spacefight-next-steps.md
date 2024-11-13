@@ -1,8 +1,6 @@
 # SpaceFight Development: Next Steps
 
 ## 1. Code Organization and Structure
-- Implement proper error handling throughout
-- Add type hints for better code maintainability 
 - Create a dedicated config.py for game constants
 - Add comprehensive docstrings and comments
 

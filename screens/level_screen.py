@@ -1,5 +1,6 @@
 import pygame
 from .base import Screen
+from config import LEVEL_BOUNDS
 
 
 class LevelScreen(Screen):
@@ -23,10 +24,10 @@ class LevelScreen(Screen):
 
         # Define boundries
 
-        self.floor_y = 447  # Upper boundry
-        self.ceiling_y = 575  # Lower boundry
-        self.left_x = 187  # Left boundry
-        self.right_x = 1058  # Right boundry
+        self.floor_y = LEVEL_BOUNDS["floor_y"]
+        self.ceiling_y = LEVEL_BOUNDS["ceiling_y"]
+        self.left_x =  LEVEL_BOUNDS["left_x"]
+        self.right_x = LEVEL_BOUNDS["right_x"]
 
     def initialize_assets(self):
         """

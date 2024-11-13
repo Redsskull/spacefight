@@ -2,7 +2,7 @@ import pygame
 from game_states import GameState
 import logging
 from typing import Optional, Tuple, List
-
+from config import CHARACTER_STATS, ATTACK_SETTINGS
 
 class Character(pygame.sprite.Sprite):
     """
@@ -11,40 +11,46 @@ class Character(pygame.sprite.Sprite):
         pygame.sprite.Sprite: parent class
     """
 
-    def __init__(self, name, health, speed, strength, game):
+    def __init__(self, name, game):
         """
         method to control the attributes of the characters
         Args:
             name: name of the character
-            health: health of the character
-            speed: speed of the character
-            strength: strength of the character
             game: game object
         """
         super().__init__()
+        # Get character stats from config
+        stats = CHARACTER_STATS[name]
         self.name = name
-        self.health = health
-        self.speed = speed
-        self.strength = strength
+        self.health = stats["health"]
+        self.speed = stats["speed"]
+        self.strength = stats["strength"]
+        self.color = stats["color"]
         self.game = game
-        self.color = (255, 0, 0)  # Default color is red
-        self.image = pygame.Surface((50, 100))  # Placeholder rectangle
+        
+        # Create character sprite
+        self.image = pygame.Surface((50, 100))
         self.image.fill(self.color)
         self.facing_right = True
-        self.direction_indicator = pygame.Surface((10, 10))  # Placeholder rectangle
-        self.direction_indicator.fill((0, 255, 0))  # Green color
+        
+        # Direction indicator
+        self.direction_indicator = pygame.Surface((10, 10))
+        self.direction_indicator.fill((0, 255, 0))
+        
         self.update_sprite()
         self.rect = self.image.get_rect()
         self.position = pygame.math.Vector2(self.rect.topleft)
         self.direction = pygame.math.Vector2()
-        self.player_number = None  # May have to change to 0
+        self.player_number = None
+        
+        # Attack properties
         self.attacking = False
-        self.attack_cooldown = 0.1  # 0.5 seconds between attacks
         self.attack_timer = 0
-        self.attack_range = pygame.Surface((50, 100))  # Placeholder rectangle
-        self.attack_range.fill((144, 238, 144))  # Light green colort
-        self.max_health = health
-        self.health = health
+        self.attack_cooldown = ATTACK_SETTINGS["cooldown"]
+        self.attack_range = pygame.Surface(ATTACK_SETTINGS["range_size"])
+        self.attack_range.fill(ATTACK_SETTINGS["range_color"])
+        
+        self.max_health = stats["health"]
         self.is_dying = False
         self.visible = True
         self.animation_complete = False
@@ -217,9 +223,7 @@ class Regar(Character):
             speed: speed of the character
             strength: strength of the character
         """
-        super().__init__("Regar", health=120, speed=200, strength=10, game=game)
-        self.color = (0, 0, 255)  # Blue color for Regar
-        self.image.fill(self.color)
+        super().__init__("Regar", game=game)
         self.update_sprite()
 
 
@@ -239,9 +243,7 @@ class Susan(Character):
             speed: speed of the character
             strength: strength of the character
         """
-        super().__init__("Susan", health=100, speed=250, strength=8, game=game)
-        self.color = (0, 255, 0)  # Green color for Susan
-        self.image.fill(self.color)
+        super().__init__("Susan", game=game)
         self.update_sprite()
 
 
@@ -261,9 +263,7 @@ class Emily(Character):
             speed: speed of the character
             strength: strength of the character
         """
-        super().__init__("Emily", health=90, speed=300, strength=7, game=game)
-        self.color = (255, 255, 0)  # Yellow color for Emily
-        self.image.fill(self.color)
+        super().__init__("Emily", game=game)
         self.update_sprite()
 
 
@@ -283,7 +283,5 @@ class Bart(Character):
             speed: speed of the character
             strength: strength of the character
         """
-        super().__init__("Bart", health=150, speed=180, strength=12, game=game)
-        self.color = (255, 0, 255)  # Magenta color for Bart
-        self.image.fill(self.color)
+        super().__init__("Bart", game=game)
         self.update_sprite()

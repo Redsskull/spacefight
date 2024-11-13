@@ -4,6 +4,7 @@ from enemy import Enemy
 import logging
 from typing import Optional, Tuple, List
 from characters import Character
+from config import ENEMY_SPAWN
 
 class EnemyManager:
     """
@@ -19,19 +20,10 @@ class EnemyManager:
         """
         self.game = game
         self.enemies = pygame.sprite.Group()
-        self.spawn_points = [
-            # Left side spawn points
-            (-50, 447),
-            (-50, 500),
-            (-50, 575),
-            # Right side spawn points
-            (1250, 447),
-            (1250, 500),
-            (1250, 575),
-        ]
+        self.spawn_points = ENEMY_SPAWN["spawn_points"]
         self.spawn_timer = 0
-        self.spawn_cooldown = 3.0  # Seconds between spawn attempts
-        self.max_enemies = 10
+        self.spawn_cooldown = ENEMY_SPAWN["spawn_cooldown"]
+        self.max_enemies = ENEMY_SPAWN["max_enemies"]
 
     def update(self, dt):
         """
@@ -63,21 +55,14 @@ class EnemyManager:
     def _try_spawn_enemy(self):
         """Attempt to spawn an enemy with error handling."""
         try:
-            if len(self.enemies) >= self.max_enemies:
-                return
-                
-            spawn_point = random.choice(self.spawn_points)
-            # Pass spawn_point directly to Enemy constructor
-            enemy = Enemy(self.game, spawn_point)
-            # Position is now set in Enemy.__init__, no need to set it here
-            self.enemies.add(enemy)
-            
-        except (TypeError, ValueError) as e:
-            logging.error(f"Failed to spawn enemy: {e}")
+            if len(self.enemies) < self.max_enemies:
+                spawn_point = random.choice(self.spawn_points)
+                enemy = Enemy(self.game, spawn_point)
+                self.enemies.add(enemy)
         except Exception as e:
-            logging.error(f"Unexpected error in enemy spawn: {e}")
+            logging.error(f"Failed to spawn enemy: {str(e)}")
 
-    def _find_nearest_target(self, enemy):
+    def _find_nearest_target(self, enemy: Enemy) -> Optional[Character]:
         """
         Find the nearest player character to the enemy
         Args:
@@ -146,7 +131,7 @@ class EnemyManager:
                     ),
                 )
 
-    def handle_collision(self, player_attack_rect, player_strength):
+    def handle_collision(self, player_attack_rect: pygame.Rect, player_strength: int) -> None:
         """
         Handle collisions between player attacks and enemies
         Args:

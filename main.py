@@ -3,9 +3,10 @@ import logging
 import pygame
 from game import Game
 from screens.main_menu import MainMenu
+import config
 
-SCREEN_WIDTH = 1280
-SCREEN_HEIGHT = 720
+config.SCREEN_WIDTH = 1280
+config.SCREEN_HEIGHT = 720
 
 logging.basicConfig(
     level=logging.INFO,
@@ -20,7 +21,7 @@ def main():
             raise pygame.error(f"Pygame failed to initialize: {pygame.get_error()}")
         
         logging.info("Starting SpaceFight...")
-        game = Game(SCREEN_WIDTH, SCREEN_HEIGHT)
+        game = Game(config.SCREEN_WIDTH, config.SCREEN_HEIGHT)
         game.start()
     
     except pygame.error as e:

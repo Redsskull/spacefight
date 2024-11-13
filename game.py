@@ -119,6 +119,7 @@ class Game:
             logging.info("Game loop exited gracefully.")
         except Exception as e:
             logging.error(f"An unexpected error occurred during the game loop: {e}")
+            print(e)
             traceback.print_exc()
         finally:
             pygame.quit()
