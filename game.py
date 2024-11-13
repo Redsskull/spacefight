@@ -158,6 +158,8 @@ class Game:
     def change_screen(self, new_screen: Screen) -> None:
         """
         Change the current screen to the new screen.
+        Args:
+            new_screen (Screen): The new screen to change to.
         """
         self.current_screen = new_screen
         if isinstance(new_screen, MainMenu):

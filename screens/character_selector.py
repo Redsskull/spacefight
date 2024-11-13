@@ -171,6 +171,8 @@ class CharacterSelector(Screen):
     def update(self, dt):
         """
         Update the character selector screen
+        Args:
+            dt (float): Time since last update
         """
         if self.error_timer > 0:
             self.error_timer -= self.game.clock.get_time()

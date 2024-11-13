@@ -102,7 +102,10 @@ class CharacterManager:
             character.draw(screen)
 
     def draw_ui(self, screen):
-        """Draw UI elements with error handling."""
+        """Draw UI elements with error handling.
+        Args:
+            screen (pygame.Surface): The screen surface
+        """
         if not screen:
             logging.error("Invalid screen surface")
             return

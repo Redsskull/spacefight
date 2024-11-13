@@ -28,7 +28,6 @@ class Enemy(Character):
             game (Game): The game instance
             spawn_position (tuple): The x,y coordinates where the enemy spawns
         """
-        # Change from passing individual stats to just passing "Enemy" name
         super().__init__("Enemy", game)
         
         # Override the stats from config after parent initialization
@@ -104,7 +103,10 @@ class Enemy(Character):
         self.update_sprite()
 
     def _is_outside_screen(self):
-        """Check if enemy is outside the screen boundaries"""
+        """Check if enemy is outside the screen boundaries
+        Returns:
+            bool: True if enemy is outside the screen
+        """
         return (
             self.position.x < self.game.current_screen.left_x
             or self.position.x > self.game.current_screen.right_x
@@ -159,6 +161,8 @@ class Enemy(Character):
         """Perform attack when in range
         Args:
             dt (float): Time delta since last update
+        return:
+            None
         """
         if not self.target:
             self.state = EnemyState.PURSUING

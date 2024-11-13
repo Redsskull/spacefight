@@ -81,7 +81,10 @@ class Character(pygame.sprite.Sprite):
             self.image.blit(self.direction_indicator, (0, 45))
 
     def move(self, dt: float) -> None:
-        """Move character"""
+        """Move character
+        Args:
+            dt: time between frames
+        """
         keys = pygame.key.get_pressed()
         if self.player_number == 1:
             self.direction.x = keys[pygame.K_d] - keys[pygame.K_a]
@@ -108,7 +111,10 @@ class Character(pygame.sprite.Sprite):
             print(f"{self.name} is moving to {self.position}")
 
     def attack(self, dt: float) -> None:
-        """Perform attack"""
+        """Perform attack
+        Args:
+            dt: time between frames
+        """
         if not self.game.is_in_state(GameState.LEVEL):
             return
 
