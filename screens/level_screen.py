@@ -51,6 +51,10 @@ class LevelScreen(Screen):
         """
         selected_characters = self.game.get_selected_characters()
         self.game.character_manager.initialize_characters_for_level(selected_characters)
+        
+        # Load sprite sheets for each character
+        for character in selected_characters:
+            character.load_sprite_sheets()
 
     def update(self, dt):
         """
@@ -117,6 +121,6 @@ class LevelScreen(Screen):
     #     # (like character movement, attacks, etc)
     #     self.game.character_manager.handle_events(events)
 
-    # I don't appear to need a handle_events method here. 
+    # I don't appear to need a handle_events method here.
 
 

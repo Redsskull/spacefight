@@ -2,7 +2,7 @@ import pygame
 from game_states import GameState
 import logging
 from typing import Optional, Tuple, List
-from config import CHARACTER_STATS, ATTACK_SETTINGS
+from config import CHARACTER_STATS, ATTACK_SETTINGS, CHARACTER_SPRITES
 
 class Character(pygame.sprite.Sprite):
     """
@@ -49,6 +49,7 @@ class Character(pygame.sprite.Sprite):
         self.attack_cooldown = ATTACK_SETTINGS["cooldown"]
         self.attack_range = pygame.Surface(ATTACK_SETTINGS["range_size"])
         self.attack_range.fill(ATTACK_SETTINGS["range_color"])
+    
         
         self.max_health = stats["health"]
         self.is_dying = False
@@ -60,6 +61,19 @@ class Character(pygame.sprite.Sprite):
         self.death_total_time = 2.0      # Total animation duration
         self.max_blinks = 10             # Number of blinks before death
         self.death_blink_timer = self.death_blink_duration
+
+        # Initialize sprite sheets dict based on available animations
+        self.sprite_sheets = {}
+        self.available_animations = CHARACTER_SPRITES.get(self.name, {})
+        self.ranged_attacker = 'shoot' in self.available_animations
+        
+        self.current_animation = None
+        self.animation_frame = 0
+        self.animation_timer = 0
+        self.frame_duration = 0.1  # Adjust timing as needed
+        
+        # Flag to track if we're using sprite sheets
+        self.using_sprites = False
 
     def take_damage(self, amount: int) -> None:
         """Take damage"""
@@ -156,6 +170,71 @@ class Character(pygame.sprite.Sprite):
         else:
             self.attacking = False
 
+    def load_sprite_sheets(self):
+        """Load character-specific sprite sheets for level gameplay"""
+        try:
+            # Create character-specific path
+            char_folder = self.name.lower()
+            sprite_path = f"assets/sprites/{char_folder}"
+            
+            # Get character-specific sprite info
+            sprite_info = CHARACTER_SPRITES.get(self.name, {})
+            if not sprite_info:
+                logging.warning(f"No sprite configuration found for {self.name}")
+                return
+                
+            # Load each available animation
+            for anim_type, info in sprite_info.items():
+                sprite_name = info["name"]
+                full_path = f"{sprite_path}/{sprite_name}.png"
+                self.sprite_sheets[anim_type] = {
+                    "surface": pygame.image.load(full_path).convert_alpha(),
+                    "frames": info["frames"]
+                }
+                
+            self.using_sprites = True
+            
+            # Get frame dimensions from first loaded sprite
+            first_sheet = next(iter(self.sprite_sheets.values()))["surface"]
+            first_frames = next(iter(self.sprite_sheets.values()))["frames"]
+            self.frame_width = first_sheet.get_width() // first_frames
+            self.frame_height = first_sheet.get_height()
+            
+        except (pygame.error, StopIteration) as e:
+            logging.error(f"Failed to load sprites for {self.name}: {e}")
+            self.using_sprites = False
+
+    def get_current_frame(self, animation_name):
+        """Extract the current frame from a sprite sheet"""
+        if not self.using_sprites or animation_name not in self.sprite_sheets:
+            return self.image
+
+        sheet_info = self.sprite_sheets[animation_name]
+        sheet = sheet_info["surface"]
+        total_frames = sheet_info["frames"]
+        
+        frame_x = (self.animation_frame % total_frames) * self.frame_width
+        subsurface = sheet.subsurface((frame_x, 0, self.frame_width, self.frame_height))
+        
+        if not self.facing_right:
+            subsurface = pygame.transform.flip(subsurface, True, False)
+            
+        return subsurface
+
+    def get_current_animation(self):
+        """Determine which animation to use based on state"""
+        # Check sprite availability first
+        if self.attacking:
+            if self.ranged_attacker and 'shoot' in self.sprite_sheets:
+                return 'shoot'
+            if 'attack' in self.sprite_sheets:
+                return 'attack'
+        elif self.direction.length() > 0 and 'walk' in self.sprite_sheets:
+            return 'walk'
+        
+        # Default to idle if available, otherwise walk
+        return 'idle' if 'idle' in self.sprite_sheets else 'walk'
+
     def update(self, dt):
         """
         method to update the character
@@ -176,6 +255,16 @@ class Character(pygame.sprite.Sprite):
                 self.visible = False
             return
 
+        if self.using_sprites:
+            self.animation_timer += dt
+            if self.animation_timer >= self.frame_duration:
+                self.animation_timer = 0
+                current_anim = self.get_current_animation()
+                total_frames = self.sprite_sheets[current_anim]["frames"]
+                self.animation_frame = (self.animation_frame + 1) % total_frames
+                
+            self.current_animation = self.get_current_animation()
+
         self.move(dt)
         self.attack(dt)
 
@@ -188,21 +277,37 @@ class Character(pygame.sprite.Sprite):
                 self.image.fill((0, 0, 0))  # Blink to black
 
     def draw(self, screen):
-        """Draw method with death animation support
-        Args:
-            screen: screen to draw on
         """
-        if not self.visible or (self.is_dying and self.animation_complete):
+        Draw the character on the screen
+        Args:
+            screen (pygame.Surface): The screen to draw on
+        """
+        if self.is_dying and self.animation_complete:
             return
 
-        screen.blit(self.image, self.rect)
-        if self.attacking:
-            attack_rect = self.attack_range.get_rect()
-            if self.facing_right:
-                attack_rect.midleft = (self.rect.centerx, self.rect.centery)
-            else:
-                attack_rect.midright = (self.rect.centerx, self.rect.centery)
-            screen.blit(self.attack_range, attack_rect)
+        if self.using_sprites and self.visible:
+            # Draw sprite-based character
+            current_frame = self.get_current_frame(self.current_animation)
+            screen.blit(current_frame, self.rect)
+            
+            # Draw attack range if attacking
+            if self.attacking:
+                attack_rect = self.attack_range.get_rect()
+                if self.facing_right:
+                    attack_rect.midleft = (self.rect.centerx, self.rect.centery)
+                else:
+                    attack_rect.midright = (self.rect.centerx, self.rect.centery)
+                screen.blit(self.attack_range, attack_rect)
+        else:
+            # Draw rectangle-based character
+            if self.visible:
+                screen.blit(self.image, self.rect)
+                # Draw direction indicator
+                if self.facing_right:
+                    indicator_pos = (self.rect.right - 5, self.rect.centery - 5)
+                else:
+                    indicator_pos = (self.rect.left - 5, self.rect.centery - 5)
+                screen.blit(self.direction_indicator, indicator_pos)
 
     def set_player_number(self, number):
         """

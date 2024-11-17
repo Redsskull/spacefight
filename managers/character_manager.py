@@ -60,30 +60,27 @@ class CharacterManager:
             raise
 
     def initialize_characters_for_level(self, selected_characters):
-        """Initialize the characters for the level screen.
-        Args:
-            selected_characters (List[Character]): The selected characters
-        """
+        """Initialize the characters for the level screen."""
         try:
             if not selected_characters:
                 raise ValueError("No characters selected")
                 
             self.active_characters = selected_characters
-            screen_height = getattr(self.game, 'SCREEN_HEIGHT', 720)  # Fallback value
+            screen_height = getattr(self.game, 'SCREEN_HEIGHT', 720)
             
             for i, character in enumerate(self.active_characters):
                 if not character:
                     logging.warning(f"Skipping invalid character at index {i}")
                     continue
                     
+                # Position character
                 x = 100 + (i * 100)
                 y = screen_height - 150
-                try:
-                    character.rect.midbottom = (x, y)
-                    character.position = pygame.math.Vector2(x, y - character.rect.height // 2)
-                except AttributeError as e:
-                    logging.error(f"Invalid character object at index {i}: {e}")
-                    continue
+                character.rect.midbottom = (x, y)
+                character.position = pygame.math.Vector2(x, y - character.rect.height // 2)
+                
+                # Load sprite sheets for level
+                character.load_sprite_sheets()
                     
             self.character_group.empty()
             self.character_group.add([c for c in self.active_characters if c])

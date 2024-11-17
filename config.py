@@ -48,6 +48,33 @@ CHARACTER_STATS = {
     "Enemy": ENEMY_STATS
 }
 
+# Character sprites
+CHARACTER_SPRITES = {
+    "Regar": {
+        "walk": {"name": "regar_walk", "frames": 6},
+        "shoot": {"name": "regar_shoot", "frames": 3},
+        "attack": {"name": "regar_punch", "frames": 4}
+    },
+    "Susan": {
+        "idle": {"name": "susan_idle", "frames": 4},
+        "walk": {"name": "susan_walk", "frames": 8},
+        "attack": {"name": "susan_attack", "frames": 8},
+        "hurt": {"name": "susan_hurt", "frames": 1}
+    },
+    "Emily": {
+        "idle": {"name": "emily_idle", "frames": 4},
+        "walk": {"name": "emily_walk", "frames": 10},
+        "attack": {"name": "emily_kick", "frames": 5},
+        "hurt": {"name": "emily_hurt", "frames": 2}
+    },
+    "Bart": {
+        "idle": {"name": "bart_idle", "frames": 4},
+        "walk": {"name": "bart_walk", "frames": 4},
+        "attack": {"name": "bart_punch", "frames": 3},
+        "hurt": {"name": "bart_hurt", "frames": 4}
+    }
+}
+
 # Combat settings
 ATTACK_SETTINGS = {
     "cooldown": 0.1,
