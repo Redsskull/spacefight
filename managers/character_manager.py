@@ -1,7 +1,7 @@
 import pygame
 import logging
 from typing import List, Optional, Tuple
-from characters import Regar, Susan, Emily, Bart, Character 
+from characters import Regar, Susan, Emily, Bart, Character
 
 
 class CharacterManager:
@@ -10,7 +10,7 @@ class CharacterManager:
     I will call on this class whenever I need to update the characters, draw them, or handle their movement and attacks.
     """
 
-    def __init__(self, game: 'Game') -> None:
+    def __init__(self, game: "Game") -> None:
         """
         Initialize the CharacterManager.
         Args:
@@ -18,7 +18,12 @@ class CharacterManager:
         important, this is where the sorite group is created..
         """
         self.game = game
-        self.all_characters: List[Character] = [Regar(game), Susan(game), Emily(game), Bart(game)]
+        self.all_characters: List[Character] = [
+            Regar(game),
+            Susan(game),
+            Emily(game),
+            Bart(game),
+        ]
         self.active_characters: List[Character] = []
         self.character_group: pygame.sprite.Group = pygame.sprite.Group()
         for character in self.all_characters:
@@ -46,15 +51,15 @@ class CharacterManager:
                 if not character:
                     logging.error(f"Invalid character at index {i}")
                     continue
-                    
+
                 x = 75 + i * (station_width + 25)
                 y = 300
                 character.rect.topleft = (x, y)
                 character.position = pygame.math.Vector2(x, y)
-                
+
             self.character_group.empty()
             self.character_group.add(self.active_characters)
-            
+
         except AttributeError as e:
             logging.error(f"Character initialization failed: {e}")
             raise
@@ -64,27 +69,29 @@ class CharacterManager:
         try:
             if not selected_characters:
                 raise ValueError("No characters selected")
-                
+
             self.active_characters = selected_characters
-            screen_height = getattr(self.game, 'SCREEN_HEIGHT', 720)
-            
+            screen_height = getattr(self.game, "SCREEN_HEIGHT", 720)
+
             for i, character in enumerate(self.active_characters):
                 if not character:
                     logging.warning(f"Skipping invalid character at index {i}")
                     continue
-                    
+
                 # Position character
                 x = 100 + (i * 100)
                 y = screen_height - 150
                 character.rect.midbottom = (x, y)
-                character.position = pygame.math.Vector2(x, y - character.rect.height // 2)
-                
+                character.position = pygame.math.Vector2(
+                    x, y - character.rect.height // 2
+                )
+
                 # Load sprite sheets for level
                 character.load_sprite_sheets()
-                    
+
             self.character_group.empty()
             self.character_group.add([c for c in self.active_characters if c])
-            
+
         except Exception as e:
             logging.error(f"Failed to initialize characters: {e}")
             raise
@@ -106,7 +113,7 @@ class CharacterManager:
         if not screen:
             logging.error("Invalid screen surface")
             return
-            
+
         padding = 10
         bar_height = 20
         bar_width = 200
@@ -116,9 +123,44 @@ class CharacterManager:
             try:
                 if not hasattr(character, "player_number"):
                     continue
-                    
-                # UI drawing logic here
-                
+
+                x_position = padding + (character.player_number - 1) * (
+                    bar_width + padding
+                )
+
+                # Draw player number
+                font = pygame.font.Font(None, 36)
+                player_text = f"P{character.player_number}"
+                text_surface = font.render(player_text, True, (255, 255, 255))
+                screen.blit(text_surface, (x_position, y_position))
+
+                # Draw health bar background
+                health_bar_bg = pygame.Rect(
+                    x_position, y_position + 30, bar_width, bar_height
+                )
+                pygame.draw.rect(screen, (255, 0, 0), health_bar_bg)
+
+                # Draw current health
+                if character.health > 0:
+                    current_health_width = (
+                        character.health / character.max_health
+                    ) * bar_width
+                    current_health_bar = pygame.Rect(
+                        x_position, y_position + 30, current_health_width, bar_height
+                    )
+                    pygame.draw.rect(screen, (0, 255, 0), current_health_bar)
+
+                # Draw health text
+                health_text = f"{character.health}/{character.max_health}"
+                text_surface = font.render(health_text, True, (255, 255, 255))
+                text_rect = text_surface.get_rect(
+                    center=(
+                        x_position + bar_width / 2,
+                        y_position + 30 + bar_height / 2,
+                    )
+                )
+                screen.blit(text_surface, text_rect)
+
             except (AttributeError, TypeError) as e:
                 logging.warning(f"Failed to draw UI for character: {e}")
                 continue
