@@ -18,54 +18,14 @@ class Character(pygame.sprite.Sprite):
         """Initialize character"""
         super().__init__()
         
-        # Basic attributes first
+        # Basic attributes and stats
         self.name = name
         self.game = game
-        
-        # Restore original sizes
-        self.image = pygame.Surface((40, 40))  # Smaller default size
-        self.rect = self.image.get_rect()
-        self.position = pygame.math.Vector2(self.rect.topleft)
-        
-        # Smaller direction indicator
-        self.direction_indicator = pygame.Surface((20, 30))
-        self.direction_indicator.fill(pygame.Color("red"))
-        
-        # Sprite flags - only set True in Regar's init
-        self.using_sprites = False
-        self.sprites_loaded = False
-
-        # Basic attributes first
-        self.name = name
-        self.game = game
-        
-        # Create sprite surface and rect BEFORE position
-        self.image = pygame.Surface((80, 150))
-        self.rect = self.image.get_rect()
-        
-        # NOW we can set position using rect
-        self.position = pygame.math.Vector2(self.rect.topleft)
-        self.direction = pygame.math.Vector2()
-        self.player_number = None
-        
-        # Get character stats from config
         stats = CHARACTER_STATS[name]
         self.health = stats["health"]
         self.speed = stats["speed"]
         self.strength = stats["strength"]
         self.color = stats["color"]
-
-        self.facing_right = True
-        
-        # Fill color after getting it from stats
-        self.image.fill(self.color)
-        
-        # Direction indicator
-        self.direction_indicator = pygame.Surface((40, 60))
-        self.direction_indicator.fill(pygame.Color("red"))
-        
-        # Now safe to call update_sprite
-        self.update_sprite()
 
         # Attack properties
         self.attacking = False
@@ -73,7 +33,29 @@ class Character(pygame.sprite.Sprite):
         self.attack_cooldown = ATTACK_SETTINGS["cooldown"]
         self.attack_range = pygame.Surface(ATTACK_SETTINGS["range_size"])
         self.attack_range.fill(ATTACK_SETTINGS["range_color"])
-
+        
+        # Create surface and set color
+        self.image = pygame.Surface((50, 100))
+        self.image.fill(self.color)
+        self.facing_right = True
+        
+        # Sprite initialization flags
+        self.using_sprites = False
+        self.sprites_loaded = False
+        
+        # Direction indicator
+        self.direction_indicator = pygame.Surface((10, 10))
+        self.direction_indicator.fill((0, 255, 0))
+        
+        # Position setup
+        self.rect = self.image.get_rect()
+        self.position = pygame.math.Vector2(self.rect.topleft)
+        self.direction = pygame.math.Vector2()
+        self.player_number = None
+        
+        # Now safe to update sprite
+        self.update_sprite()
+        
         self.max_health = stats["health"]
         self.is_dying = False
         self.visible = True
@@ -144,46 +126,46 @@ class Character(pygame.sprite.Sprite):
             print(f"{self.name} is moving to {self.position}")
 
     def attack(self, dt: float) -> None:
-        """Perform attack
-        Args:
-            dt: time between frames
-        """
+        """Perform attack"""
         if not self.game.is_in_state(GameState.LEVEL):
             return
-
+        
+        # Get input based on player number
         if self.player_number == 1:
-            # player 1 attack with left/right mouse buttons
             mouse = pygame.mouse.get_pressed()
-            is_attacking = mouse[0] or mouse[2]  # left or right mouse button
+            is_attacking = mouse[0] or mouse[2]
         elif self.player_number == 2:
-            # player 2 attacks with K_RCTRL (right ctrl) and K_RSHIFT (right shift)
             keys = pygame.key.get_pressed()
             is_attacking = keys[pygame.K_RCTRL] or keys[pygame.K_RSHIFT]
+        else:
+            return
 
+        # Handle attack initiation
         if is_attacking and not self.attacking and self.attack_timer <= 0:
             self.attacking = True
             self.attack_timer = self.attack_cooldown
-            if self.game and hasattr(self.game, "sound_manager"):
+            if hasattr(self.game, "sound_manager"):
                 try:
                     self.game.sound_manager.play_sound("punch")
                 except AttributeError:
                     logging.warning("Sound manager not available")
-            print(f"{self.name} (player {self.player_number}) is attacking")
 
+        # Handle attack collision and visuals
         if self.attacking:
             attack_rect = self.attack_range.get_rect()
+            
+            # Position attack from collision box (red rectangle)
             if self.facing_right:
-                attack_rect.midleft = (self.rect.centerx, self.rect.centery)
+                attack_rect.midleft = self.rect.midright
             else:
-                attack_rect.midright = (self.rect.centerx, self.rect.centery)
+                attack_rect.midright = self.rect.midleft
 
-            # Collision detection
+            # Handle collision detection
             if self.game.is_in_state(GameState.LEVEL):
                 if hasattr(self.game, "enemy_manager"):
                     self.game.enemy_manager.handle_collision(attack_rect, self.strength)
-                else:
-                    logging.warning("Enemy manager not available")
 
+        # Update attack timer
         if self.attack_timer > 0:
             self.attack_timer -= dt
         else:
@@ -196,10 +178,23 @@ class Character(pygame.sprite.Sprite):
             
         try:
             sprite_path = f"assets/sprites/regar"
-            self.sprite_load_count = getattr(self, 'sprite_load_count', 0) + 1
-            logging.debug(f"\nLoading Regar sprites (attempt #{self.sprite_load_count})")
             
+            # Get the first animation's dimensions to set base rect size
+            first_anim = next(iter(CHARACTER_SPRITES["Regar"].items()))
+            first_sheet = pygame.image.load(f"{sprite_path}/{first_anim[1]['name']}.png").convert_alpha()
+            frame_height = SPRITE_SETTINGS["TARGET_HEIGHT"]
+            frame_width = SPRITE_SETTINGS["TARGET_FRAME_WIDTH"]
+            
+            # Update rect size and position BEFORE loading other sprites
+            current_bottom = self.rect.bottom  # Preserve the bottom position
+            self.rect.width = frame_width - (REGAR_SPRITE_CONFIG["collision_offset"]["x"] * 2)
+            self.rect.height = frame_height - (REGAR_SPRITE_CONFIG["collision_offset"]["y"] * 2)
+            self.rect.bottom = current_bottom  # Maintain vertical position
+            
+            # Now load all sprite sheets
             for anim_type, info in CHARACTER_SPRITES["Regar"].items():
+                # ... rest of your sprite loading code ...
+                
                 sprite_name = info["name"]
                 full_path = f"{sprite_path}/{sprite_name}.png"
                 
@@ -320,39 +315,48 @@ class Character(pygame.sprite.Sprite):
             else:
                 self.image.fill((0, 0, 0))  # Blink to black
 
+    def draw_debug_bounds(self, screen, frame_rect):
+        """Draw debug visualization of collision and sprite bounds"""
+        if SPRITE_SETTINGS["DEBUG_MODE"] and self.using_sprites:
+            # Draw collision box in red
+            pygame.draw.rect(screen, (255, 0, 0), self.rect, 2)
+            # Draw sprite bounds in blue
+            pygame.draw.rect(screen, (0, 0, 255), frame_rect, 2)
+
     def draw(self, screen):
-        """
-        Draw the character on the screen. I use a draw method here and not in the manager to try mange the specifc sprites and how they appears
-        Args:
-            screen (pygame.Surface): The screen to draw on
-            return: None
-        """
+        """Draw the character and attack range"""
         if self.is_dying and self.animation_complete:
             return
 
         if self.using_sprites and self.visible:
-            # Draw sprite-based character
             current_frame = self.get_current_frame(self.current_animation)
-            screen.blit(current_frame, self.rect)
-
-            # Draw attack range if attacking
-            if self.attacking:
-                attack_rect = self.attack_range.get_rect()
-                if self.facing_right:
-                    attack_rect.midleft = (self.rect.centerx, self.rect.centery)
-                else:
-                    attack_rect.midright = (self.rect.centerx, self.rect.centery)
-                screen.blit(self.attack_range, attack_rect)
+            if current_frame:
+                frame_rect = current_frame.get_rect()
+                frame_rect.midbottom = self.rect.midbottom
+                screen.blit(current_frame, frame_rect)
+                
+                # Draw attack range if attacking
+                if self.attacking:
+                    attack_rect = self.attack_range.get_rect()
+                    if self.facing_right:
+                        attack_rect.midleft = (frame_rect.centerx, frame_rect.centery)
+                    else:
+                        attack_rect.midright = (frame_rect.centerx, frame_rect.centery)
+                    screen.blit(self.attack_range, attack_rect)
+                
+                # Debug visualization for all sprite-based characters
+                self.draw_debug_bounds(screen, frame_rect)
         else:
-            # Draw rectangle-based character
+            # Draw non-sprite character
             if self.visible:
                 screen.blit(self.image, self.rect)
-                # Draw direction indicator
-                if self.facing_right:
-                    indicator_pos = (self.rect.right - 5, self.rect.centery - 5)
-                else:
-                    indicator_pos = (self.rect.left - 5, self.rect.centery - 5)
-                screen.blit(self.direction_indicator, indicator_pos)
+                if self.attacking:
+                    attack_rect = self.attack_range.get_rect()
+                    if self.facing_right:
+                        attack_rect.midleft = self.rect.midright
+                    else:
+                        attack_rect.midright = self.rect.midleft
+                    screen.blit(self.attack_range, attack_rect)
 
     def set_player_number(self, number):
         """

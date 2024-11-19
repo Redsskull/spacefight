@@ -77,22 +77,22 @@ CHARACTER_SPRITES = {
 
 # Sprite settings
 SPRITE_SETTINGS = {
-    "TARGET_HEIGHT": 150,
-    "TARGET_FRAME_WIDTH": 100,
-    "DEBUG_MODE": False  # Toggle debug logging for sprite loading
+    "TARGET_HEIGHT": 100,
+    "TARGET_FRAME_WIDTH": 75,
+    "DEBUG_MODE": True  # Set to True
 }
 
 # Regar-specific sprite settings
 REGAR_SPRITE_CONFIG = {
-    "scale_factor": 1,  # Adjust if Regar appears too big/small
+    "scale_factor": 1.5,  # Adjust if Regar appears too big/small
     "collision_offset": {
-        "x": 20,  # Padding from sides of sprite
-        "y": 10   # Padding from top/bottom of sprite
+        "x": 15,  # Padding from sides of sprite
+        "y": 10  # Padding from top/bottom of sprite
     },
     "frame_widths": {
-        "walk": 100,    # 600px / 6 frames
-        "shoot": 100,   # 300px / 3 frames
-        "attack": 100   # 400px / 4 frames
+        "walk": 75,    # 600px / 6 frames
+        "shoot": 75,   # 300px / 3 frames
+        "attack": 75   # 400px / 4 frames
     }
 }
 
@@ -138,6 +138,22 @@ LEVEL_BOUNDS = {
     "ceiling_y": 575,
     "left_x": 187,
     "right_x": 1058
+}
+
+# Character boundaries
+CHARACTER_BOUNDARIES = {
+    "default": {
+        "floor_y": 400,
+        "ceiling_y": 100,
+        "left_x": 0,
+        "right_x": 1000
+    },
+    "Regar": {
+        "floor_y": 548,
+        "ceiling_y": 354,
+        "left_x": 80,
+        "right_x": 1039
+    }
 }
 
 # Sound settings

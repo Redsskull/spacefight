@@ -1,6 +1,6 @@
 import pygame
 from .base import Screen
-from config import LEVEL_BOUNDS
+from config import LEVEL_BOUNDS, CHARACTER_BOUNDARIES
 
 
 class LevelScreen(Screen):
@@ -78,25 +78,28 @@ class LevelScreen(Screen):
                 self.game.trigger_game_over()
 
     def limit_character_movement(self):
-        """
-        Limit the characters vertical movement to the backgrounds floor
-        """
+        """Limit the characters movement to their boundaries"""
         for character in self.game.character_manager.active_characters:
+            boundaries = CHARACTER_BOUNDARIES.get(
+                character.name, 
+                CHARACTER_BOUNDARIES["default"]
+            )
+            
             # Vertical movement
-            if character.position.y < self.floor_y:
-                character.position.y = self.floor_y
-                character.rect.y = int(self.floor_y)
-            elif character.position.y > self.ceiling_y:
-                character.position.y = self.ceiling_y
-                character.rect.y = int(self.ceiling_y)
-
+            if character.position.y < boundaries["ceiling_y"]:
+                character.position.y = boundaries["ceiling_y"]
+                character.rect.y = int(boundaries["ceiling_y"])
+            elif character.position.y > boundaries["floor_y"]:
+                character.position.y = boundaries["floor_y"]
+                character.rect.y = int(boundaries["floor_y"])
+                
             # Horizontal movement
-            if character.position.x < self.left_x:
-                character.position.x = self.left_x
-                character.rect.x = int(self.left_x)
-            elif character.position.x > self.right_x:
-                character.position.x = self.right_x
-                character.rect.x = int(self.right_x)
+            if character.position.x < boundaries["left_x"]:
+                character.position.x = boundaries["left_x"]
+                character.rect.x = int(boundaries["left_x"])
+            elif character.position.x > boundaries["right_x"]:
+                character.position.x = boundaries["right_x"]
+                character.rect.x = int(boundaries["right_x"])
 
     def draw(self):
         """
