@@ -75,6 +75,27 @@ CHARACTER_SPRITES = {
     }
 }
 
+# Sprite settings
+SPRITE_SETTINGS = {
+    "TARGET_HEIGHT": 150,
+    "TARGET_FRAME_WIDTH": 100,
+    "DEBUG_MODE": False  # Toggle debug logging for sprite loading
+}
+
+# Regar-specific sprite settings
+REGAR_SPRITE_CONFIG = {
+    "scale_factor": 1,  # Adjust if Regar appears too big/small
+    "collision_offset": {
+        "x": 20,  # Padding from sides of sprite
+        "y": 10   # Padding from top/bottom of sprite
+    },
+    "frame_widths": {
+        "walk": 100,    # 600px / 6 frames
+        "shoot": 100,   # 300px / 3 frames
+        "attack": 100   # 400px / 4 frames
+    }
+}
+
 # Combat settings
 ATTACK_SETTINGS = {
     "cooldown": 0.1,

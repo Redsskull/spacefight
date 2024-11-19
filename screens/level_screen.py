@@ -51,10 +51,6 @@ class LevelScreen(Screen):
         """
         selected_characters = self.game.get_selected_characters()
         self.game.character_manager.initialize_characters_for_level(selected_characters)
-        
-        # Load sprite sheets for each character
-        for character in selected_characters:
-            character.load_sprite_sheets()
 
     def update(self, dt):
         """

@@ -2,7 +2,9 @@ import pygame
 from game_states import GameState
 import logging
 from typing import Optional, Tuple, List
-from config import CHARACTER_STATS, ATTACK_SETTINGS, CHARACTER_SPRITES
+from config import CHARACTER_STATS, ATTACK_SETTINGS, CHARACTER_SPRITES, SPRITE_SETTINGS, REGAR_SPRITE_CONFIG
+import traceback
+from screens.level_screen import LevelScreen
 
 
 class Character(pygame.sprite.Sprite):
@@ -12,37 +14,58 @@ class Character(pygame.sprite.Sprite):
         pygame.sprite.Sprite: parent class
     """
 
-    def __init__(self, name, game):
-        """
-        method to control the attributes of the characters
-        Args:
-            name: name of the character
-            game: game object
-        """
+    def __init__(self, name: str, game: "Game") -> None:
+        """Initialize character"""
         super().__init__()
+        
+        # Basic attributes first
+        self.name = name
+        self.game = game
+        
+        # Restore original sizes
+        self.image = pygame.Surface((40, 40))  # Smaller default size
+        self.rect = self.image.get_rect()
+        self.position = pygame.math.Vector2(self.rect.topleft)
+        
+        # Smaller direction indicator
+        self.direction_indicator = pygame.Surface((20, 30))
+        self.direction_indicator.fill(pygame.Color("red"))
+        
+        # Sprite flags - only set True in Regar's init
+        self.using_sprites = False
+        self.sprites_loaded = False
+
+        # Basic attributes first
+        self.name = name
+        self.game = game
+        
+        # Create sprite surface and rect BEFORE position
+        self.image = pygame.Surface((80, 150))
+        self.rect = self.image.get_rect()
+        
+        # NOW we can set position using rect
+        self.position = pygame.math.Vector2(self.rect.topleft)
+        self.direction = pygame.math.Vector2()
+        self.player_number = None
+        
         # Get character stats from config
         stats = CHARACTER_STATS[name]
-        self.name = name
         self.health = stats["health"]
         self.speed = stats["speed"]
         self.strength = stats["strength"]
         self.color = stats["color"]
-        self.game = game
 
-        # Create character sprite
-        self.image = pygame.Surface((50, 100))
-        self.image.fill(self.color)
         self.facing_right = True
-
+        
+        # Fill color after getting it from stats
+        self.image.fill(self.color)
+        
         # Direction indicator
-        self.direction_indicator = pygame.Surface((10, 10))
-        self.direction_indicator.fill((0, 255, 0))
-
+        self.direction_indicator = pygame.Surface((40, 60))
+        self.direction_indicator.fill(pygame.Color("red"))
+        
+        # Now safe to call update_sprite
         self.update_sprite()
-        self.rect = self.image.get_rect()
-        self.position = pygame.math.Vector2(self.rect.topleft)
-        self.direction = pygame.math.Vector2()
-        self.player_number = None
 
         # Attack properties
         self.attacking = False
@@ -72,9 +95,6 @@ class Character(pygame.sprite.Sprite):
         self.animation_timer = 0
         self.frame_duration = 0.1  # Adjust timing as needed
 
-        # Flag to track if we're using sprite sheets
-        self.using_sprites = False
-
     def take_damage(self, amount: int) -> None:
         """Take damage"""
         self.health = max(0, self.health - amount)
@@ -85,14 +105,13 @@ class Character(pygame.sprite.Sprite):
             self.blink_count = 0
 
     def update_sprite(self):
-        """
-        method to update the sprite
-        """
-        self.image.fill(self.color)
-        if self.facing_right:
-            self.image.blit(self.direction_indicator, (40, 45))
-        else:
-            self.image.blit(self.direction_indicator, (0, 45))
+        """Updates the direction indicator for non-sprite characters"""
+        if not self.using_sprites:  # Only update for non-sprite characters
+            self.image.fill(self.color)
+            if self.facing_right:
+                self.image.blit(self.direction_indicator, (40, 45))
+            else:
+                self.image.blit(self.direction_indicator, (0, 45))
 
     def move(self, dt: float) -> None:
         """Move character
@@ -171,96 +190,80 @@ class Character(pygame.sprite.Sprite):
             self.attacking = False
 
     def load_sprite_sheets(self):
+        """Load and configure sprite sheets for the character"""
+        if self.name != "Regar":
+            return
+            
         try:
-            char_folder = self.name.lower()
-            sprite_path = f"assets/sprites/{char_folder}"
-            TARGET_HEIGHT = 150
-
-            sprite_info = CHARACTER_SPRITES.get(self.name, {})
-            if not sprite_info:
-                logging.warning(f"No sprite configuration found for {self.name}")
-                return
-
-            for anim_type, info in sprite_info.items():
+            sprite_path = f"assets/sprites/regar"
+            self.sprite_load_count = getattr(self, 'sprite_load_count', 0) + 1
+            logging.debug(f"\nLoading Regar sprites (attempt #{self.sprite_load_count})")
+            
+            for anim_type, info in CHARACTER_SPRITES["Regar"].items():
                 sprite_name = info["name"]
                 full_path = f"{sprite_path}/{sprite_name}.png"
+                
                 original_surface = pygame.image.load(full_path).convert_alpha()
+                
+                # Use original surface directly:
+                scale_factor = SPRITE_SETTINGS["TARGET_HEIGHT"] / original_surface.get_height() 
+                scale_factor *= REGAR_SPRITE_CONFIG["scale_factor"]
 
-                # Debug original sprite info
-                print(f"\n{self.name} - {sprite_name}:")
-                print(f"Original dimensions: {original_surface.get_size()}")
-
-                # Get frame width before cropping
-                original_frame_width = original_surface.get_width() // info["frames"]
-                print(f"Original frame width: {original_frame_width}")
-
-                # Crop and debug bounds
-                cropped_surface = crop_sprite_sheet(original_surface, info["frames"])
-                print(f"Cropped dimensions: {cropped_surface.get_size()}")
-
-                # Calculate scaling factor based on cropped height
-                scale_factor = TARGET_HEIGHT / cropped_surface.get_height()
                 scaled_surface = pygame.transform.scale(
-                    cropped_surface,
-                    (int(cropped_surface.get_width() * scale_factor), TARGET_HEIGHT),
+                    original_surface,
+                    (int(original_surface.get_width() * scale_factor), 
+                     int(SPRITE_SETTINGS["TARGET_HEIGHT"] * REGAR_SPRITE_CONFIG["scale_factor"]))
                 )
-                print(f"Scaled dimensions: {scaled_surface.get_size()}")
-
+                
                 self.sprite_sheets[anim_type] = {
                     "surface": scaled_surface,
-                    "frames": info["frames"],
+                    "frames": info["frames"]
                 }
-
-                # Debug per-frame dimensions
-                final_frame_width = scaled_surface.get_width() // info["frames"]
-                print(f"Final frame width: {final_frame_width}")
-
+                
             self.using_sprites = True
-
-            # Update frame dimensions based on scaled sprite sheet
+            
+            # Update collision rect with proper padding
             first_sheet = next(iter(self.sprite_sheets.values()))["surface"]
             first_frames = next(iter(self.sprite_sheets.values()))["frames"]
             self.frame_width = first_sheet.get_width() // first_frames
             self.frame_height = first_sheet.get_height()
-
-            # Update rect size to match scaled sprites
+            
+            # Adjust collision rect with padding
+            pad_x = REGAR_SPRITE_CONFIG["collision_offset"]["x"]
+            pad_y = REGAR_SPRITE_CONFIG["collision_offset"]["y"]
             self.rect = pygame.Rect(
-                self.rect.x, self.rect.y, self.frame_width, TARGET_HEIGHT
+                self.rect.x + pad_x,
+                self.rect.y + pad_y,
+                self.frame_width - (pad_x * 2),
+                self.frame_height - (pad_y * 2)
             )
-            self.image = pygame.Surface(
-                (self.frame_width, TARGET_HEIGHT), pygame.SRCALPHA
-            )
-
-            # Add debugging for actual values we have
-            logging.debug(
-                f"Final frame dimensions: {self.frame_width}x{self.frame_height}"
-            )
-            logging.debug(f"Rect dimensions: {self.rect}")
 
         except (pygame.error, StopIteration) as e:
-            logging.error(f"Failed to load sprites for {self.name}: {e}")
+            logging.error(f"Failed to load Regar sprites: {e}")
             self.using_sprites = False
+        self.sprites_loaded = True
 
     def get_current_frame(self, animation_name):
-        """
-        Safely extracts a frame from the sprite sheet
-        """
-        if animation_name not in self.sprite_sheets:
+        if (animation_name not in self.sprite_sheets):
             return None
-
+            
         sheet = self.sprite_sheets[animation_name]["surface"]
-        sheet_width = sheet.get_width()
-        frame_width = sheet_width // self.sprite_sheets[animation_name]["frames"]
-
-        # Ensure frame extraction stays in bounds
-        frame_x = (self.animation_frame * frame_width) % sheet_width
-        frame_width = min(frame_width, sheet_width - frame_x)
-
-        try:
-            return sheet.subsurface((frame_x, 0, frame_width, sheet.get_height()))
-        except ValueError:
-            logging.error(f"Frame extraction failed for {animation_name}")
-            return sheet  # Return full sheet as fallback
+        frames = self.sprite_sheets[animation_name]["frames"]
+        
+        # Calculate frame width based on total sheet width and number of frames
+        frame_width = sheet.get_width() // frames
+        
+        # Ensure animation frame stays within bounds
+        current_frame = self.animation_frame % frames
+        frame_x = current_frame * frame_width
+        
+        frame = sheet.subsurface((frame_x, 0, frame_width, sheet.get_height()))
+        
+        # Flip the frame horizontally if facing left
+        if not self.facing_right:
+            frame = pygame.transform.flip(frame, True, False)
+        
+        return frame
 
     def get_current_animation(self):
         """Determine which animation to use based on state"""
@@ -359,52 +362,13 @@ class Character(pygame.sprite.Sprite):
         """
         self.player_number = number
 
-
-def crop_sprite_sheet(surface, frames):
-    """Crops and scales sprite sheet maintaining frame alignment"""
-    mask = pygame.mask.from_surface(surface)
-    if mask.count() == 0:
-        return surface
-
-    # Get content bounds
-    bounds = mask.get_bounding_rects()[0]
-
-    # Calculate dimensions
-    frame_width = surface.get_width() // frames
-    TARGET_HEIGHT = 150
-    TARGET_FRAME_WIDTH = 100  # Set consistent frame width
-
-    # Crop height only
-    cropped = pygame.Surface((surface.get_width(), bounds.height), pygame.SRCALPHA)
-    cropped.blit(surface, (0, 0), (0, bounds.y, surface.get_width(), bounds.height))
-
-    # Scale to target size
-    scale_factor = TARGET_HEIGHT / bounds.height
-    target_width = frame_width * frames * (TARGET_FRAME_WIDTH / frame_width)
-
-    scaled = pygame.transform.scale(cropped, (int(target_width), TARGET_HEIGHT))
-
-    return scaled
-
-
 class Regar(Character):
-    """
-        class for Regar character
-    Args:
-        Character: parent class
-    """
-
     def __init__(self, game):
-        """
-        method to control the attributes of the character
-        Args:
-            name: name of the character
-            health: health of the character
-            speed: speed of the character
-            strength: strength of the character
-        """
         super().__init__("Regar", game=game)
-        self.update_sprite()
+        # Only load sprites in level screen
+        if isinstance(self.game.current_screen, LevelScreen):
+            self.using_sprites = True
+            self.load_sprite_sheets()
 
 
 class Susan(Character):
