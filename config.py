@@ -1,6 +1,6 @@
 # Display settings
 SCREEN_WIDTH = 1280
-SCREEN_HEIGHT = 720 
+SCREEN_HEIGHT = 720
 FPS = 60
 
 # I find I have to define enemies first for the procdeural generation to work
@@ -16,7 +16,7 @@ ENEMY_STATS = {
     "death_duration": 0.5,
     "death_blink_duration": 0.05,
     "death_total_time": 0.5,
-    "max_blinks": 15
+    "max_blinks": 15,
 }
 
 # Character stats
@@ -25,27 +25,27 @@ CHARACTER_STATS = {
         "health": 120,
         "speed": 200,
         "strength": 10,
-        "color": (0, 0, 255)  # Blue
+        "color": (0, 0, 255),  # Blue
     },
     "Susan": {
         "health": 100,
         "speed": 250,
         "strength": 8,
-        "color": (0, 255, 0)  # Green
+        "color": (0, 255, 0),  # Green
     },
     "Emily": {
         "health": 90,
         "speed": 300,
         "strength": 7,
-        "color": (255, 255, 0)  # Yellow
+        "color": (255, 255, 0),  # Yellow
     },
     "Bart": {
         "health": 150,
         "speed": 180,
         "strength": 12,
-        "color": (255, 0, 255)  # Magenta
+        "color": (255, 0, 255),  # Magenta
     },
-    "Enemy": ENEMY_STATS
+    "Enemy": ENEMY_STATS,
 }
 
 # Character sprites
@@ -53,33 +53,33 @@ CHARACTER_SPRITES = {
     "Regar": {
         "walk": {"name": "regar_walk", "frames": 6},
         "shoot": {"name": "regar_shoot", "frames": 3},
-        "attack": {"name": "regar_punch", "frames": 4}
+        "attack": {"name": "regar_punch", "frames": 4},
     },
     "Susan": {
         "idle": {"name": "susan_idle", "frames": 4},
         "walk": {"name": "susan_walk", "frames": 8},
         "attack": {"name": "susan_attack", "frames": 8},
-        "hurt": {"name": "susan_hurt", "frames": 1}
+        "hurt": {"name": "susan_hurt", "frames": 1},
     },
     "Emily": {
         "idle": {"name": "emily_idle", "frames": 4},
         "walk": {"name": "emily_walk", "frames": 10},
         "attack": {"name": "emily_kick", "frames": 5},
-        "hurt": {"name": "emily_hurt", "frames": 2}
+        "hurt": {"name": "emily_hurt", "frames": 2},
     },
     "Bart": {
         "idle": {"name": "bart_idle", "frames": 4},
         "walk": {"name": "bart_walk", "frames": 4},
         "attack": {"name": "bart_punch", "frames": 3},
-        "hurt": {"name": "bart_hurt", "frames": 4}
-    }
+        "hurt": {"name": "bart_hurt", "frames": 4},
+    },
 }
 
 # Sprite settings
 SPRITE_SETTINGS = {
     "TARGET_HEIGHT": 100,
     "TARGET_FRAME_WIDTH": 75,
-    "DEBUG_MODE": True  # Set to True
+    "DEBUG_MODE": True,  # Set to True
 }
 
 # Regar-specific sprite settings
@@ -87,20 +87,20 @@ REGAR_SPRITE_CONFIG = {
     "scale_factor": 1.5,  # Adjust if Regar appears too big/small
     "collision_offset": {
         "x": 15,  # Padding from sides of sprite
-        "y": 10  # Padding from top/bottom of sprite
+        "y": 10,  # Padding from top/bottom of sprite
     },
     "frame_widths": {
-        "walk": 75,    # 600px / 6 frames
-        "shoot": 75,   # 300px / 3 frames
-        "attack": 75   # 400px / 4 frames
-    }
+        "walk": 75,  # 600px / 6 frames
+        "shoot": 75,  # 300px / 3 frames
+        "attack": 75,  # 400px / 4 frames
+    },
 }
 
 # Combat settings
 ATTACK_SETTINGS = {
     "cooldown": 0.1,
     "range_size": (50, 100),
-    "range_color": (144, 238, 144)  # Light green
+    "range_color": (144, 238, 144),  # Light green
 }
 
 # Enemy attack settings
@@ -111,11 +111,17 @@ ENEMY_ATTACK = {
     "cooldown": 1.0,
 }
 
-# Death animation settings
-DEATH_ANIMATION = {
-    "blink_duration": 0.2,
-    "total_time": 2.0,
-    "max_blinks": 10
+# Special attack settings
+SPECIAL_ATTACK_SETTINGS = {
+    "cooldown": 3.0,
+    "projectile": {"speed": 400, "damage": 10, "size": (20, 10)},
+}
+
+# Animation settings in config.py
+ANIMATION_SETTINGS = {
+    "frame_duration": 0.1,
+    "special_attack_duration": 0.3,
+    "death": {"blink_duration": 0.2, "total_time": 2.0, "max_blinks": 10},
 }
 
 # Enemy spawn settings
@@ -128,52 +134,35 @@ ENEMY_SPAWN = {
         (-50, 575),
         (1250, 447),
         (1250, 500),
-        (1250, 575)
-    ]
+        (1250, 575),
+    ],
 }
 
 # Level boundaries
-LEVEL_BOUNDS = {
-    "floor_y": 447,
-    "ceiling_y": 575,
-    "left_x": 187,
-    "right_x": 1058
-}
+LEVEL_BOUNDS = {"floor_y": 447, "ceiling_y": 575, "left_x": 187, "right_x": 1058}
 
 # Character boundaries
 CHARACTER_BOUNDARIES = {
-    "default": {
-        "floor_y": 400,
-        "ceiling_y": 100,
-        "left_x": 0,
-        "right_x": 1000
-    },
-    "Regar": {
-        "floor_y": 548,
-        "ceiling_y": 354,
-        "left_x": 80,
-        "right_x": 1039
-    }
+    "default": {"floor_y": 400, "ceiling_y": 100, "left_x": 0, "right_x": 1000},
+    "Regar": {"floor_y": 548, "ceiling_y": 354, "left_x": 80, "right_x": 1039},
 }
 
 # Sound settings
-SOUND_SETTINGS = {
-    "default_music_volume": 0.5,
-    "default_sound_volume": 0.5
-}
+SOUND_SETTINGS = {"default_music_volume": 0.5, "default_sound_volume": 0.5}
 
 SOUND_REGISTRY = {
-    'music': {
-        'main_menu': 'main_menu.mp3',
-        'character_select': 'Choose_your_character.mp3',
-        'battle': 'battlegamenoises.mp3',
-        'story': 'storysound.mp3'
+    "music": {
+        "main_menu": "main_menu.mp3",
+        "character_select": "Choose_your_character.mp3",
+        "battle": "battlegamenoises.mp3",
+        "story": "storysound.mp3",
     },
-    'effects': {
-        'punch': 'punch.mp3',
-        'metal': 'metal_sound.mp3',
-        'alarm': 'alarm.wav'
-    }
+    "effects": {
+        "punch": "punch.mp3",
+        "metal": "metal_sound.mp3",
+        "alarm": "alarm.wav",
+        "shoot": "laser.mp3",
+    },
 }
 
 # UI settings
@@ -182,6 +171,5 @@ UI_SETTINGS = {
     "health_bar_height": 5,
     "text_color": (255, 255, 255),
     "selected_color": (0, 255, 0),
-    "error_color": (255, 0, 0)
+    "error_color": (255, 0, 0),
 }
-

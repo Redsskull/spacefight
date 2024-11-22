@@ -3,11 +3,16 @@ from game_states import GameState
 import logging
 from typing import Optional, Literal
 from config import (
+    # Character related
     CHARACTER_STATS,
-    ATTACK_SETTINGS,
     CHARACTER_SPRITES,
     SPRITE_SETTINGS,
     REGAR_SPRITE_CONFIG,
+    # Combat related
+    ATTACK_SETTINGS,
+    SPECIAL_ATTACK_SETTINGS,
+    # Animation related
+    ANIMATION_SETTINGS,
 )
 from screens.level_screen import LevelScreen
 from projectiles import EnergyShot
@@ -28,78 +33,75 @@ class Character(pygame.sprite.Sprite):
         """
         super().__init__()
 
-        # Basic attributes and stats
+        # Game and identity properties
         self.name = name
         self.game = game
+        self.player_number = None
+
+        # Character stats from config
         stats = CHARACTER_STATS[name]
         self.health = stats["health"]
+        self.max_health = stats["health"]
         self.speed = stats["speed"]
         self.strength = stats["strength"]
         self.color = stats["color"]
 
-        # Attack properties
+        # Position and movement properties
+        self.position = pygame.math.Vector2()
+        self.direction = pygame.math.Vector2()
+        self.facing_right = True
+
+        # Visual properties
+        self.image = pygame.Surface((50, 100))
+        self.image.fill(self.color)
+        self.rect = self.image.get_rect()
+        self.visible = True
+
+        # Sprite system properties
+        self.using_sprites = False
+        self.sprites_loaded = False
+        self.sprite_sheets = {}
+        self.available_animations = CHARACTER_SPRITES.get(self.name, {})
+
+        # Animation properties
+        self.current_animation = None
+        self.animation_frame = 0
+        self.animation_timer = 0
+        self.animation_complete = False
+        self.frame_duration = ANIMATION_SETTINGS["frame_duration"]
+
+        # Combat properties - Basic Attack
         self.attacking = False
         self.attack_timer = 0
         self.attack_cooldown = ATTACK_SETTINGS["cooldown"]
         self.attack_range = pygame.Surface(ATTACK_SETTINGS["range_size"])
         self.attack_range.fill(ATTACK_SETTINGS["range_color"])
 
-        # Create surface and set color
-        self.image = pygame.Surface((50, 100))
-        self.image.fill(self.color)
-        self.facing_right = True
+        # Combat properties - Special Attack
+        self.has_special_attack = False
+        self.is_special_attacking = False
+        self.special_attack_timer = 0
+        self.special_attack_cooldown = SPECIAL_ATTACK_SETTINGS["cooldown"]
+        self.special_attack_animation_duration = ANIMATION_SETTINGS[
+            "special_attack_duration"
+        ]
+        self.projectiles = pygame.sprite.Group()
+        self.ranged_attacker = False
 
-        # Sprite initialization flags
-        self.using_sprites = False
-        self.sprites_loaded = False
+        # Death properties
+        self.is_dying = False
+        self.death_blink_duration = ANIMATION_SETTINGS["death"]["blink_duration"]
+        self.death_blink_timer = self.death_blink_duration
+        self.death_total_time = ANIMATION_SETTINGS["death"]["total_time"]
+        self.blink_count = 0
+        self.max_blinks = ANIMATION_SETTINGS["death"]["max_blinks"]
 
-        # Direction indicator
+        # Debug properties
         self.direction_indicator = pygame.Surface((10, 10))
         self.direction_indicator.fill((0, 255, 0))
 
-        # Position setup
-        self.rect = self.image.get_rect()
-        self.position = pygame.math.Vector2(self.rect.topleft)
-        self.direction = pygame.math.Vector2()
-        self.player_number = None
-
-        self.special_attack_timer = 0
-        self.special_attack_cooldown = 3.0
-        self.is_special_attacking = False
-        self.projectiles = pygame.sprite.Group()
-        # TODO: move the constants to config.py
-
-        # Update sprite
+        # Initial sprite update
         self.update_sprite()
-
-        self.max_health = stats["health"]
-        self.is_dying = False
-        self.visible = True
-        self.animation_complete = False
-        self.blink_count = 0
-        # Default timing values
-        self.death_blink_duration = 0.2  # Time between blinks
-        self.death_total_time = 2.0  # Total animation duration
-        self.max_blinks = 10  # Number of blinks before death
-        self.death_blink_timer = self.death_blink_duration
-
-        # Initialize sprite sheets dict based on available animations
-        self.sprite_sheets = {}
-        self.available_animations = CHARACTER_SPRITES.get(self.name, {})
-        self.ranged_attacker = False
-
-        self.current_animation = None
-        self.animation_frame = 0
-        self.animation_timer = 0
-        self.frame_duration = 0.1
-
-        # Base special attack properties
-        self.has_special_attack = False  # Default to False
-        self.special_attack_timer = 0
-        self.special_attack_cooldown = 3.0
-        self.is_special_attacking = False
-        self.projectiles = pygame.sprite.Group()
-        self.special_attack_animation_duration = 0.3
 
     def take_damage(self, amount: int) -> None:
         """Take damage
@@ -195,7 +197,6 @@ class Character(pygame.sprite.Sprite):
             ):
                 if hasattr(self, "perform_special_attack"):
                     self.perform_special_attack()
-            # TODO: Add the special attack sound
 
         # TODO: player 2 controls for attack and special attack controls
 
