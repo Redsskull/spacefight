@@ -73,7 +73,7 @@ class Character(pygame.sprite.Sprite):
         self.player_number = None
 
         self.special_attack_timer = 0
-        self.special_attack_cooldown = 5.0  # 5 seconds
+        self.special_attack_cooldown = 3.0  # 5 seconds
         self.is_special_attacking = False
         self.projectiles = pygame.sprite.Group()
         
@@ -178,6 +178,9 @@ class Character(pygame.sprite.Sprite):
         # Update special attack cooldown
         if self.special_attack_timer > 0:
             self.special_attack_timer -= dt
+            # Reset special attacking state when timer is done
+            if self.special_attack_timer <= 0:
+                self.is_special_attacking = False
 
         # Get mouse input for player 1
         if self.player_number == 1:
@@ -216,21 +219,6 @@ class Character(pygame.sprite.Sprite):
             # Check for collisions with enemies
             self.game.enemy_manager.handle_collision(attack_rect, self.strength)
 
-        if self.player_number == 1:
-            mouse = pygame.mouse.get_pressed()
-            if mouse[2]:  # Right click
-                print(f"Right click detected. Timer: {self.special_attack_timer:.1f}")
-                print(f"Can special attack: {not self.is_special_attacking and self.special_attack_timer <= 0}")
-                if not self.is_special_attacking and self.special_attack_timer <= 0:
-                    if hasattr(self, 'perform_special_attack'):
-                        print("Attempting special attack")
-                        self.perform_special_attack()
-
-        if self.player_number == 1:
-            mouse = pygame.mouse.get_pressed()
-            if mouse[2] and self.has_special_attack:  # Only process if character has special attacks
-                if not self.is_special_attacking and self.special_attack_timer <= 0:
-                    self.perform_special_attack()
 
     def load_sprite_sheets(self):
         """Load and configure sprite sheets for the character"""
@@ -325,14 +313,13 @@ class Character(pygame.sprite.Sprite):
         """Determine which animation to use based on state"""
         # Check sprite availability first
         if self.attacking:
-            if self.ranged_attacker and "shoot" in self.sprite_sheets:
+            if self.ranged_attacker and self.is_special_attacking:
                 return "shoot"
-            if "attack" in self.sprite_sheets:
-                return "attack"
+            else:
+                return "attack"  # Use punch animation for regular attacks
         elif self.direction.length() > 0 and "walk" in self.sprite_sheets:
             return "walk"
 
-        # Default to idle if available, otherwise walk
         return "idle" if "idle" in self.sprite_sheets else "walk"
 
     def update(self, dt):
@@ -450,21 +437,23 @@ class Regar(Character):
 
     def perform_special_attack(self):
         if self.special_attack_timer <= 0:
-            self.is_special_attacking = True
-            self.special_attack_timer = self.special_attack_cooldown
+            self.is_special_attacking = True  # Enable shoot animation
+            self.animation_timer = 0  # Reset animation frame
             
-            # Create projectile with damage value
+            # Create projectile
             direction = pygame.math.Vector2(1, 0) if self.facing_right else pygame.math.Vector2(-1, 0)
             spawn_x = self.rect.right if self.facing_right else self.rect.left
             projectile = Projectile(spawn_x, self.rect.centery, direction, damage=self.strength)
             self.projectiles.add(projectile)
             
-            # Play sound effect
+            # Set cooldown
+            self.special_attack_timer = self.special_attack_cooldown
+            
+            # Play sound
             if hasattr(self.game, "sound_manager"):
                 self.game.sound_manager.play_sound("shoot")
-
-            self.is_special_attacking = False
-
+            
+             
 
 class Susan(Character):
     """
