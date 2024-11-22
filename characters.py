@@ -33,6 +33,9 @@ class Projectile(pygame.sprite.Sprite):
             self.kill()
 
 
+# TODO: Create a projectle in it's own file.
+
+
 class Character(pygame.sprite.Sprite):
     """
     class for all characters in the game
@@ -41,7 +44,11 @@ class Character(pygame.sprite.Sprite):
     """
 
     def __init__(self, name: str, game: "Game") -> None:
-        """Initialize character"""
+        """Initialize character
+        Args:
+            name: name of the character
+            game: game instance
+        """
         super().__init__()
 
         # Basic attributes and stats
@@ -80,11 +87,12 @@ class Character(pygame.sprite.Sprite):
         self.player_number = None
 
         self.special_attack_timer = 0
-        self.special_attack_cooldown = 3.0  # 5 seconds
+        self.special_attack_cooldown = 3.0
         self.is_special_attacking = False
         self.projectiles = pygame.sprite.Group()
+        # TODO: move the constants to config.py
 
-        # Now safe to update sprite
+        # Update sprite
         self.update_sprite()
 
         self.max_health = stats["health"]
@@ -106,7 +114,7 @@ class Character(pygame.sprite.Sprite):
         self.current_animation = None
         self.animation_frame = 0
         self.animation_timer = 0
-        self.frame_duration = 0.1  # Adjust timing as needed
+        self.frame_duration = 0.1
 
         # Base special attack properties
         self.has_special_attack = False  # Default to False
@@ -117,7 +125,10 @@ class Character(pygame.sprite.Sprite):
         self.special_attack_animation_duration = 0.3
 
     def take_damage(self, amount: int) -> None:
-        """Take damage"""
+        """Take damage
+        Args:
+            amount: damage amount
+        """
         self.health = max(0, self.health - amount)
         if self.health <= 0 and not self.is_dying:
             self.is_dying = True
@@ -165,6 +176,12 @@ class Character(pygame.sprite.Sprite):
             print(f"{self.name} is moving to {self.position}")
 
     def attack(self, dt) -> None:
+        """Handle character attacks
+        Args:
+            dt: time between frames
+        return:
+            None
+        """
         if not self.game.is_in_state(GameState.LEVEL):
             return
 
@@ -201,6 +218,9 @@ class Character(pygame.sprite.Sprite):
             ):
                 if hasattr(self, "perform_special_attack"):
                     self.perform_special_attack()
+            # TODO: Add the special attack sound
+
+        # TODO: player 2 controls for attack and special attack controls
 
         # Update projectiles and check collisions
         for projectile in list(self.projectiles):
@@ -229,7 +249,7 @@ class Character(pygame.sprite.Sprite):
             return
 
         try:
-            sprite_path = f"assets/sprites/regar"
+            sprite_path = "assets/sprites/regar"
 
             # Get the first animation's dimensions to set base rect size
             first_anim = next(iter(CHARACTER_SPRITES["Regar"].items()))
@@ -251,8 +271,6 @@ class Character(pygame.sprite.Sprite):
 
             # Now load all sprite sheets
             for anim_type, info in CHARACTER_SPRITES["Regar"].items():
-                # ... rest of sprite loading code ...
-
                 sprite_name = info["name"]
                 full_path = f"{sprite_path}/{sprite_name}.png"
 
@@ -287,6 +305,7 @@ class Character(pygame.sprite.Sprite):
             first_frames = next(iter(self.sprite_sheets.values()))["frames"]
             self.frame_width = first_sheet.get_width() // first_frames
             self.frame_height = first_sheet.get_height()
+            # TODO: frame width and height could be defined as zero in the init method
 
             # Adjust collision rect with padding
             pad_x = REGAR_SPRITE_CONFIG["collision_offset"]["x"]
@@ -299,11 +318,22 @@ class Character(pygame.sprite.Sprite):
             )
 
         except (pygame.error, StopIteration) as e:
-            logging.error(f"Failed to load Regar sprites: {e}")
+            logging.error(
+                "Failed to load Regar sprites for animation '%s': %s",
+                anim_type,
+                e,
+                exc_info=True,
+            )
             self.using_sprites = False
         self.sprites_loaded = True
 
     def get_current_frame(self, animation_name):
+        """Get the current frame for the given animation
+        Args:
+            animation_name: name of the animation
+        return:
+            current frame
+        """
         if animation_name not in self.sprite_sheets:
             return None
 
@@ -326,15 +356,16 @@ class Character(pygame.sprite.Sprite):
         return frame
 
     def get_current_animation(self):
-        """Determine which animation to use based on state"""
-        # Debug print to check states
-        print(f"Special attacking: {self.is_special_attacking}")
-        print(f"Ranged attacker: {self.ranged_attacker}")
-        print(f"Available animations: {list(self.sprite_sheets.keys())}")
-
+        """
+        Determine which animation to use based on state
+        return:
+            current animation
+        """
         if self.is_special_attacking and self.ranged_attacker:
             if "shoot" not in self.sprite_sheets:
-                print("'shoot' animation missing from sprite sheets!")
+                print(
+                    "'shoot' animation missing from sprite sheets!"
+                )  # Debug just in case when moving between branches
             return "shoot"
         elif self.attacking:
             return "attack"
@@ -344,7 +375,11 @@ class Character(pygame.sprite.Sprite):
         return "idle" if "idle" in self.sprite_sheets else "walk"
 
     def update(self, dt):
-        """Update character and handle projectile collisions"""
+        """Update character and handle projectile collisions
+
+        Args:
+            dt: time between frames
+        """
         if self.is_dying:
             self.death_total_time -= dt
             self.death_blink_timer -= dt
@@ -399,7 +434,12 @@ class Character(pygame.sprite.Sprite):
                 self.image.fill((0, 0, 0))  # Blink to black
 
     def draw_debug_bounds(self, screen, frame_rect):
-        """Draw debug visualization of collision and sprite bounds"""
+        """
+        Draw debug visualization of collision and sprite bounds. This will only appear when using debug
+        Args:
+            screen: surface to draw on
+            frame_rect: current frame rectangle
+        """
         if SPRITE_SETTINGS["DEBUG_MODE"] and self.using_sprites:
             # Draw collision box in red
             pygame.draw.rect(screen, (255, 0, 0), self.rect, 2)
@@ -407,8 +447,14 @@ class Character(pygame.sprite.Sprite):
             pygame.draw.rect(screen, (0, 0, 255), frame_rect, 2)
 
     def draw(self, screen):
-        """Draw the character and attack range"""
-        # Add at the start of the draw method
+        """
+        Draw the character and attack range
+        Args:
+            screen: surface to draw on
+        return:
+            None
+        """
+        # projectile draw
         self.projectiles.draw(screen)
 
         if self.is_dying and self.animation_complete:
@@ -453,20 +499,40 @@ class Character(pygame.sprite.Sprite):
         self.player_number = number
 
     def perform_special_attack(self):
-        # Base method that does nothing
+        """
+        Base method that does nothing
+        """
+        # Do I need this here?
         pass
 
 
 class Regar(Character):
+    """
+    class for Regar character
+    Args:
+        Character: parent class
+    """
+
     def __init__(self, game):
+        """
+        method to control the attributes of the character
+        Args:
+            name: name of the character
+            health: health of the character
+            speed: speed of the character
+            strength: strength of the character
+        """
         super().__init__("Regar", game=game)
         self.ranged_attacker = True
         if isinstance(self.game.current_screen, LevelScreen):
             self.using_sprites = True
             self.load_sprite_sheets()
-        self.has_special_attack = True  # Enable special attacks for Regar
+        self.has_special_attack = True
 
     def perform_special_attack(self):
+        """
+        method to perform special attack
+        """
         if self.special_attack_timer <= 0:
             self.is_special_attacking = True  # Enable shoot animation
             self.animation_timer = 0  # Reset animation frame
