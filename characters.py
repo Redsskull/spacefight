@@ -1,7 +1,7 @@
 import pygame
 from game_states import GameState
 import logging
-from typing import Optional, Tuple, List
+from typing import Optional, Literal
 from config import (
     CHARACTER_STATS,
     ATTACK_SETTINGS,
@@ -9,31 +9,8 @@ from config import (
     SPRITE_SETTINGS,
     REGAR_SPRITE_CONFIG,
 )
-import traceback
 from screens.level_screen import LevelScreen
-
-
-class Projectile(pygame.sprite.Sprite):
-    def __init__(self, x, y, direction, damage=10, speed=400):
-        super().__init__()
-        self.image = pygame.image.load("assets/sprites/regar/shot.png").convert_alpha()
-        self.rect = self.image.get_rect()
-        self.rect.center = (x, y)
-        self.position = pygame.math.Vector2(self.rect.center)
-        self.direction = direction
-        self.speed = speed
-        self.damage = damage
-
-    def update(self, dt):
-        # Move projectile
-        self.position += self.direction * self.speed * dt
-        self.rect.center = self.position
-        # Remove if off screen
-        if self.rect.right < 0 or self.rect.left > 1280:  # Use your screen width
-            self.kill()
-
-
-# TODO: Create a projectle in it's own file.
+from projectiles import EnergyShot
 
 
 class Character(pygame.sprite.Sprite):
@@ -136,7 +113,7 @@ class Character(pygame.sprite.Sprite):
             self.animation_complete = False
             self.blink_count = 0
 
-    def update_sprite(self):
+    def update_sprite(self) -> None:
         """Updates the direction indicator for non-sprite characters"""
         if not self.using_sprites:  # Only update for non-sprite characters
             self.image.fill(self.color)
@@ -175,7 +152,7 @@ class Character(pygame.sprite.Sprite):
         if self.direction.length() > 0:
             print(f"{self.name} is moving to {self.position}")
 
-    def attack(self, dt) -> None:
+    def attack(self, dt: float) -> None:
         """Handle character attacks
         Args:
             dt: time between frames
@@ -243,7 +220,7 @@ class Character(pygame.sprite.Sprite):
             # Check for collisions with enemies
             self.game.enemy_manager.handle_collision(attack_rect, self.strength)
 
-    def load_sprite_sheets(self):
+    def load_sprite_sheets(self) -> None:
         """Load and configure sprite sheets for the character"""
         if self.name != "Regar":
             return
@@ -327,7 +304,7 @@ class Character(pygame.sprite.Sprite):
             self.using_sprites = False
         self.sprites_loaded = True
 
-    def get_current_frame(self, animation_name):
+    def get_current_frame(self, animation_name: str) -> Optional[pygame.Surface]:
         """Get the current frame for the given animation
         Args:
             animation_name: name of the animation
@@ -355,7 +332,7 @@ class Character(pygame.sprite.Sprite):
 
         return frame
 
-    def get_current_animation(self):
+    def get_current_animation(self) -> Literal["idle", "walk", "attack", "shoot"]:
         """
         Determine which animation to use based on state
         return:
@@ -374,7 +351,7 @@ class Character(pygame.sprite.Sprite):
 
         return "idle" if "idle" in self.sprite_sheets else "walk"
 
-    def update(self, dt):
+    def update(self, dt: float) -> None:
         """Update character and handle projectile collisions
 
         Args:
@@ -433,7 +410,9 @@ class Character(pygame.sprite.Sprite):
             else:
                 self.image.fill((0, 0, 0))  # Blink to black
 
-    def draw_debug_bounds(self, screen, frame_rect):
+    def draw_debug_bounds(
+        self, screen: pygame.Surface, frame_rect: pygame.Rect
+    ) -> None:
         """
         Draw debug visualization of collision and sprite bounds. This will only appear when using debug
         Args:
@@ -446,7 +425,7 @@ class Character(pygame.sprite.Sprite):
             # Draw sprite bounds in blue
             pygame.draw.rect(screen, (0, 0, 255), frame_rect, 2)
 
-    def draw(self, screen):
+    def draw(self, screen: pygame.Surface) -> None:
         """
         Draw the character and attack range
         Args:
@@ -490,7 +469,7 @@ class Character(pygame.sprite.Sprite):
                         attack_rect.midright = self.rect.midleft
                     screen.blit(self.attack_range, attack_rect)
 
-    def set_player_number(self, number):
+    def set_player_number(self, number: int) -> None:
         """
         sets player 1 or 2
         Args:
@@ -502,7 +481,7 @@ class Character(pygame.sprite.Sprite):
         """
         Base method that does nothing
         """
-        # Do I need this here?
+        # TODO: implament special attack for each character then make this an abstract method
         pass
 
 
@@ -513,7 +492,7 @@ class Regar(Character):
         Character: parent class
     """
 
-    def __init__(self, game):
+    def __init__(self, game: "Game"):
         """
         method to control the attributes of the character
         Args:
@@ -544,8 +523,11 @@ class Regar(Character):
                 else pygame.math.Vector2(-1, 0)
             )
             spawn_x = self.rect.right if self.facing_right else self.rect.left
-            projectile = Projectile(
-                spawn_x, self.rect.centery, direction, damage=self.strength
+
+            projectile = EnergyShot(
+                pos=(spawn_x, self.rect.centery),
+                direction=direction,
+                damage=self.strength,
             )
             self.projectiles.add(projectile)
 
