@@ -3,6 +3,7 @@ from game_states import GameState
 import logging
 from typing import Optional, Literal
 from config import (
+    CONTROLS,
     # Character related
     CHARACTER_STATS,
     CHARACTER_SPRITES,
@@ -129,14 +130,20 @@ class Character(pygame.sprite.Sprite):
         Args:
             dt: time between frames
         """
-        keys = pygame.key.get_pressed()
-        if self.player_number == 1:
-            self.direction.x = keys[pygame.K_d] - keys[pygame.K_a]
-            self.direction.y = keys[pygame.K_s] - keys[pygame.K_w]
-        elif self.player_number == 2:
-            self.direction.x = keys[pygame.K_RIGHT] - keys[pygame.K_LEFT]
-            self.direction.y = keys[pygame.K_DOWN] - keys[pygame.K_UP]
+        # Don't process movement if player number isn't set
+        if self.player_number is None:
+            return
 
+        keys = pygame.key.get_pressed()
+        player_controls = CONTROLS[f"player{self.player_number}"]["movement"]
+
+        # Get directional input from configured keys
+        self.direction.x = (
+            keys[player_controls["right"]] - keys[player_controls["left"]]
+        )
+        self.direction.y = keys[player_controls["down"]] - keys[player_controls["up"]]
+
+        # Update facing direction
         if self.direction.x > 0:
             self.facing_right = True
         elif self.direction.x < 0:
@@ -167,23 +174,28 @@ class Character(pygame.sprite.Sprite):
         # Update attack timers
         if self.attack_timer > 0:
             self.attack_timer -= dt
-            # Reset attacking state when timer is done
             if self.attack_timer <= 0:
                 self.attacking = False
 
         # Update special attack cooldown
         if self.special_attack_timer > 0:
             self.special_attack_timer -= dt
-            # Reset special attacking state when timer is done
             if self.special_attack_timer <= 0:
                 self.is_special_attacking = False
 
-        # Get mouse input for player 1
+        # Get player controls
+        player_controls = CONTROLS[f"player{self.player_number}"]["combat"]
+
+        # Handle player 1 (mouse controls)
         if self.player_number == 1:
             mouse = pygame.mouse.get_pressed()
 
             # Left click - normal attack
-            if mouse[0] and not self.attacking and self.attack_timer <= 0:
+            if (
+                mouse[player_controls["attack"] - 1]
+                and not self.attacking
+                and self.attack_timer <= 0
+            ):
                 self.attacking = True
                 self.attack_timer = self.attack_cooldown
                 if hasattr(self.game, "sound_manager"):
@@ -191,19 +203,40 @@ class Character(pygame.sprite.Sprite):
 
             # Right click - special attack
             if (
-                mouse[2]
+                mouse[player_controls["special"] - 1]
                 and not self.is_special_attacking
                 and self.special_attack_timer <= 0
             ):
                 if hasattr(self, "perform_special_attack"):
                     self.perform_special_attack()
 
-        # TODO: player 2 controls for attack and special attack controls
+        # Handle player 2 (keyboard controls)
+        elif self.player_number == 2:
+            keys = pygame.key.get_pressed()
+
+            # Normal attack
+            if (
+                keys[player_controls["attack"]]
+                and not self.attacking
+                and self.attack_timer <= 0
+            ):
+                self.attacking = True
+                self.attack_timer = self.attack_cooldown
+                if hasattr(self.game, "sound_manager"):
+                    self.game.sound_manager.play_sound("punch")
+
+            # Special attack
+            if (
+                keys[player_controls["special"]]
+                and not self.is_special_attacking
+                and self.special_attack_timer <= 0
+            ):
+                if hasattr(self, "perform_special_attack"):
+                    self.perform_special_attack()
 
         # Update projectiles and check collisions
         for projectile in list(self.projectiles):
             projectile.update(dt)
-            # Check collision with enemies
             for enemy in self.game.enemy_manager.enemies:
                 if projectile.rect.colliderect(enemy.rect):
                     enemy.take_damage(projectile.damage)

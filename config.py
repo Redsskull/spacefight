@@ -1,3 +1,6 @@
+import pygame
+
+
 # Display settings
 SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
@@ -172,4 +175,31 @@ UI_SETTINGS = {
     "text_color": (255, 255, 255),
     "selected_color": (0, 255, 0),
     "error_color": (255, 0, 0),
+}
+
+CONTROLS = {
+    "player1": {
+        "movement": {
+            "up": pygame.K_w,
+            "down": pygame.K_s,
+            "left": pygame.K_a,
+            "right": pygame.K_d,
+        },
+        "combat": {
+            "attack": 1,  # Left mouse click
+            "special": 3,  # Right mouse click
+        },
+    },
+    "player2": {
+        "movement": {
+            "up": pygame.K_UP,
+            "down": pygame.K_DOWN,
+            "left": pygame.K_LEFT,
+            "right": pygame.K_RIGHT,
+        },
+        "combat": {
+            "attack": pygame.K_SPACE,
+            "special": pygame.K_RETURN,
+        },
+    },
 }
