@@ -1,7 +1,13 @@
-import pygame
-from game_states import GameState
+"""
+This module contains the character classes for the game. Each character has its own unique stats, abilities, and
+visual representation. The base Character class provides the foundation for all characters, while the specific
+character classes (e.g. Regar, Susan, Emily, Bart) define the unique properties for each character.
+"""
+
 import logging
 from typing import Optional, Literal
+import pygame
+from game_states import GameState
 from config import (
     CONTROLS,
     # Character related
@@ -67,6 +73,8 @@ class Character(pygame.sprite.Sprite):
         # Animation properties
         self.current_animation = None
         self.animation_frame = 0
+        self.frame_width = 0
+        self.frame_height = 0
         self.animation_timer = 0
         self.animation_complete = False
         self.frame_duration = ANIMATION_SETTINGS["frame_duration"]
@@ -316,7 +324,6 @@ class Character(pygame.sprite.Sprite):
             first_frames = next(iter(self.sprite_sheets.values()))["frames"]
             self.frame_width = first_sheet.get_width() // first_frames
             self.frame_height = first_sheet.get_height()
-            # TODO: frame width and height could be defined as zero in the init method
 
             # Adjust collision rect with padding
             pad_x = REGAR_SPRITE_CONFIG["collision_offset"]["x"]

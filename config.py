@@ -177,6 +177,7 @@ UI_SETTINGS = {
     "error_color": (255, 0, 0),
 }
 
+# Player conrols
 CONTROLS = {
     "player1": {
         "movement": {
