@@ -99,6 +99,23 @@ REGAR_SPRITE_CONFIG = {
     },
 }
 
+# Susan-specific sprite settings
+SUSAN_SPRITE_CONFIG = {
+    "scale_factor": 2.4,  # Keep this as we like the visual size
+    "target_height": 100,  # Match SPRITE_SETTINGS["TARGET_HEIGHT"]
+    "collision_offset": {
+        "x": 120,  # Adjust collision box width
+        "y": 60,  # Adjust collision box height
+    },
+    "frame_widths": {
+        "idle": 128,  # 512/4 frames
+        "walk": 128,  # 1024/8 frames
+        "attack": 128,  # 1024/8 frames
+        "hurt": 128,  # 128/1 frame
+    },
+}
+
+
 # Combat settings
 ATTACK_SETTINGS = {
     "cooldown": 0.1,
@@ -148,6 +165,12 @@ LEVEL_BOUNDS = {"floor_y": 447, "ceiling_y": 575, "left_x": 187, "right_x": 1058
 CHARACTER_BOUNDARIES = {
     "default": {"floor_y": 400, "ceiling_y": 100, "left_x": 0, "right_x": 1000},
     "Regar": {"floor_y": 548, "ceiling_y": 354, "left_x": 80, "right_x": 1039},
+    "Susan": {
+        "floor_y": 548,
+        "ceiling_y": 354,
+        "left_x": 80,
+        "right_x": 1039,
+    },  # Start with same as Regar
 }
 
 # Sound settings

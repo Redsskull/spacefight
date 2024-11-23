@@ -15,6 +15,7 @@ from config import (
     CHARACTER_SPRITES,
     SPRITE_SETTINGS,
     REGAR_SPRITE_CONFIG,
+    SUSAN_SPRITE_CONFIG,
     # Combat related
     ATTACK_SETTINGS,
     SPECIAL_ATTACK_SETTINGS,
@@ -264,12 +265,70 @@ class Character(pygame.sprite.Sprite):
 
     def load_sprite_sheets(self) -> None:
         """Load and configure sprite sheets for the character"""
-        if self.name != "Regar":
+        if self.name not in ["Regar", "Susan"]:
             return
 
         try:
-            sprite_path = "assets/sprites/regar"
+            sprite_path = f"assets/sprites/{self.name.lower()}"
 
+            if self.name == "Susan":
+                print(f"\nLoading {self.name} sprites from {sprite_path}")
+                for anim_type, info in CHARACTER_SPRITES["Susan"].items():
+                    sprite_name = info["name"]
+                    full_path = f"{sprite_path}/{sprite_name}.png"
+                    try:
+                        original_surface = pygame.image.load(full_path).convert_alpha()
+                        print(f"\n{anim_type} animation:")
+                        print(
+                            f"- Original dimensions: {original_surface.get_width()}x{original_surface.get_height()}"
+                        )
+
+                        # First scale to target height
+                        base_height_scale = (
+                            SUSAN_SPRITE_CONFIG["target_height"]
+                            / original_surface.get_height()
+                        )
+
+                        # Then apply Susan's scale factor
+                        final_scale = (
+                            base_height_scale * SUSAN_SPRITE_CONFIG["scale_factor"]
+                        )
+
+                        scaled_width = int(original_surface.get_width() * final_scale)
+                        scaled_height = int(
+                            SUSAN_SPRITE_CONFIG["target_height"]
+                            * SUSAN_SPRITE_CONFIG["scale_factor"]
+                        )
+
+                        scaled_surface = pygame.transform.scale(
+                            original_surface, (scaled_width, scaled_height)
+                        )
+                        print(f"- Scaled dimensions: {scaled_width}x{scaled_height}")
+
+                        self.sprite_sheets[anim_type] = {
+                            "surface": scaled_surface,
+                            "frames": info["frames"],
+                        }
+
+                        # Calculate frame width after scaling
+                        frame_width = scaled_width // info["frames"]
+                        self.rect.width = frame_width - (
+                            SUSAN_SPRITE_CONFIG["collision_offset"]["x"] * 2
+                        )
+                        self.rect.height = scaled_height - (
+                            SUSAN_SPRITE_CONFIG["collision_offset"]["y"] * 2
+                        )
+                        print(f"- Frame width: {frame_width}")
+                        print(f"- Collision box: {self.rect.width}x{self.rect.height}")
+
+                    except pygame.error as e:
+                        print(f"Failed to load {sprite_name}.png: {e}")
+
+                self.using_sprites = True
+                self.sprites_loaded = True
+                return
+
+            # Rest of existing Regar code unchanged
             # Get the first animation's dimensions to set base rect size
             first_anim = next(iter(CHARACTER_SPRITES["Regar"].items()))
             first_sheet = pygame.image.load(
@@ -597,7 +656,10 @@ class Susan(Character):
             strength: strength of the character
         """
         super().__init__("Susan", game=game)
-        self.update_sprite()
+        if isinstance(self.game.current_screen, LevelScreen):
+            self.using_sprites = True
+            self.load_sprite_sheets()
+        self.has_special_attack = False
 
 
 class Emily(Character):
