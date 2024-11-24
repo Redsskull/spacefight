@@ -81,11 +81,13 @@ class Character(pygame.sprite.Sprite):
         self.frame_duration = ANIMATION_SETTINGS["frame_duration"]
 
         # Combat properties - Basic Attack
+        attack_settings = ATTACK_SETTINGS.get(self.name, ATTACK_SETTINGS["default"])
         self.attacking = False
         self.attack_timer = 0
-        self.attack_cooldown = ATTACK_SETTINGS["cooldown"]
-        self.attack_range = pygame.Surface(ATTACK_SETTINGS["range_size"])
-        self.attack_range.fill(ATTACK_SETTINGS["range_color"])
+        self.attack_cooldown = attack_settings["cooldown"]
+        self.attack_range = pygame.Surface(attack_settings["range_size"])
+        self.attack_range.fill(attack_settings["range_color"])
+        self.attack_offset = attack_settings.get("offset", {"x": 0, "y": 0})
 
         # Combat properties - Special Attack
         self.has_special_attack = False
@@ -255,10 +257,25 @@ class Character(pygame.sprite.Sprite):
         # Handle melee attack collision
         if self.attacking:
             attack_rect = self.attack_range.get_rect()
-            if self.facing_right:
-                attack_rect.midleft = self.rect.midright
+            if hasattr(self, "sprite_config") and "attack_offset" in self.sprite_config:
+                offset_x = self.sprite_config["attack_offset"]["x"]
+                offset_y = self.sprite_config["attack_offset"]["y"]
+                if self.facing_right:
+                    attack_rect.midleft = (
+                        self.rect.x + offset_x,
+                        self.rect.y + offset_y,
+                    )
+                else:
+                    attack_rect.midright = (
+                        self.rect.right - offset_x,
+                        self.rect.y + offset_y,
+                    )
             else:
-                attack_rect.midright = self.rect.midleft
+                # Default behavior
+                if self.facing_right:
+                    attack_rect.midleft = self.rect.midright
+                else:
+                    attack_rect.midright = self.rect.midleft
 
             # Check for collisions with enemies
             self.game.enemy_manager.handle_collision(attack_rect, self.strength)
@@ -549,10 +566,34 @@ class Character(pygame.sprite.Sprite):
                 # Draw attack range if attacking
                 if self.attacking:
                     attack_rect = self.attack_range.get_rect()
-                    if self.facing_right:
-                        attack_rect.midleft = (frame_rect.centerx, frame_rect.centery)
+                    if (
+                        hasattr(self, "sprite_config")
+                        and "attack_offset" in self.sprite_config
+                    ):
+                        offset_x = self.sprite_config["attack_offset"]["x"]
+                        offset_y = self.sprite_config["attack_offset"]["y"]
+                        if self.facing_right:
+                            attack_rect.midleft = (
+                                self.rect.x + offset_x,
+                                self.rect.y + offset_y,
+                            )
+                        else:
+                            attack_rect.midright = (
+                                self.rect.right - offset_x,
+                                self.rect.y + offset_y,
+                            )
                     else:
-                        attack_rect.midright = (frame_rect.centerx, frame_rect.centery)
+                        # Fall back to current behavior for characters without specific config
+                        if self.facing_right:
+                            attack_rect.midleft = (
+                                frame_rect.centerx,
+                                frame_rect.centery,
+                            )
+                        else:
+                            attack_rect.midright = (
+                                frame_rect.centerx,
+                                frame_rect.centery,
+                            )
                     screen.blit(self.attack_range, attack_rect)
 
                 # Debug visualization for all sprite-based characters
@@ -563,10 +604,28 @@ class Character(pygame.sprite.Sprite):
                 screen.blit(self.image, self.rect)
                 if self.attacking:
                     attack_rect = self.attack_range.get_rect()
-                    if self.facing_right:
-                        attack_rect.midleft = self.rect.midright
+                    if (
+                        hasattr(self, "sprite_config")
+                        and "attack_offset" in self.sprite_config
+                    ):
+                        offset_x = self.sprite_config["attack_offset"]["x"]
+                        offset_y = self.sprite_config["attack_offset"]["y"]
+                        if self.facing_right:
+                            attack_rect.midleft = (
+                                self.rect.x + offset_x,
+                                self.rect.y + offset_y,
+                            )
+                        else:
+                            attack_rect.midright = (
+                                self.rect.right - offset_x,
+                                self.rect.y + offset_y,
+                            )
                     else:
-                        attack_rect.midright = self.rect.midleft
+                        # Default behavior
+                        if self.facing_right:
+                            attack_rect.midleft = self.rect.midright
+                        else:
+                            attack_rect.midright = self.rect.midleft
                     screen.blit(self.attack_range, attack_rect)
 
     def set_player_number(self, number: int) -> None:

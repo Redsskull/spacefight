@@ -113,14 +113,34 @@ SUSAN_SPRITE_CONFIG = {
         "attack": 128,  # 1024/8 frames
         "hurt": 128,  # 128/1 frame
     },
+    "attack_offset": {
+        "x": 120,  # Match collision offset
+        "y": 60,  # Adjust based on where attacks should originate
+    },
 }
 
 
 # Combat settings
 ATTACK_SETTINGS = {
-    "cooldown": 0.1,
-    "range_size": (50, 100),
-    "range_color": (144, 238, 144),  # Light green
+    "default": {
+        "cooldown": 0.1,
+        "range_size": (50, 100),
+        "range_color": (144, 238, 144),  # Light greenp
+    },
+    "Regar": {
+        "cooldown": 0.1,
+        "range_size": (50, 100),
+        "range_color": (144, 238, 144),
+    },
+    "Susan": {
+        "cooldown": 0.1,
+        "range_size": (50, 100),
+        "range_color": (144, 238, 144),
+        "offset": {
+            "x": 120,  # Match her collision offset
+            "y": 60,  # Adjust based on animation
+        },
+    },
 }
 
 # Enemy attack settings
