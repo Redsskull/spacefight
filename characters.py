@@ -528,19 +528,39 @@ class Character(pygame.sprite.Sprite):
                 self.image.fill((0, 0, 0))  # Blink to black
 
     def draw_debug_bounds(
-        self, screen: pygame.Surface, frame_rect: pygame.Rect
+        self,
+        screen: pygame.Surface,
+        frame_rect: pygame.Rect,
+        attack_rect: Optional[pygame.Rect] = None,
     ) -> None:
-        """
-        Draw debug visualization of collision and sprite bounds. This will only appear when using debug
-        Args:
-            screen: surface to draw on
-            frame_rect: current frame rectangle
-        """
+        """Draw debug visualization for character bounds"""
         if SPRITE_SETTINGS["DEBUG_MODE"] and self.using_sprites:
             # Draw collision box in red
             pygame.draw.rect(screen, (255, 0, 0), self.rect, 2)
+
             # Draw sprite bounds in blue
             pygame.draw.rect(screen, (0, 0, 255), frame_rect, 2)
+
+            # Calculate and draw attack range
+            attack_config = ATTACK_SETTINGS.get(self.name, ATTACK_SETTINGS["default"])
+            if "offset" in attack_config and self.attacking:
+                offset_x = attack_config["offset"]["x"]
+                offset_y = attack_config["offset"]["y"]
+
+                # Draw attack range in magenta
+                if attack_rect:
+                    pygame.draw.rect(screen, (255, 0, 255), attack_rect, 2)
+
+                # Draw attack origin point in yellow
+                offset_point = (
+                    (
+                        self.rect.x + offset_x
+                        if self.facing_right
+                        else self.rect.right - offset_x
+                    ),
+                    self.rect.y + offset_y,
+                )
+                pygame.draw.circle(screen, (255, 255, 0), offset_point, 3)
 
     def draw(self, screen: pygame.Surface) -> None:
         """
@@ -566,38 +586,29 @@ class Character(pygame.sprite.Sprite):
                 # Draw attack range if attacking
                 if self.attacking:
                     attack_rect = self.attack_range.get_rect()
-                    if (
-                        hasattr(self, "sprite_config")
-                        and "attack_offset" in self.sprite_config
-                    ):
-                        offset_x = self.sprite_config["attack_offset"]["x"]
-                        offset_y = self.sprite_config["attack_offset"]["y"]
+                    attack_config = ATTACK_SETTINGS.get(
+                        self.name, ATTACK_SETTINGS["default"]
+                    )
+                    if "offset" in attack_config:
+                        offset_x = attack_config["offset"]["x"]
+                        offset_y = attack_config["offset"]["y"]
                         if self.facing_right:
-                            attack_rect.midleft = (
+                            attack_rect.midright = (
                                 self.rect.x + offset_x,
                                 self.rect.y + offset_y,
                             )
                         else:
-                            attack_rect.midright = (
+                            attack_rect.midleft = (
                                 self.rect.right - offset_x,
                                 self.rect.y + offset_y,
                             )
-                    else:
-                        # Fall back to current behavior for characters without specific config
-                        if self.facing_right:
-                            attack_rect.midleft = (
-                                frame_rect.centerx,
-                                frame_rect.centery,
-                            )
-                        else:
-                            attack_rect.midright = (
-                                frame_rect.centerx,
-                                frame_rect.centery,
-                            )
                     screen.blit(self.attack_range, attack_rect)
 
-                # Debug visualization for all sprite-based characters
-                self.draw_debug_bounds(screen, frame_rect)
+                # Single debug call
+                self.draw_debug_bounds(
+                    screen, frame_rect, attack_rect if self.attacking else None
+                )
+
         else:
             # Draw non-sprite character
             if self.visible:

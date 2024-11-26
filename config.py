@@ -113,10 +113,6 @@ SUSAN_SPRITE_CONFIG = {
         "attack": 128,  # 1024/8 frames
         "hurt": 128,  # 128/1 frame
     },
-    "attack_offset": {
-        "x": 120,  # Match collision offset
-        "y": 60,  # Adjust based on where attacks should originate
-    },
 }
 
 
