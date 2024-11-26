@@ -115,6 +115,11 @@ class Character(pygame.sprite.Sprite):
         # Initial sprite update
         self.update_sprite()
 
+        # Hurt properties
+        self.is_hurt = False
+        self.hurt_timer = 0
+        self.hurt_duration = ANIMATION_SETTINGS["frame_duration"]
+
     def take_damage(self, amount: int) -> None:
         """Take damage
         Args:
@@ -126,6 +131,12 @@ class Character(pygame.sprite.Sprite):
             self.death_blink_timer = self.death_blink_duration
             self.animation_complete = False
             self.blink_count = 0
+
+        # Check if character has hurt animation available
+        if self.using_sprites and not self.is_dying:
+            if "hurt" in CHARACTER_SPRITES.get(self.name, {}):
+                self.is_hurt = True
+                self.hurt_timer = self.hurt_duration
 
     def update_sprite(self) -> None:
         """Updates the direction indicator for non-sprite characters"""
@@ -455,6 +466,8 @@ class Character(pygame.sprite.Sprite):
         return:
             current animation
         """
+        if self.is_hurt and "hurt" in CHARACTER_SPRITES.get(self.name, {}):
+            return "hurt"
         if self.is_special_attacking and self.ranged_attacker:
             if "shoot" not in self.sprite_sheets:
                 print(
@@ -518,6 +531,11 @@ class Character(pygame.sprite.Sprite):
 
         self.move(dt)
         self.attack(dt)
+
+        if self.is_hurt:
+            self.hurt_timer -= dt
+            if self.hurt_timer <= 0:
+                self.is_hurt = False
 
         if self.is_dying:
             # Blink effect using death_blink_speed
