@@ -362,6 +362,13 @@ class Character(pygame.sprite.Sprite):
                 for anim_type, info in CHARACTER_SPRITES["Emily"].items():
                     sprite_name = info["name"]
                     full_path = f"{sprite_path}/{sprite_name}.png"
+                    # Add debug print for kick animation
+                    if anim_type == "kick":
+                        print("\nKick animation details:")
+                        original_surface = pygame.image.load(full_path).convert_alpha()
+                        print(
+                            f"Original dimensions: {original_surface.get_width()}x{original_surface.get_height()}"
+                        )
                     try:
                         original_surface = pygame.image.load(full_path).convert_alpha()
                         print(f"\n{anim_type} animation:")
@@ -522,7 +529,9 @@ class Character(pygame.sprite.Sprite):
 
         return frame
 
-    def get_current_animation(self) -> Literal["idle", "walk", "attack", "shoot"]:
+    def get_current_animation(
+        self,
+    ) -> Literal["idle", "walk", "attack", "shoot", "hurt", "kick"]:
         """
         Determine which animation to use based on state
         return:
@@ -530,12 +539,11 @@ class Character(pygame.sprite.Sprite):
         """
         if self.is_hurt and "hurt" in CHARACTER_SPRITES.get(self.name, {}):
             return "hurt"
-        if self.is_special_attacking and self.ranged_attacker:
-            if "shoot" not in self.sprite_sheets:
-                print(
-                    "'shoot' animation missing from sprite sheets!"
-                )  # Debug just in case when moving between branches
-            return "shoot"
+        if self.is_special_attacking:
+            if self.ranged_attacker and "shoot" in self.sprite_sheets:
+                return "shoot"
+            elif "kick" in self.sprite_sheets:  # Emily's kick
+                return "kick"
         elif self.attacking:
             return "attack"
         elif self.direction.length() > 0 and "walk" in self.sprite_sheets:
@@ -806,7 +814,46 @@ class Emily(Character):
         if isinstance(self.game.current_screen, LevelScreen):
             self.using_sprites = True
             self.load_sprite_sheets()
-        self.has_special_attack = False
+        self.has_special_attack = True  # Enable special attack
+        self.kick_attack_range = pygame.Surface(
+            (
+                SPECIAL_ATTACK_SETTINGS["Emily"]["range"]["width"],
+                SPECIAL_ATTACK_SETTINGS["Emily"]["range"]["height"],
+            )
+        )
+        self.kick_attack_range.fill((255, 0, 0))  # Red for kick range
+
+    def perform_special_attack(self):
+        """Perform Emily's special kick attack"""
+        if self.special_attack_timer <= 0:
+            self.is_special_attacking = True
+            self.animation_timer = 0
+            self.special_attack_timer = SPECIAL_ATTACK_SETTINGS["Emily"]["cooldown"]
+
+            # Create kick hitbox
+            kick_rect = self.kick_attack_range.get_rect()
+            offset_x = SPECIAL_ATTACK_SETTINGS["Emily"]["offset"]["x"]
+            offset_y = SPECIAL_ATTACK_SETTINGS["Emily"]["offset"]["y"]
+
+            if self.facing_right:
+                kick_rect.midleft = (
+                    self.rect.right + offset_x,
+                    self.rect.centery + offset_y,
+                )
+            else:
+                kick_rect.midright = (
+                    self.rect.left - offset_x,
+                    self.rect.centery + offset_y,
+                )
+
+            # Check for enemy hits
+            for enemy in self.game.enemy_manager.enemies:
+                if kick_rect.colliderect(enemy.rect):
+                    enemy.take_damage(SPECIAL_ATTACK_SETTINGS["Emily"]["damage"])
+
+            # Play sound effect
+            if hasattr(self.game, "sound_manager"):
+                self.game.sound_manager.play_sound("kick")
 
 
 class Bart(Character):

@@ -69,6 +69,7 @@ CHARACTER_SPRITES = {
         "walk": {"name": "emily_walk", "frames": 10},
         "attack": {"name": "emily_punch", "frames": 3},
         "hurt": {"name": "emily_hurt", "frames": 2},
+        "kick": {"name": "emily_kick", "frames": 5},
     },
     "Bart": {
         "idle": {"name": "bart_idle", "frames": 4},
@@ -128,6 +129,7 @@ EMILY_SPRITE_CONFIG = {
         "walk": 96,  # 960/10 frames
         "attack": 96,  # 288/3 frames
         "hurt": 96,  # 192/2 frames
+        "kick": 96,  # 480/5 frames
     },
 }
 
@@ -177,14 +179,20 @@ ENEMY_ATTACK = {
 
 # Special attack settings
 SPECIAL_ATTACK_SETTINGS = {
-    "cooldown": 3.0,
-    "projectile": {"speed": 400, "damage": 10, "size": (20, 10)},
+    "cooldown": 2.0,  # Global cooldown
+    "Emily": {
+        "damage": 50,  # High damage for kick
+        "range": {"width": 120, "height": 63},  #  Matched from dimensions
+        "offset": {"x": 60, "y": 0},  # Adjusted for kick animation
+        "cooldown": 1.5,  # Specific cooldown for Emily
+        "duration": 1,  # Duration of the animation
+    },
 }
 
 # Animation settings in config.py
 ANIMATION_SETTINGS = {
     "frame_duration": 0.1,
-    "special_attack_duration": 0.3,
+    "special_attack_duration": 0.8,
     "death": {"blink_duration": 0.2, "total_time": 2.0, "max_blinks": 10},
 }
 
@@ -238,6 +246,7 @@ SOUND_REGISTRY = {
         "metal": "metal_sound.mp3",
         "alarm": "alarm.wav",
         "shoot": "laser.mp3",
+        "kick": "kick.mp3",
     },
 }
 
