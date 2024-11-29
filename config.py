@@ -67,7 +67,7 @@ CHARACTER_SPRITES = {
     "Emily": {
         "idle": {"name": "emily_idle", "frames": 4},
         "walk": {"name": "emily_walk", "frames": 10},
-        "attack": {"name": "emily_kick", "frames": 5},
+        "attack": {"name": "emily_punch", "frames": 3},
         "hurt": {"name": "emily_hurt", "frames": 2},
     },
     "Bart": {
@@ -115,6 +115,21 @@ SUSAN_SPRITE_CONFIG = {
     },
 }
 
+# Emily-specific sprite settings
+EMILY_SPRITE_CONFIG = {
+    "scale_factor": 1.5,  # Reduced from 2.0 to make her smaller
+    "target_height": 100,  # Match SPRITE_SETTINGS["TARGET_HEIGHT"]
+    "collision_offset": {
+        "x": 83,  # Reduced from 100 to allow more movement
+        "y": 16,  # Reduced from 50 for better proportions
+    },
+    "frame_widths": {
+        "idle": 96,  # 384/4 frames
+        "walk": 96,  # 960/10 frames
+        "attack": 96,  # 288/3 frames
+        "hurt": 96,  # 192/2 frames
+    },
+}
 
 # Combat settings
 ATTACK_SETTINGS = {
@@ -127,6 +142,10 @@ ATTACK_SETTINGS = {
         "cooldown": 0.1,
         "range_size": (50, 100),
         "range_color": (144, 238, 144),
+        "offset": {  # Add this
+            "x": 15,  # Match his collision_offset
+            "y": 10,
+        },
     },
     "Susan": {
         "cooldown": 0.1,
@@ -135,6 +154,15 @@ ATTACK_SETTINGS = {
         "offset": {
             "x": 120,  # Match her collision offset
             "y": 60,  # Adjust based on animation
+        },
+    },
+    "Emily": {
+        "cooldown": 0.1,
+        "range_size": (50, 100),
+        "range_color": (144, 238, 144),
+        "offset": {
+            "x": 35,  # Match her collision offset
+            "y": 15,  # Adjust based on animation
         },
     },
 }
@@ -186,7 +214,13 @@ CHARACTER_BOUNDARIES = {
         "ceiling_y": 354,
         "left_x": 80,
         "right_x": 1039,
-    },  # Start with same as Regar
+    },
+    "Emily": {
+        "floor_y": 548,
+        "ceiling_y": 354,
+        "left_x": 80,
+        "right_x": 1039,
+    },
 }
 
 # Sound settings

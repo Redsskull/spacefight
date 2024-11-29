@@ -16,6 +16,7 @@ from config import (
     SPRITE_SETTINGS,
     REGAR_SPRITE_CONFIG,
     SUSAN_SPRITE_CONFIG,
+    EMILY_SPRITE_CONFIG,
     # Combat related
     ATTACK_SETTINGS,
     SPECIAL_ATTACK_SETTINGS,
@@ -293,7 +294,7 @@ class Character(pygame.sprite.Sprite):
 
     def load_sprite_sheets(self) -> None:
         """Load and configure sprite sheets for the character"""
-        if self.name not in ["Regar", "Susan"]:
+        if self.name not in ["Regar", "Susan", "Emily"]:
             return
 
         try:
@@ -347,6 +348,67 @@ class Character(pygame.sprite.Sprite):
                             SUSAN_SPRITE_CONFIG["collision_offset"]["y"] * 2
                         )
                         print(f"- Frame width: {frame_width}")
+                        print(f"- Collision box: {self.rect.width}x{self.rect.height}")
+
+                    except pygame.error as e:
+                        print(f"Failed to load {sprite_name}.png: {e}")
+
+                self.using_sprites = True
+                self.sprites_loaded = True
+                return
+
+            if self.name == "Emily":
+                print(f"\nLoading {self.name} sprites from {sprite_path}")
+                for anim_type, info in CHARACTER_SPRITES["Emily"].items():
+                    sprite_name = info["name"]
+                    full_path = f"{sprite_path}/{sprite_name}.png"
+                    try:
+                        original_surface = pygame.image.load(full_path).convert_alpha()
+                        print(f"\n{anim_type} animation:")
+                        print(
+                            f"- Original dimensions: {original_surface.get_width()}x{original_surface.get_height()}"
+                        )
+
+                        # First scale to target height
+                        base_height_scale = (
+                            EMILY_SPRITE_CONFIG["target_height"]
+                            / original_surface.get_height()
+                        )
+
+                        # Then apply Emily's scale factor
+                        final_scale = (
+                            base_height_scale * EMILY_SPRITE_CONFIG["scale_factor"]
+                        )
+
+                        scaled_width = int(original_surface.get_width() * final_scale)
+                        scaled_height = int(
+                            EMILY_SPRITE_CONFIG["target_height"]
+                            * EMILY_SPRITE_CONFIG["scale_factor"]
+                        )
+
+                        scaled_surface = pygame.transform.scale(
+                            original_surface, (scaled_width, scaled_height)
+                        )
+                        print(f"- Scaled dimensions: {scaled_width}x{scaled_height}")
+
+                        self.sprite_sheets[anim_type] = {
+                            "surface": scaled_surface,
+                            "frames": info["frames"],
+                        }
+
+                        # Calculate frame width based on actual frames
+                        frame_width = (
+                            scaled_width // self.sprite_sheets[anim_type]["frames"]
+                        )
+                        print(f"- Frame width: {frame_width}")
+
+                        # Update collision rect size with adjusted frame width
+                        self.rect.width = frame_width - (
+                            EMILY_SPRITE_CONFIG["collision_offset"]["x"] * 2
+                        )
+                        self.rect.height = scaled_height - (
+                            EMILY_SPRITE_CONFIG["collision_offset"]["y"] * 2
+                        )
                         print(f"- Collision box: {self.rect.width}x{self.rect.height}")
 
                     except pygame.error as e:
@@ -581,14 +643,6 @@ class Character(pygame.sprite.Sprite):
                 pygame.draw.circle(screen, (255, 255, 0), offset_point, 3)
 
     def draw(self, screen: pygame.Surface) -> None:
-        """
-        Draw the character and attack range
-        Args:
-            screen: surface to draw on
-        return:
-            None
-        """
-        # projectile draw
         self.projectiles.draw(screen)
 
         if self.is_dying and self.animation_complete:
@@ -601,7 +655,7 @@ class Character(pygame.sprite.Sprite):
                 frame_rect.midbottom = self.rect.midbottom
                 screen.blit(current_frame, frame_rect)
 
-                # Draw attack range if attacking
+                # Draw attack range only when attacking
                 if self.attacking:
                     attack_rect = self.attack_range.get_rect()
                     attack_config = ATTACK_SETTINGS.get(
@@ -610,51 +664,33 @@ class Character(pygame.sprite.Sprite):
                     if "offset" in attack_config:
                         offset_x = attack_config["offset"]["x"]
                         offset_y = attack_config["offset"]["y"]
+
                         if self.facing_right:
-                            attack_rect.midright = (
-                                self.rect.x + offset_x,
-                                self.rect.y + offset_y,
+                            attack_rect.midleft = (
+                                self.rect.right,
+                                self.rect.centery,
                             )
                         else:
-                            attack_rect.midleft = (
-                                self.rect.right - offset_x,
-                                self.rect.y + offset_y,
+                            attack_rect.midright = (
+                                self.rect.left,
+                                self.rect.centery,
                             )
-                    screen.blit(self.attack_range, attack_rect)
+                        screen.blit(self.attack_range, attack_rect)
 
-                # Single debug call
+                # Draw debug bounds always, outside attack condition
                 self.draw_debug_bounds(
                     screen, frame_rect, attack_rect if self.attacking else None
                 )
-
         else:
-            # Draw non-sprite character
+            # Non-sprite characters use same collision rect logic
             if self.visible:
                 screen.blit(self.image, self.rect)
                 if self.attacking:
                     attack_rect = self.attack_range.get_rect()
-                    if (
-                        hasattr(self, "sprite_config")
-                        and "attack_offset" in self.sprite_config
-                    ):
-                        offset_x = self.sprite_config["attack_offset"]["x"]
-                        offset_y = self.sprite_config["attack_offset"]["y"]
-                        if self.facing_right:
-                            attack_rect.midleft = (
-                                self.rect.x + offset_x,
-                                self.rect.y + offset_y,
-                            )
-                        else:
-                            attack_rect.midright = (
-                                self.rect.right - offset_x,
-                                self.rect.y + offset_y,
-                            )
+                    if self.facing_right:
+                        attack_rect.midleft = self.rect.midright
                     else:
-                        # Default behavior
-                        if self.facing_right:
-                            attack_rect.midleft = self.rect.midright
-                        else:
-                            attack_rect.midright = self.rect.midleft
+                        attack_rect.midright = self.rect.midleft
                     screen.blit(self.attack_range, attack_rect)
 
     def set_player_number(self, number: int) -> None:
@@ -767,7 +803,10 @@ class Emily(Character):
             strength: strength of the character
         """
         super().__init__("Emily", game=game)
-        self.update_sprite()
+        if isinstance(self.game.current_screen, LevelScreen):
+            self.using_sprites = True
+            self.load_sprite_sheets()
+        self.has_special_attack = False
 
 
 class Bart(Character):
