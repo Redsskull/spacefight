@@ -571,6 +571,29 @@ class Character(pygame.sprite.Sprite):
                 self.visible = False
             return
 
+        if self.using_sprites:
+            self.animation_timer += dt
+            if self.animation_timer >= self.frame_duration:
+                self.animation_timer = 0
+                current_anim = self.get_current_animation()
+                total_frames = self.sprite_sheets[current_anim]["frames"]
+                self.animation_frame = (self.animation_frame + 1) % total_frames
+
+                # Only reset special attack when animation completes
+                if (
+                    self.is_special_attacking
+                    and self.animation_frame == total_frames - 1
+                ):
+                    self.is_special_attacking = False
+                # Handle normal attack separately
+                elif self.attacking and self.animation_frame == total_frames - 1:
+                    self.attacking = False
+
+            self.current_animation = self.get_current_animation()
+
+        self.move(dt)
+        self.attack(dt)
+
         # Update projectiles and check collisions
         for projectile in self.projectiles:
             projectile.update(dt)
@@ -580,27 +603,6 @@ class Character(pygame.sprite.Sprite):
                     enemy.take_damage(self.strength)
                     projectile.kill()
                     break
-
-        if self.using_sprites:
-            self.animation_timer += dt
-            if self.animation_timer >= self.frame_duration:
-                self.animation_timer = 0
-                current_anim = self.get_current_animation()
-                total_frames = self.sprite_sheets[current_anim]["frames"]
-                self.animation_frame = (self.animation_frame + 1) % total_frames
-
-                # Reset special attack when it's animation completes
-                if (
-                    self.is_special_attacking
-                    or self.attacking
-                    and self.animation_frame == total_frames - 1
-                ):
-                    self.is_special_attacking = False
-
-            self.current_animation = self.get_current_animation()
-
-        self.move(dt)
-        self.attack(dt)
 
         if self.is_hurt:
             self.hurt_timer -= dt

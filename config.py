@@ -185,14 +185,14 @@ SPECIAL_ATTACK_SETTINGS = {
         "range": {"width": 120, "height": 63},  #  Matched from dimensions
         "offset": {"x": 60, "y": 0},  # Adjusted for kick animation
         "cooldown": 1.5,  # Specific cooldown for Emily
-        "duration": 1,  # Duration of the animation
+        "duration": 0.5,  # Duration of the animation
     },
 }
 
 # Animation settings in config.py
 ANIMATION_SETTINGS = {
     "frame_duration": 0.1,
-    "special_attack_duration": 0.8,
+    "special_attack_duration": 0.5,
     "death": {"blink_duration": 0.2, "total_time": 2.0, "max_blinks": 10},
 }
 
