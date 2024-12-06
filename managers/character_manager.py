@@ -1,6 +1,10 @@
-import pygame
+"""
+A manager for all character calls in the game. This class will be used to initialize characters and draw them, but characters.py will handle the movement and attacks
+"""
+
 import logging
-from typing import List, Optional, Tuple
+from typing import List, Optional
+import pygame
 from characters import Regar, Susan, Emily, Bart, Character
 
 
@@ -49,7 +53,7 @@ class CharacterManager:
             station_width = 150
             for i, character in enumerate(self.active_characters):
                 if not character:
-                    logging.error(f"Invalid character at index {i}")
+                    logging.error("Invalid character at index %d", i)
                     continue
 
                 x = 75 + i * (station_width + 25)
@@ -61,7 +65,7 @@ class CharacterManager:
             self.character_group.add(self.active_characters)
 
         except AttributeError as e:
-            logging.error(f"Character initialization failed: {e}")
+            logging.error("Character initialization failed: %s", e)
             raise
 
     def initialize_characters_for_level(self, selected_characters):
@@ -75,7 +79,7 @@ class CharacterManager:
 
             for i, character in enumerate(self.active_characters):
                 if not character:
-                    logging.warning(f"Skipping invalid character at index {i}")
+                    logging.warning("Skipping invalid character at index %d", i)
                     continue
 
                 # Position character
@@ -93,7 +97,7 @@ class CharacterManager:
             self.character_group.add([c for c in self.active_characters if c])
 
         except Exception as e:
-            logging.error(f"Failed to initialize characters: {e}")
+            logging.error("Failed to initialize characters: %s", e)
             raise
 
     def draw_characters(self, screen):
@@ -162,7 +166,7 @@ class CharacterManager:
                 screen.blit(text_surface, text_rect)
 
             except (AttributeError, TypeError) as e:
-                logging.warning(f"Failed to draw UI for character: {e}")
+                logging.warning("Failed to draw UI for character: %s", e)
                 continue
 
     def get_character_by_name(self, name: str) -> Optional[Character]:
