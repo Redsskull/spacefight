@@ -2,6 +2,7 @@ from .base import BaseCharacter
 from .traits.movement import MovementMixin
 from .traits.combat import CombatMixin
 from .traits.animations import AnimationMixin
+from combat.projectiles import ProjectileSystem, BaseProjectile
 
 
 class Character(BaseCharacter, MovementMixin, CombatMixin, AnimationMixin):

@@ -1,10 +1,40 @@
 import pygame
-from typing import Tuple, Union
+from typing import Tuple, Optional
 from abc import ABC, abstractmethod
+from config import SCREEN_WIDTH  # Add this import at the top
+
+
+class ProjectileSystem:
+    """Manages projectile lifecycle and collisions"""
+
+    def __init__(self):
+        self.active_projectiles = pygame.sprite.Group()
+
+    def update(self, dt: float) -> None:
+        """Update all active projectiles"""
+        for projectile in self.active_projectiles:
+            projectile.update(dt)
+            if projectile.is_off_screen():
+                projectile.kill()
+
+    def spawn_projectile(
+        self,
+        projectile_class,
+        spawn_pos: Tuple[int, int],
+        direction: pygame.math.Vector2,
+        **kwargs
+    ) -> None:
+        """Spawn a new projectile"""
+        projectile = projectile_class(spawn_pos, direction, **kwargs)
+        self.active_projectiles.add(projectile)
+
+    def clear(self) -> None:
+        """Remove all active projectiles"""
+        self.active_projectiles.empty()
 
 
 class BaseProjectile(pygame.sprite.Sprite, ABC):
-    """Base class for all projectiles in the game"""
+    """Base class for all projectiles"""
 
     def __init__(
         self,
@@ -28,17 +58,14 @@ class BaseProjectile(pygame.sprite.Sprite, ABC):
         pass
 
     def update(self, dt: float) -> None:
-        """Update projectile position and check bounds"""
+        """Update projectile position"""
         self.position += self.direction * self.speed * dt
         self.rect.center = self.position
-        if self.is_off_screen():
-            self.kill()
 
     def is_off_screen(self) -> bool:
         """Check if projectile is off screen"""
-        return (
-            self.rect.right < 0 or self.rect.left > 1280
-        )  # TODO: Get screen width from config
+        # Use SCREEN_WIDTH from config instead of hard-coded value
+        return self.rect.right < 0 or self.rect.left > SCREEN_WIDTH
 
 
 class EnergyShot(BaseProjectile):

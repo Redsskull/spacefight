@@ -54,9 +54,9 @@ src/
 
 ### 1. Extract Combat System
 - ✅ Create CombatMixin class
-- ❌ Move attack logic to dedicated module
-- ❌ Implement damage handling system
-- ❌ Build projectile management
+- ✅ Move attack logic to dedicated module
+- ✅ Implement damage handling system  
+- ✅ Build projectile management
 
 ### 2. Separate Animation System
 - ✅ Design Animator class basic structure

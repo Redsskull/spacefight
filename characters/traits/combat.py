@@ -6,6 +6,7 @@ from config import (
     SPECIAL_ATTACK_SETTINGS,
     ANIMATION_SETTINGS,
 )
+from combat.projectiles import ProjectileSystem, BaseProjectile
 
 
 class CombatMixin:
