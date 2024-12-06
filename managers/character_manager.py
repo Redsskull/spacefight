@@ -5,7 +5,7 @@ A manager for all character calls in the game. This class will be used to initia
 import logging
 from typing import List, Optional
 import pygame
-from characters import Regar, Susan, Emily, Bart, Character
+from characters.player_chars import Regar, Susan, Emily, Bart, Character
 
 
 class CharacterManager:

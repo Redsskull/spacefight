@@ -1,8 +1,6 @@
-"""
-This module contains the character classes for the game. Each character has its own unique stats, abilities, and
-visual representation. The base Character class provides the foundation for all characters, while the specific
-character classes (e.g. Regar, Susan, Emily, Bart) define the unique properties for each character.
-"""
+# DEPRECATED: This file is being replaced by the new modular character system
+# See characters/player_chars.py for the new implementation
+# TODO: Remove this file once migration is complete
 
 import logging
 from typing import Optional, Literal

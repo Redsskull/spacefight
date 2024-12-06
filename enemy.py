@@ -1,7 +1,8 @@
 import pygame
 from enum import Enum
-from characters import Character
+from characters.player_chars import Character
 from config import ENEMY_STATS, ENEMY_ATTACK
+
 
 class EnemyState(Enum):
     """Enum for tracking enemy AI states
@@ -10,10 +11,12 @@ class EnemyState(Enum):
     ATTACKING: Enemy is attacking a target
     STUNNED: Enemy is stunned and cannot move or attack
     """
+
     SPAWNING = 1
     PURSUING = 2
     ATTACKING = 3
     STUNNED = 4
+
 
 class Enemy(Character):
     """Enhanced enemy class with AI behavior
@@ -29,22 +32,22 @@ class Enemy(Character):
             spawn_position (tuple): The x,y coordinates where the enemy spawns
         """
         super().__init__("Enemy", game)
-        
+
         # Override the stats from config after parent initialization
         stats = ENEMY_STATS
         self.health = stats["health"]
         self.speed = stats["speed"]
         self.strength = stats["strength"]
         self.color = stats["color"]
-        
+
         self.image.fill(self.color)
         self.position = pygame.math.Vector2(spawn_position)
         self.rect.topleft = (int(self.position.x), int(self.position.y))
-        
+
         # State management
         self.state = EnemyState.SPAWNING
         self.target = None
-        
+
         # Attack properties
         self.attack_range_distance = ENEMY_ATTACK["range_distance"]
         self.attack_range = pygame.Surface(ENEMY_ATTACK["range_size"])
@@ -52,17 +55,17 @@ class Enemy(Character):
         self.attack_cooldown = ENEMY_ATTACK["cooldown"]
         self.attack_timer = 0
         self.attacking = False
-        
+
         # Stun properties
         self.stun_duration = ENEMY_STATS["stun_duration"]
         self.stun_timer = 0
-        
+
         # Death animation
         self.death_blink_speed = ENEMY_STATS["death_blink_speed"]
-        self.death_duration = 0.5      # Half duration (was 1.0)
+        self.death_duration = 0.5  # Half duration (was 1.0)
         self.death_blink_duration = 0.05  # Faster blinks
-        self.death_total_time = 0.5       # Shorter total duration
-        self.max_blinks = 15              # More blinks in shorter time
+        self.death_total_time = 0.5  # Shorter total duration
+        self.max_blinks = 15  # More blinks in shorter time
 
     def update(self, dt):
         """
@@ -74,7 +77,6 @@ class Enemy(Character):
         if self.is_dying:
             super().update(dt)
             return
-
 
         # First handle stun state
         if self.state == EnemyState.STUNNED:

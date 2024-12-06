@@ -1,6 +1,7 @@
 import pygame
 from .base import Screen
 from config import LEVEL_BOUNDS, CHARACTER_BOUNDARIES
+from characters import Character
 
 
 class LevelScreen(Screen):
@@ -26,7 +27,7 @@ class LevelScreen(Screen):
 
         self.floor_y = LEVEL_BOUNDS["floor_y"]
         self.ceiling_y = LEVEL_BOUNDS["ceiling_y"]
-        self.left_x =  LEVEL_BOUNDS["left_x"]
+        self.left_x = LEVEL_BOUNDS["left_x"]
         self.right_x = LEVEL_BOUNDS["right_x"]
 
     def initialize_assets(self):
@@ -81,10 +82,9 @@ class LevelScreen(Screen):
         """Limit the characters movement to their boundaries"""
         for character in self.game.character_manager.active_characters:
             boundaries = CHARACTER_BOUNDARIES.get(
-                character.name, 
-                CHARACTER_BOUNDARIES["default"]
+                character.name, CHARACTER_BOUNDARIES["default"]
             )
-            
+
             # Vertical movement
             if character.position.y < boundaries["ceiling_y"]:
                 character.position.y = boundaries["ceiling_y"]
@@ -92,7 +92,7 @@ class LevelScreen(Screen):
             elif character.position.y > boundaries["floor_y"]:
                 character.position.y = boundaries["floor_y"]
                 character.rect.y = int(boundaries["floor_y"])
-                
+
             # Horizontal movement
             if character.position.x < boundaries["left_x"]:
                 character.position.x = boundaries["left_x"]
@@ -121,5 +121,3 @@ class LevelScreen(Screen):
     #     self.game.character_manager.handle_events(events)
 
     # I don't appear to need a handle_events method here.
-
-
