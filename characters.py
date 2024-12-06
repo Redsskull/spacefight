@@ -17,6 +17,7 @@ from config import (
     REGAR_SPRITE_CONFIG,
     SUSAN_SPRITE_CONFIG,
     EMILY_SPRITE_CONFIG,
+    BART_SPRITE_CONFIG,
     # Combat related
     ATTACK_SETTINGS,
     SPECIAL_ATTACK_SETTINGS,
@@ -120,6 +121,9 @@ class Character(pygame.sprite.Sprite):
         self.is_hurt = False
         self.hurt_timer = 0
         self.hurt_duration = ANIMATION_SETTINGS["frame_duration"]
+
+        # Add this near other initialization properties
+        self.base_facing_left = False  # Most characters face right by default
 
     def take_damage(self, amount: int) -> None:
         """Take damage
@@ -294,7 +298,7 @@ class Character(pygame.sprite.Sprite):
 
     def load_sprite_sheets(self) -> None:
         """Load and configure sprite sheets for the character"""
-        if self.name not in ["Regar", "Susan", "Emily"]:
+        if self.name not in ["Regar", "Susan", "Emily", "Bart"]:
             return
 
         try:
@@ -425,6 +429,66 @@ class Character(pygame.sprite.Sprite):
                 self.sprites_loaded = True
                 return
 
+            if self.name == "Bart":
+                print(f"\nLoading {self.name} sprites from {sprite_path}")
+                for anim_type, info in CHARACTER_SPRITES["Bart"].items():
+                    if anim_type == "hurt":  # Skip hurt animation as requested
+                        continue
+
+                    sprite_name = info["name"]
+                    full_path = f"{sprite_path}/{sprite_name}.png"
+                    try:
+                        original_surface = pygame.image.load(full_path).convert_alpha()
+                        print(f"\n{anim_type} animation:")
+                        print(
+                            f"- Original dimensions: {original_surface.get_width()}x{original_surface.get_height()}"
+                        )
+
+                        # First scale to target height
+                        base_height_scale = (
+                            BART_SPRITE_CONFIG["target_height"]
+                            / original_surface.get_height()
+                        )
+
+                        # Then apply Bart's scale factor
+                        final_scale = (
+                            base_height_scale * BART_SPRITE_CONFIG["scale_factor"]
+                        )
+
+                        scaled_width = int(original_surface.get_width() * final_scale)
+                        scaled_height = int(
+                            BART_SPRITE_CONFIG["target_height"]
+                            * BART_SPRITE_CONFIG["scale_factor"]
+                        )
+
+                        scaled_surface = pygame.transform.scale(
+                            original_surface, (scaled_width, scaled_height)
+                        )
+                        print(f"- Scaled dimensions: {scaled_width}x{scaled_height}")
+
+                        self.sprite_sheets[anim_type] = {
+                            "surface": scaled_surface,
+                            "frames": info["frames"],
+                        }
+
+                        # Calculate frame width after scaling
+                        frame_width = scaled_width // info["frames"]
+                        self.rect.width = frame_width - (
+                            BART_SPRITE_CONFIG["collision_offset"]["x"] * 2
+                        )
+                        self.rect.height = scaled_height - (
+                            BART_SPRITE_CONFIG["collision_offset"]["y"] * 2
+                        )
+                        print(f"- Frame width: {frame_width}")
+                        print(f"- Collision box: {self.rect.width}x{self.rect.height}")
+
+                    except pygame.error as e:
+                        print(f"Failed to load {sprite_name}.png: {e}")
+
+                self.using_sprites = True
+                self.sprites_loaded = True
+                return
+
             # Rest of existing Regar code unchanged
             # Get the first animation's dimensions to set base rect size
             first_anim = next(iter(CHARACTER_SPRITES["Regar"].items()))
@@ -449,7 +513,12 @@ class Character(pygame.sprite.Sprite):
                 sprite_name = info["name"]
                 full_path = f"{sprite_path}/{sprite_name}.png"
 
+                print(f"\nLoading {self.name} sprites from {sprite_path}")
                 original_surface = pygame.image.load(full_path).convert_alpha()
+                print(f"Animation: {anim_type}")
+                print(
+                    f"Original dimensions: {original_surface.get_width()}x{original_surface.get_height()}"
+                )
 
                 # Use original surface directly:
                 scale_factor = (
@@ -523,8 +592,11 @@ class Character(pygame.sprite.Sprite):
 
         frame = sheet.subsurface((frame_x, 0, frame_width, sheet.get_height()))
 
-        # Flip the frame horizontally if facing left
-        if not self.facing_right:
+        # Modify the flip logic to account for base facing direction
+        should_flip = (self.base_facing_left and self.facing_right) or (
+            not self.base_facing_left and not self.facing_right
+        )
+        if should_flip:
             frame = pygame.transform.flip(frame, True, False)
 
         return frame
@@ -875,4 +947,7 @@ class Bart(Character):
             strength: strength of the character
         """
         super().__init__("Bart", game=game)
-        self.update_sprite()
+        self.base_facing_left = True  # Bart's sprites face left by default
+        if isinstance(self.game.current_screen, LevelScreen):
+            self.using_sprites = True
+            self.load_sprite_sheets()

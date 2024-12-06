@@ -75,7 +75,6 @@ CHARACTER_SPRITES = {
         "idle": {"name": "bart_idle", "frames": 4},
         "walk": {"name": "bart_walk", "frames": 4},
         "attack": {"name": "bart_punch", "frames": 3},
-        "hurt": {"name": "bart_hurt", "frames": 4},
     },
 }
 
@@ -133,19 +132,34 @@ EMILY_SPRITE_CONFIG = {
     },
 }
 
+# Bart-specific sprite settings
+BART_SPRITE_CONFIG = {
+    "scale_factor": 1.2,  # Keep this value as it gives good width
+    "target_height": 100,  # Keep consistent with others
+    "collision_offset": {
+        "x": 70,  # Increased to reduce width (228 - 160 = 68px width)
+        "y": 10,  # Reduced to make box taller (150 - 20 = 130px height)
+    },
+    "frame_widths": {
+        "idle": 96,  # 384px / 4 frames
+        "walk": 96,  # 384px / 4 frames
+        "attack": 96,  # 288px / 3 frames
+    },
+}
+
 # Combat settings
 ATTACK_SETTINGS = {
     "default": {
         "cooldown": 0.1,
         "range_size": (50, 100),
-        "range_color": (144, 238, 144),  # Light greenp
+        "range_color": (144, 238, 144),  # Light green
     },
     "Regar": {
         "cooldown": 0.1,
         "range_size": (50, 100),
         "range_color": (144, 238, 144),
-        "offset": {  # Add this
-            "x": 15,  # Match his collision_offset
+        "offset": {
+            "x": 15,
             "y": 10,
         },
     },
@@ -154,8 +168,8 @@ ATTACK_SETTINGS = {
         "range_size": (50, 100),
         "range_color": (144, 238, 144),
         "offset": {
-            "x": 120,  # Match her collision offset
-            "y": 60,  # Adjust based on animation
+            "x": 120,
+            "y": 60,
         },
     },
     "Emily": {
@@ -163,8 +177,17 @@ ATTACK_SETTINGS = {
         "range_size": (50, 100),
         "range_color": (144, 238, 144),
         "offset": {
-            "x": 35,  # Match her collision offset
-            "y": 15,  # Adjust based on animation
+            "x": 35,
+            "y": 15,
+        },
+    },
+    "Bart": {  # Add Bart's attack settings
+        "cooldown": 0.1,
+        "range_size": (50, 100),
+        "range_color": (144, 238, 144),
+        "offset": {
+            "x": 70,  # Match his collision offset
+            "y": 10,  # Match his collision offset
         },
     },
 }
@@ -229,6 +252,7 @@ CHARACTER_BOUNDARIES = {
         "left_x": 80,
         "right_x": 1039,
     },
+    "Bart": {"floor_y": 570, "ceiling_y": 400, "left_x": 80, "right_x": 1100},
 }
 
 # Sound settings
