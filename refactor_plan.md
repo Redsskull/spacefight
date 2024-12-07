@@ -49,7 +49,6 @@ src/
     ├── combat_manager.py     # Combat state and collisions
     └── animation_manager.py  # Animation state tracking
 
-
 ## Implementation Plan
 
 ### 1. Extract Combat System
@@ -57,15 +56,22 @@ src/
 - ✅ Move attack logic to dedicated module
 - ✅ Implement damage handling system  
 - ✅ Build projectile management
+- ✅ Implement basic movement tests
+- ✅ Set up character trait system
 
 ### 2. Separate Animation System
 - ✅ Design Animator class basic structure
 - ✅ Extract sprite loading
 - ❌ Create animation state machine
 - ❌ Implement AnimationManager
+- ❌ Handle sprite flipping (Bart's case)
 
 ### 3. Movement System
 - ✅ Design MovementMixin
+- ✅ Implement basic movement
+- ✅ Handle player controls
+- ✅ Add position management
+- ✅ Set up movement tests
 - ❌ Extract boundary checking
 - ❌ Add movement state tracking
 - ❌ Implement vector utilities
@@ -102,6 +108,7 @@ src/
    - Isolated components
    - Clear dependencies
    - Easier mocking
+   - ✅ Mockable systems
 
 2. **Better Maintenance**
    - Modular systems

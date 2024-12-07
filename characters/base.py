@@ -1,12 +1,25 @@
-from typing import Optional
+"""
+Will set the base character for all characters in the game
+"""
+
 import pygame
 import config
 
 
 class BaseCharacter(pygame.sprite.Sprite):
-    """Base class for all characters with core attributes"""
+    """
+    Base class for all characters with core attributes
+    Args:
+        pygame (pygame.sprite.Sprite): Base class for all sprites
+    """
 
     def __init__(self, name: str, game: "Game") -> None:
+        """
+        Initialize the base character
+        Args:
+            name (str): The name of the character
+            game (Game): The game instance
+        """
         super().__init__()
         # Core identity
         self.name = name
@@ -24,9 +37,11 @@ class BaseCharacter(pygame.sprite.Sprite):
         # Basic sprite setup
         self.image = pygame.Surface((50, 100))
         self.rect = self.image.get_rect()
-        self.position = pygame.math.Vector2()
         self.visible = True
 
     def set_player_number(self, number: int) -> None:
-        """Set the player number for controls"""
+        """Set the player number for controls
+        Args:
+            number (int): The player number
+        """
         self.player_number = number

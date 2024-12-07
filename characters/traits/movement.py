@@ -8,20 +8,34 @@ class MovementMixin:
 
     def __init__(self):
         self.direction = pygame.math.Vector2()
-        self.facing_right = True
-        self.base_facing_left = False  # Can be overridden by specific characters
+        self.base_facing_left = False
+        self.facing_right = not self.base_facing_left
+        self.position = pygame.math.Vector2()
+
+    def set_base_facing(self, facing_left: bool):
+        """Update base facing direction and initial facing_right value"""
+        self.base_facing_left = facing_left
+        self.facing_right = not facing_left
+
+    def set_position(self, x: float, y: float) -> None:
+        """Set position and update rect"""
+        self.position.x = x
+        self.position.y = y
+        if hasattr(self, "rect"):
+            self.rect.topleft = (int(x), int(y))
 
     def move(self, dt: float) -> None:
-        """Handle movement based on input"""
-        if not hasattr(self, "player_number") or self.player_number is None:
+        """Move character based on input"""
+        if self.player_number is None:
             return
 
         keys = pygame.key.get_pressed()
-        controls = config.CONTROLS[f"player{self.player_number}"]["movement"]
+        player_controls = config.CONTROLS[f"player{self.player_number}"]["movement"]
 
-        # Get directional input
-        self.direction.x = keys[controls["right"]] - keys[controls["left"]]
-        self.direction.y = keys[controls["down"]] - keys[controls["up"]]
+        self.direction.x = (
+            keys[player_controls["right"]] - keys[player_controls["left"]]
+        )
+        self.direction.y = keys[player_controls["down"]] - keys[player_controls["up"]]
 
         # Update facing direction
         if self.direction.x > 0:
@@ -29,10 +43,9 @@ class MovementMixin:
         elif self.direction.x < 0:
             self.facing_right = False
 
-        # Apply movement
+        # Apply normalized movement
         if self.direction.length() > 0:
             self.direction = self.direction.normalize()
-            self.position += self.direction * self.speed * dt
-
-        # Update rect position
-        self.rect.topleft = (int(self.position.x), int(self.position.y))
+            movement = self.direction * self.speed * dt
+            self.position += movement
+            self.rect.topleft = (int(self.position.x), int(self.position.y))
