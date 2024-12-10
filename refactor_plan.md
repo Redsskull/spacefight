@@ -48,6 +48,18 @@ src/
     ├── character_manager.py  # Character lifecycle and state
     ├── combat_manager.py     # Combat state and collisions
     └── animation_manager.py  # Animation state tracking
+├── screens/
+    ├── __init__.py
+    ├── base.py               # Screen base class
+    ├── states.py            # Screen state management
+    ├── transitions.py       # Screen transition effects
+    └── screens/             # Individual screen implementations
+        ├── __init__.py
+        ├── main_menu.py
+        ├── story.py  
+        ├── character_select.py
+        ├── level.py
+        └── game_over.py
 
 ## Implementation Plan
 
@@ -103,10 +115,14 @@ src/
 - Effect coordination
 
 ### 6. Screen Management
-- [ ] Move screen transitions to Game class
-- [ ] Centralize GameState handling
-- [ ] Remove direct screen imports between screens
-- [ ] Add proper screen lifecycle management
+- [ ] Create screens package structure
+- [ ] Move screen implementations to dedicated folder
+- [ ] Implement screen state management
+- [ ] Add transition system
+- [ ] Remove direct screen imports
+- [ ] Centralize state handling in Game class
+- [ ] Add screen lifecycle hooks
+- [ ] Test screen transitions
 
 ## Benefits
 

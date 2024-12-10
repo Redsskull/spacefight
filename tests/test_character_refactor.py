@@ -29,19 +29,17 @@ def test_character_initialization():
         assert hasattr(char, "attack_timer")
         assert hasattr(char, "attack_range")
 
-        # Animation trait
+        # Animation trait - only test for attributes, not loaded sprites
         assert hasattr(char, "using_sprites")
         assert hasattr(char, "sprite_sheets")
-        assert hasattr(char, "animation_timer")
+        assert hasattr(char, "animator")
+        assert hasattr(char, "effects")
 
     # Test specific character attributes
     assert regar.ranged_attacker is True
     assert regar.has_special_attack is True
-
     assert susan.has_special_attack is False
-
     assert emily.has_special_attack is True
-
     assert bart.base_facing_left is True
 
 

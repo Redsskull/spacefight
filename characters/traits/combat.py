@@ -25,6 +25,11 @@ class CombatMixin:
         self.attack_range.fill(attack_settings["range_color"])
         self.attack_offset = attack_settings.get("offset", {"x": 0, "y": 0})
 
+        # Death properties - Add these
+        self.death_blink_duration = ANIMATION_SETTINGS["death"]["blink_duration"]
+        self.death_total_time = ANIMATION_SETTINGS["death"]["total_time"]
+        self.max_blinks = ANIMATION_SETTINGS["death"]["max_blinks"]
+
         # Combat properties - Special Attack
         self.has_special_attack = False
         self.is_special_attacking = False

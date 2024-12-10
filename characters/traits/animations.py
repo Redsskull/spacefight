@@ -3,38 +3,27 @@ handles all sprite and amimation related properties and methods
 """
 
 from typing import Literal
-import pygame  # Will be needed for sprite operations
-from config import (
-    CHARACTER_SPRITES,
-    ANIMATION_SETTINGS,
-)  # Will be needed for sprite operations
+import pygame
+from config import ANIMATION_SETTINGS
+from graphics import Animator, VisualEffects
 
 
 class AnimationMixin:
     """Handles character animations and sprites"""
 
     def __init__(self):
+        # Animation components
+        self.animator = Animator()
+        self.effects = VisualEffects()
+        self.sprite_sheets = {}
+
+        # State flags
         self.using_sprites = False
         self.sprites_loaded = False
-        self.sprite_sheets = {}
-        self.current_animation = None
-        self.animation_frame = 0
-        self.animation_timer = 0
-        self.frame_duration = ANIMATION_SETTINGS["frame_duration"]
 
-        # Death animation properties
+        # Death/Hurt state management moved to VisualEffects
         self.is_dying = False
-        self.death_blink_duration = ANIMATION_SETTINGS["death"]["blink_duration"]
-        self.death_total_time = ANIMATION_SETTINGS["death"]["total_time"]
-        self.death_blink_timer = self.death_blink_duration
-        self.blink_count = 0
-        self.max_blinks = ANIMATION_SETTINGS["death"]["max_blinks"]
-        self.animation_complete = False
-
-        # Hurt properties
         self.is_hurt = False
-        self.hurt_timer = 0
-        self.hurt_duration = ANIMATION_SETTINGS["frame_duration"]
 
     def get_current_animation(
         self,
