@@ -1,5 +1,10 @@
+"""
+The main menu of the game. Allows the player to start the game, open options, or quit.
+"""
+
 import pygame
 from .base import Screen
+
 
 class MainMenu(Screen):
     """
@@ -13,7 +18,9 @@ class MainMenu(Screen):
             game (Game): The game object
         """
         super().__init__(game)
-        self.background = pygame.image.load("assets/art/main_menu_background.png").convert()
+        self.background = pygame.image.load(
+            "assets/art/main_menu_background.png"
+        ).convert()
         self.background = pygame.transform.scale(
             self.background, (self.game.SCREEN_WIDTH, self.game.SCREEN_HEIGHT)
         )
@@ -28,7 +35,6 @@ class MainMenu(Screen):
             text = self.font.render(item, True, (255, 255, 255))
             rect = text.get_rect(center=(self.game.SCREEN_WIDTH // 2, 300 + i * 50))
             self.menu_rects.append((text, rect))
-
 
         # Track the currently selected menu item
         self.selected_index = 0
@@ -56,9 +62,13 @@ class MainMenu(Screen):
                             self.select_menu_item()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_UP:
-                    self.selected_index = (self.selected_index - 1) % len(self.menu_items)
+                    self.selected_index = (self.selected_index - 1) % len(
+                        self.menu_items
+                    )
                 elif event.key == pygame.K_DOWN:
-                    self.selected_index = (self.selected_index + 1) % len(self.menu_items)
+                    self.selected_index = (self.selected_index + 1) % len(
+                        self.menu_items
+                    )
                 elif event.key == pygame.K_RETURN:
                     self.select_menu_item()
 
@@ -68,7 +78,10 @@ class MainMenu(Screen):
         """
         if self.selected_index == 0:  # Start
             self.game.sound_manager.stop_music()
-            from .story_screen import StoryScreen  # Import here to avoid circular import
+            from .story_screen import (
+                StoryScreen,
+            )  # Import here to avoid circular import
+
             self.game.change_screen(StoryScreen(self.game))
         elif self.selected_index == 1:  # Options
             print("Open options")  # Replace with options screen logic

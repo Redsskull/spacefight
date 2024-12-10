@@ -1,5 +1,8 @@
+"""
+Base class for all screens in the game.
+"""
+
 import pygame
-from typing import Optional
 
 
 class Screen:
@@ -7,7 +10,7 @@ class Screen:
     Base class for all screens in the game.
     """
 
-    def __init__(self, game: 'Game'):
+    def __init__(self, game: "Game"):
         """
         Initialize the screen.
         Args:
@@ -25,4 +28,3 @@ class Screen:
 
     def draw(self) -> None:
         pass
-

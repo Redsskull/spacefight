@@ -1,8 +1,12 @@
-import pygame
+"""
+This screen will tell the games story as an intro, introducing the player to the world and characters"
+"""
+
+import random
 import textwrap
 import json
+import pygame
 from .base import Screen
-import random
 
 
 class StoryScreen(Screen):
@@ -43,7 +47,6 @@ class StoryScreen(Screen):
 
         # Start with the intro segments
         self.story_segments = self.story_data["intro"]
-
 
     def initialize_state(self):
         """
@@ -120,10 +123,10 @@ class StoryScreen(Screen):
                 self.story_segments = self.story_data["inside_ship"]  # Load from JSON
                 self.current_segment = 0
 
-
         if self.current_segment >= len(self.story_segments):
-            self.game.sound_manager.stop_music()# I was having difficuly with this, I stop the music here and the next screen to be sure for now
+            self.game.sound_manager.stop_music()  # I was having difficuly with this, I stop the music here and the next screen to be sure for now
             from .character_selector import CharacterSelector
+
             self.game.change_screen(CharacterSelector(self.game))
 
         # Trigger alarm and screen shake when proximity alarm is mentioned (segment 9 in inside_ship)
@@ -224,7 +227,9 @@ class StoryScreen(Screen):
             text = segment["text"]
 
             # Find the speaking character's index based on the speaker name
-            speaking_character = self.game.character_manager.get_character_by_name(speaker)
+            speaking_character = self.game.character_manager.get_character_by_name(
+                speaker
+            )
 
             if speaking_character:
                 # Calculate speaker position

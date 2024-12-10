@@ -102,6 +102,12 @@ src/
 - Sprite management
 - Effect coordination
 
+### 6. Screen Management
+- [ ] Move screen transitions to Game class
+- [ ] Centralize GameState handling
+- [ ] Remove direct screen imports between screens
+- [ ] Add proper screen lifecycle management
+
 ## Benefits
 
 1. **Improved Testability**
@@ -141,6 +147,13 @@ src/
    - Move existing code
    - Update references
    - Fix dependencies
+
+## Implementation Order
+1. Complete Combat System (✅)
+2. Complete Movement System (In Progress)
+3. Implement Animation System
+4. Screen Management Refactor
+5. Complete Configuration System
 
 ## Success Metrics
 

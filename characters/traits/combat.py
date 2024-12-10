@@ -1,5 +1,8 @@
+"""
+Combat Mixin for character classes
+"""
+
 import pygame
-from typing import Optional
 from config import (
     CONTROLS,
     ATTACK_SETTINGS,

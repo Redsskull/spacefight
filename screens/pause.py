@@ -1,8 +1,11 @@
 import pygame
-from pygame.constants import KEYDOWN, K_ESCAPE # this is a new way I read aoout keydown in pygame. if it workss TODO: use it in the whole game
-from .base import Screen
+from pygame.constants import (
+    KEYDOWN,
+    K_ESCAPE,
+)  # this is a new way I read aoout keydown in pygame. if it workss TODO: use it in the whole game
 from game_states import GameState
 from managers.enemy_manager import EnemyManager
+from .base import Screen
 
 
 class PauseScreen(Screen):

@@ -1,7 +1,7 @@
 import pygame
-from .base import Screen
 from config import LEVEL_BOUNDS, CHARACTER_BOUNDARIES
 from characters import Character
+from .base import Screen
 
 
 class LevelScreen(Screen):

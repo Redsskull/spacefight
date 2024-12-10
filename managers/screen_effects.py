@@ -1,5 +1,10 @@
+"""
+Right now there is but one screen effect, but all screen effects will be handled here.
+"""
+
 import random
 import pygame
+
 
 class ScreenEffectsManager:
     """

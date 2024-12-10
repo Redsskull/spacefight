@@ -1,6 +1,13 @@
+"""
+handles all sprite and amimation related properties and methods
+"""
+
 from typing import Literal
-import pygame
-from config import CHARACTER_SPRITES, ANIMATION_SETTINGS
+import pygame  # Will be needed for sprite operations
+from config import (
+    CHARACTER_SPRITES,
+    ANIMATION_SETTINGS,
+)  # Will be needed for sprite operations
 
 
 class AnimationMixin:

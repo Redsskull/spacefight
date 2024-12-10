@@ -1,3 +1,7 @@
+"""
+A small but very importent file. it controls the state of the game which in turn controls which screen is shown.
+"""
+
 from enum import Enum, auto
 
 
@@ -13,4 +17,4 @@ class GameState(Enum):
     STORY = auto()
     LEVEL = auto()
     GAME_OVER = auto()
-    PAUSE = auto()  
+    PAUSE = auto()

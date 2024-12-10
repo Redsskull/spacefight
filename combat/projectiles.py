@@ -1,7 +1,19 @@
-import pygame
-from typing import Tuple, Optional
+"""
+Projectile system implementation for the game.
+
+This module provides:
+- ProjectileSystem: Manages lifecycle and collisions of all projectiles
+- BaseProjectile: Abstract base class for projectile implementations
+- Current projectile types:
+  - EnergyShot: Regar's ranged attack projectile
+
+Future projectiles can be added by implementing BaseProjectile.
+"""
+
+from typing import Tuple
 from abc import ABC, abstractmethod
-from config import SCREEN_WIDTH  # Add this import at the top
+import pygame
+from config import SCREEN_WIDTH
 
 
 class ProjectileSystem:
@@ -55,7 +67,6 @@ class BaseProjectile(pygame.sprite.Sprite, ABC):
     @abstractmethod
     def image(self) -> pygame.Surface:
         """Each projectile type must implement its own image"""
-        pass
 
     def update(self, dt: float) -> None:
         """Update projectile position"""
@@ -64,7 +75,6 @@ class BaseProjectile(pygame.sprite.Sprite, ABC):
 
     def is_off_screen(self) -> bool:
         """Check if projectile is off screen"""
-        # Use SCREEN_WIDTH from config instead of hard-coded value
         return self.rect.right < 0 or self.rect.left > SCREEN_WIDTH
 
 

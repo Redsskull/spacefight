@@ -6,9 +6,9 @@ volume of sounds and music.
 
 from pathlib import Path
 from typing import Dict, Optional
+import logging
 import pygame
 from config import SOUND_SETTINGS, SOUND_REGISTRY
-import logging
 
 
 class SoundManager:

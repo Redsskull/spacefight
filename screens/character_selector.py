@@ -1,3 +1,7 @@
+"""
+Character selector screen for selecting characters for a 2-player game
+"""
+
 import pygame
 from .base import Screen
 from .story_screen import StoryScreen
@@ -117,46 +121,23 @@ class CharacterSelector(Screen):
             self.start_game()
 
     def start_game(self):
-        """
-        Start the game with the selected characters
-        """
+        """Start the game with the selected characters"""
         selected_characters = []
-
         if 0 <= self.player1_index < len(self.game.character_manager.all_characters):
             selected_characters.append(
                 self.game.character_manager.all_characters[self.player1_index]
             )
-        else:
-            self.show_error("Error: Invalid player 1 character index")
-            return
+        if self.player2_joined and 0 <= self.player2_index < len(
+            self.game.character_manager.all_characters
+        ):
+            selected_characters.append(
+                self.game.character_manager.all_characters[self.player2_index]
+            )
 
-        if self.player2_joined:
-            if (
-                0
-                <= self.player2_index
-                < len(self.game.character_manager.all_characters)
-            ):
-                selected_characters.append(
-                    self.game.character_manager.all_characters[self.player2_index]
-                )
-            else:
-                self.show_error("Error: Invalid player 2 character index")
-                return
-
-        if not selected_characters:
-            self.show_error("Error: No characters selected")
-            return
-
-        print(f"Starting game with characters: {[char.__class__.__name__ for char in selected_characters]}")
-        self.game.sound_manager.stop_music()
-
-        # Set the selected characters and start the game
         self.game.set_selected_characters(selected_characters)
-
-        # Transition to the level screen
-        from .level_screen import LevelScreen
-
-        self.game.change_screen(LevelScreen(self.game))
+        self.game.sound_manager.stop_music()
+        # Let Game handle the transition
+        self.game.change_screen_to_level()
 
     def show_error(self, message):
         """

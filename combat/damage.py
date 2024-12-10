@@ -1,3 +1,7 @@
+"""
+This module contains the DamageSystem class, which handles damage calculations and modifications.
+"""
+
 from typing import Dict
 from config import ANIMATION_SETTINGS
 

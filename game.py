@@ -1,3 +1,6 @@
+# TODO: A lot of imports need fixing here in accordance with the refactor_plan.md.
+
+
 # Standard library
 import logging
 import traceback
@@ -14,15 +17,10 @@ from screens import (
     StoryScreen,
     LevelScreen,
     PauseScreen,
-    GameOverScreen
+    GameOverScreen,
 )
 
-from managers import (
-    SoundManager,
-    CharacterManager,
-    ScreenEffectsManager,
-    EnemyManager
-)
+from managers import SoundManager, CharacterManager, ScreenEffectsManager, EnemyManager
 from characters import Character
 from game_states import GameState
 
@@ -135,7 +133,7 @@ class Game:
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                 if self.state == GameState.LEVEL:
                     self.change_screen(PauseScreen(self, self.current_screen))
-        
+
         if self.current_screen:
             self.current_screen.handle_events(events)
 

@@ -1,11 +1,19 @@
 """
-A manager for all character calls in the game. This class will be used to initialize characters and draw them, but characters.py will handle the movement and attacks
+A manager for all character calls in the game. 
+This class will be used to initialize characters and draw them, 
+but characters.py will handle the movement and attacks
 """
 
 import logging
 from typing import List, Optional
 import pygame
-from characters.player_chars import Regar, Susan, Emily, Bart, Character
+from characters import Character  # This will get the original Character class
+from characters import (
+    Regar,
+    Susan,
+    Emily,
+    Bart,
+)  # And the original character implementations
 
 
 class CharacterManager:

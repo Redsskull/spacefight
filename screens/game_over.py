@@ -1,7 +1,9 @@
+"""
+Game over screen to appear if the player dies. 
+"""
+
 import pygame
 from .base import Screen
-from screens.main_menu import MainMenu
-from game_states import GameState
 
 
 class GameOverScreen(Screen):
@@ -10,6 +12,7 @@ class GameOverScreen(Screen):
     Args:
         screen (pygame.Surface): The screen surface
     """
+
     def __init__(self, game):
         """
         Initialize the game over screen.
@@ -42,7 +45,7 @@ class GameOverScreen(Screen):
         Update the game over screen.
         Args:
             dt (float): Time since last update
-        """   
+        """
         current_time = pygame.time.get_ticks()
         if current_time - self.start_time >= self.display_duration:
             self.game.reset_game()
