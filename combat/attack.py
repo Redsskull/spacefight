@@ -3,8 +3,8 @@ This module contains the Attack class, which handles core attack mechanics and h
 """
 
 from typing import Tuple
-from config import ATTACK_SETTINGS
 import pygame
+from config import ATTACK_SETTINGS
 
 
 class Attack:

@@ -1,8 +1,12 @@
 import pytest
 import pygame
+from game import Game
 from combat.attack import Attack
 from combat.damage import DamageSystem
-from combat.projectiles import ProjectileSystem, BaseProjectile, EnergyShot
+from combat.projectiles import ProjectileSystem, EnergyShot
+from characters.player_chars import (
+    Regar,
+)  # Import Regar character class to test daamge system
 
 
 def test_attack_system():
@@ -100,3 +104,39 @@ def test_projectile_system():
     projectile.rect.center = projectile.position
     system.update(0.016)
     assert len(system.active_projectiles) == 0
+
+
+def test_damage_system():
+    """Test damage calculation and application"""
+    pygame.init()
+    game = Game(1280, 720)
+    damage_system = DamageSystem()
+
+    # Test basic damage
+    base_damage = 10
+    final_damage = damage_system.calculate_damage(base_damage, "Regar", "Enemy")
+    assert final_damage == base_damage
+
+    # Test with modifier
+    damage_system.register_modifier("Regar", 1.5)
+    final_damage = damage_system.calculate_damage(base_damage, "Regar", "Enemy")
+    assert final_damage == 15
+
+
+def test_character_damage():
+    """Test character damage handling"""
+    pygame.init()
+    game = Game(1280, 720)
+    char = Regar(game)
+
+    initial_health = char.health
+    damage = 10
+
+    # Test taking damage
+    char.take_damage(damage)
+    assert char.health == initial_health - damage
+
+    # Test death state
+    char.take_damage(initial_health)
+    assert char.health == 0
+    assert char.is_dying

@@ -46,21 +46,39 @@ class CombatMixin:
         # Handle player 1 (mouse) vs player 2 (keyboard) controls
         if self.player_number == 1:
             mouse = pygame.mouse.get_pressed()
+            # Normal attack
             if (
                 mouse[controls["attack"] - 1]
                 and not self.attacking
                 and self.attack_timer <= 0
             ):
                 self.start_attack()
+            # Special attack
+            if (
+                mouse[controls["special"] - 1]
+                and not self.is_special_attacking
+                and self.special_attack_timer <= 0
+            ):
+                if hasattr(self, "perform_special_attack"):
+                    self.perform_special_attack()
 
         elif self.player_number == 2:
             keys = pygame.key.get_pressed()
+            # Normal attack
             if (
                 keys[controls["attack"]]
                 and not self.attacking
                 and self.attack_timer <= 0
             ):
                 self.start_attack()
+            # Special attack
+            if (
+                keys[controls["special"]]
+                and not self.is_special_attacking
+                and self.special_attack_timer <= 0
+            ):
+                if hasattr(self, "perform_special_attack"):
+                    self.perform_special_attack()
 
     def start_attack(self):
         """Start an attack sequence"""
@@ -70,15 +88,17 @@ class CombatMixin:
             self.game.sound_manager.play_sound("punch")
 
     def take_damage(self, amount: int) -> None:
-        """Take damage"""
+        """Take damage and handle death/hurt states"""
         self.health = max(0, self.health - amount)
+
+        # Initialize death state if health depleted
         if self.health <= 0 and not self.is_dying:
             self.is_dying = True
             self.death_blink_timer = self.death_blink_duration
             self.animation_complete = False
             self.blink_count = 0
 
-        # Trigger hurt animation if available
+        # Handle hurt animation if available
         if hasattr(self, "using_sprites") and self.using_sprites and not self.is_dying:
             if "hurt" in self.sprite_sheets:
                 self.is_hurt = True

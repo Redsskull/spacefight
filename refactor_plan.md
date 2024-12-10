@@ -74,28 +74,28 @@ src/
 - ✅ Set up movement tests
 - ❌ Extract boundary checking
 - ❌ Add movement state tracking
-- ❌ Implement vector utilities
+- ✅ Implement vector utilities  # Can mark this complete since we're using pygame.math.Vector2
 
 ### 4. Configuration System
 - Organize by domain:
-  - Character stats
-  - Combat settings
-  - Animation configs
-  - Control mappings
+  - ✅ Character stats (Using CHARACTER_STATS in config.py)
+  - ✅ Combat settings (Using ATTACK_SETTINGS, SPECIAL_ATTACK_SETTINGS)
+  - ❌ Animation configs (Pending full animation system)
+  - ✅ Control mappings (Using CONTROLS in config.py)
 
 ### 5. Manager Responsibilities
 
 #### CharacterManager
-- Character lifecycle
-- State tracking
-- Collection management
-- Character initialization
+- ✅ Character lifecycle
+- ✅ State tracking
+- ✅ Collection management
+- ✅ Character initialization
 
 #### CombatManager
-- Collision detection
-- Damage resolution
-- Combat state tracking
-- Projectile management
+- ✅ Damage resolution
+- ✅ Projectile management
+- ❌ Collision detection
+- ❌ Combat state tracking
 
 #### AnimationManager
 - Animation state sync

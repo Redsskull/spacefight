@@ -1,5 +1,8 @@
+"""
+Will handle all basic moement from here
+"""
+
 import pygame
-from typing import Optional
 import config
 
 

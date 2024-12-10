@@ -2,13 +2,13 @@
 This module contains the player characters for the game.
 """
 
+import pygame
+from config import SPECIAL_ATTACK_SETTINGS
 from combat.projectiles import EnergyShot
 from .base import BaseCharacter
 from .traits.movement import MovementMixin
 from .traits.combat import CombatMixin
 from .traits.animations import AnimationMixin
-import pygame
-from config import SPECIAL_ATTACK_SETTINGS, CHARACTER_SPRITES, ANIMATION_SETTINGS
 
 
 class Character(BaseCharacter, MovementMixin, CombatMixin, AnimationMixin):

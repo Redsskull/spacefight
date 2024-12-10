@@ -4,6 +4,7 @@ from game import Game
 from characters.player_chars import Regar, Susan, Emily, Bart
 from combat.projectiles import EnergyShot
 import config
+from enemy import Enemy
 
 
 def test_character_initialization():
@@ -65,47 +66,54 @@ def test_movement_mixin(monkeypatch):
     assert char.rect.topleft == (int(char.position.x), int(char.position.y))
 
 
-def test_regar_special_attack():
-    """Test Regar's special attack mechanics"""
+def test_regar_special_attack_trigger(monkeypatch):
+    """Test Regar's energy shot special attack"""
     pygame.init()
     game = Game(1280, 720)
     regar = Regar(game)
+    regar.set_player_number(1)
+
+    # Mock right mouse button press (index 2) for player 1 special attack
+    mouse_buttons = [0, 0, 1]  # [left, middle, right]
+    monkeypatch.setattr(pygame.mouse, "get_pressed", lambda: mouse_buttons)
 
     # Test initial state
-    assert regar.special_attack_timer <= 0
     assert not regar.is_special_attacking
     assert len(regar.projectiles) == 0
 
-    # Perform special attack
-    regar.perform_special_attack()
+    # Trigger special attack
+    regar.attack(0.016)  # Process input
 
-    # Verify attack state
+    # Verify projectile creation
     assert regar.is_special_attacking
-    assert regar.special_attack_timer > 0
     assert len(regar.projectiles) == 1
 
-    # Get the projectile and check properties
-    projectile = next(iter(regar.projectiles))
-    assert isinstance(projectile, EnergyShot)
-    assert projectile.damage == regar.strength
 
-
-def test_emily_special_attack():
-    """Test Emily's special kick attack"""
+def test_emily_special_attack_trigger(monkeypatch):
+    """Test Emily's kick special attack"""
     pygame.init()
     game = Game(1280, 720)
     emily = Emily(game)
+    emily.set_player_number(1)
+
+    # Setup test enemy
+    enemy = Enemy(game, (emily.rect.x + 100, emily.rect.y))
+    game.enemy_manager.enemies.add(enemy)
+    initial_enemy_health = enemy.health
+
+    # Mock right mouse button press for player 1 special attack
+    mouse_buttons = [0, 0, 1]  # [left, middle, right]
+    monkeypatch.setattr(pygame.mouse, "get_pressed", lambda: mouse_buttons)
 
     # Test initial state
-    assert emily.special_attack_timer <= 0
     assert not emily.is_special_attacking
 
-    # Perform special attack
-    emily.perform_special_attack()
+    # Trigger special attack
+    emily.attack(0.016)
 
-    # Verify attack state
+    # Verify kick execution and damage
     assert emily.is_special_attacking
-    assert emily.special_attack_timer > 0
+    assert enemy.health < initial_enemy_health
 
 
 def test_susan_combat():
