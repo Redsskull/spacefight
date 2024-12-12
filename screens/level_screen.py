@@ -1,6 +1,6 @@
 import pygame
-from config import LEVEL_BOUNDS, CHARACTER_BOUNDARIES
-from characters import Character
+from config.graphics import LEVEL_BOUNDS, CHARACTER_BOUNDARIES
+from characters.player_chars import Character
 from .base import Screen
 
 

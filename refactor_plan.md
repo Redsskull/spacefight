@@ -20,46 +20,55 @@
 src/
 ├── characters/
 │   ├── __init__.py
-│   ├── base.py                # Base Character class core logic
-│   ├── player_chars.py        # Regar, Susan, Emily, Bart implementations
+│   ├── base.py             # Base Character class core logic
+│   ├── player_chars.py     # Regar, Susan, Emily, Bart implementations
 │   └── traits/
 │       ├── __init__.py
-│       ├── combat.py          # Combat behavior mixin
-│       ├── movement.py        # Movement behavior mixin
-│       └── animation.py       # Animation behavior mixin
+│       ├── combat.py       # Combat behavior mixin
+│       ├── movement.py     # Movement behavior mixin
+│       └── animation.py    # Animation behavior mixin
+├── enemies/
+│   ├── __init__.py
+│   ├── base.py             # Base Enemy class
+│   ├── states.py           # Enemy state management
+│   └── types/              # Enemy implementations
+│       ├── __init__.py
+│       ├── basic.py        # Basic enemy types
+│       └── boss.py         # Boss enemy types
 ├── combat/
 │   ├── __init__.py
-│   ├── attack.py             # Attack mechanics
-│   ├── damage.py             # Damage handling
-│   └── projectiles.py        # Projectile system
+│   ├── attack.py           # Attack mechanics
+│   ├── damage.py           # Damage handling
+│   └── projectiles.py      # Projectile system
 ├── graphics/
 │   ├── __init__.py
-│   ├── sprite_loader.py      # Sprite loading and scaling
-│   ├── animator.py           # Animation state machine
-│   └── effects.py            # Visual effects (death, hurt)
+│   ├── sprite_loader.py    # Sprite loading and scaling
+│   ├── animator.py         # Animation state machine
+│   └── effects.py          # Visual effects
 ├── config/
 │   ├── __init__.py
-│   ├── characters.py         # Character-specific settings
-│   ├── combat.py             # Combat-related constants
-│   ├── graphics.py           # Visual/animation settings
-│   └── controls.py           # Input mappings
-└── managers/
+│   ├── characters.py       # Character-specific settings
+│   ├── enemies.py          # Enemy-specific settings
+│   ├── combat.py           # Combat-related constants
+│   ├── spawning.py         # Enemy spawn configuration
+│   ├── graphics.py         # Visual/animation settings
+│   └── controls.py         # Input mappings
+├── managers/
+│   ├── __init__.py
+│   ├── character_manager.py # Character lifecycle
+│   ├── enemy_manager.py    # Enemy spawning and state
+│   ├── combat_manager.py   # Combat resolution
+│   └── animation_manager.py # Animation state
+└── screens/
     ├── __init__.py
-    ├── character_manager.py  # Character lifecycle and state
-    ├── combat_manager.py     # Combat state and collisions
-    └── animation_manager.py  # Animation state tracking
-├── screens/
-    ├── __init__.py
-    ├── base.py               # Screen base class
-    ├── states.py            # Screen state management
-    ├── transitions.py       # Screen transition effects
-    └── screens/             # Individual screen implementations
+    ├── base.py             # Screen base class
+    ├── states.py           # Screen state management
+    ├── transitions.py      # Screen transition effects
+    └── screens/            # Screen implementations
         ├── __init__.py
         ├── main_menu.py
-        ├── story.py  
-        ├── character_select.py
-        ├── level.py
-        └── game_over.py
+        └── story.py
+
 
 ## Implementation Plan
 
@@ -90,10 +99,13 @@ src/
 
 ### 4. Configuration System
 - Organize by domain:
-  - ✅ Character stats (Using CHARACTER_STATS in config.py)
-  - ✅ Combat settings (Using ATTACK_SETTINGS, SPECIAL_ATTACK_SETTINGS)
-  - ❌ Animation configs (Pending full animation system)
-  - ✅ Control mappings (Using CONTROLS in config.py)
+  - ✅ Character stats 
+  - ✅ Combat settings
+  - ✅ Animation configs
+  - ✅ Control mappings
+  - ✅ Proper package structure
+  - ❌ Update all imports (In Progress)
+  - ✅ Add configuration tests
 
 ### 5. Manager Responsibilities
 
@@ -123,6 +135,27 @@ src/
 - [ ] Centralize state handling in Game class
 - [ ] Add screen lifecycle hooks
 - [ ] Test screen transitions
+
+### 7. Enemy System Refactoring
+- Create enemies package structure:
+
+- Move enemy configs:
+- [ ] Move `ENEMY_STATS` to `config/enemies.py`
+- [ ] Move `ENEMY_ATTACK` to `config/combat.py`
+- [ ] Move `ENEMY_SPAWN` to `config/spawning.py`
+
+#### EnemyManager Updates
+- [ ] Update imports to use new structure
+- [ ] Implement enemy factory pattern
+- [ ] Add enemy type registry
+- [ ] Improve spawn management
+- [ ] Add wave system
+
+#### Base Enemy Class
+- [ ] Extract core enemy logic
+- [ ] Implement state machine
+- [ ] Add behavior interfaces
+- [ ] Create enemy trait system
 
 ## Benefits
 

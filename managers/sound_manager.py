@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Dict, Optional
 import logging
 import pygame
-from config import SOUND_SETTINGS, SOUND_REGISTRY
+from config.graphics import SOUND_SETTINGS, SOUND_REGISTRY
 
 
 class SoundManager:

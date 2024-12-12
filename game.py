@@ -1,6 +1,3 @@
-# TODO: A lot of imports need fixing here in accordance with the refactor_plan.md.
-
-
 # Standard library
 import logging
 import traceback
@@ -10,7 +7,7 @@ from typing import List, Optional, Tuple, Dict, Any
 import pygame
 
 # Local packages
-from screens.base import Screen  # Import Screen directly
+from screens.base import Screen
 from screens import (
     MainMenu,
     CharacterSelector,
@@ -21,8 +18,16 @@ from screens import (
 )
 
 from managers import SoundManager, CharacterManager, ScreenEffectsManager, EnemyManager
-from characters import Character
+
+# Import Character from new modular structure
+from characters.player_chars import Character
+
+# Import states
 from game_states import GameState
+
+# Import configs
+from config.graphics import SCREEN_WIDTH, SCREEN_HEIGHT
+from config.characters import CHARACTER_BOUNDARIES, CHARACTER_STATS
 
 logging.basicConfig(level=logging.DEBUG)
 

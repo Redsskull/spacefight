@@ -1,13 +1,11 @@
-"""
-Handles loading and scaling of sprite sheets
-"""
+"""Handles loading and scaling of sprite sheets"""
 
 import pygame
 import logging
 from typing import Dict
-from config import (
-    CHARACTER_SPRITES,
-    SPRITE_SETTINGS,
+from config.graphics import SPRITE_SETTINGS
+from config.characters import CHARACTER_SPRITES
+from config.characters import (
     REGAR_SPRITE_CONFIG,
     SUSAN_SPRITE_CONFIG,
     EMILY_SPRITE_CONFIG,

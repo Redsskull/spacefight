@@ -2,13 +2,12 @@ import pytest
 import pygame
 from game import Game
 from graphics import SpriteLoader, Animator, VisualEffects
-from config import (
-    CHARACTER_SPRITES,
-    ANIMATION_SETTINGS,
-    REGAR_SPRITE_CONFIG,
+from config.characters import CHARACTER_SPRITES, REGAR_SPRITE_CONFIG
+from config.graphics import (
     SCREEN_WIDTH,
     SCREEN_HEIGHT,
     SPRITE_SETTINGS,
+    ANIMATION_SETTINGS,
 )
 
 

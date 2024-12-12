@@ -3,8 +3,9 @@ import random
 from enemy import Enemy
 import logging
 from typing import Optional, Tuple, List
-from characters import Character
-from config import ENEMY_SPAWN
+from characters.player_chars import Character
+from config.combat import ENEMY_SPAWN  # enemy logic needs to be refactored
+
 
 class EnemyManager:
     """
@@ -131,7 +132,9 @@ class EnemyManager:
                     ),
                 )
 
-    def handle_collision(self, player_attack_rect: pygame.Rect, player_strength: int) -> None:
+    def handle_collision(
+        self, player_attack_rect: pygame.Rect, player_strength: int
+    ) -> None:
         """
         Handle collisions between player attacks and enemies
         Args:

@@ -3,7 +3,7 @@ Handles visual effects like death animation and hurt states
 """
 
 import pygame
-from config import ANIMATION_SETTINGS
+from config.graphics import ANIMATION_SETTINGS
 
 
 class VisualEffects:

@@ -7,13 +7,7 @@ but characters.py will handle the movement and attacks
 import logging
 from typing import List, Optional
 import pygame
-from characters import Character  # This will get the original Character class
-from characters import (
-    Regar,
-    Susan,
-    Emily,
-    Bart,
-)  # And the original character implementations
+from characters.player_chars import Regar, Susan, Emily, Bart, Character
 
 
 class CharacterManager:

@@ -4,7 +4,7 @@ This module contains the Attack class, which handles core attack mechanics and h
 
 from typing import Tuple
 import pygame
-from config import ATTACK_SETTINGS
+from config.combat import ATTACK_SETTINGS
 
 
 class Attack:

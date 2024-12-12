@@ -4,7 +4,7 @@ handles all sprite and amimation related properties and methods
 
 from typing import Literal
 import pygame
-from config import ANIMATION_SETTINGS
+from config.graphics import ANIMATION_SETTINGS
 from graphics import Animator, VisualEffects
 
 

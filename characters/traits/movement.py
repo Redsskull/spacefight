@@ -3,7 +3,7 @@ Will handle all basic moement from here
 """
 
 import pygame
-import config
+from config.controls import CONTROLS
 
 
 class MovementMixin:
@@ -33,7 +33,7 @@ class MovementMixin:
             return
 
         keys = pygame.key.get_pressed()
-        player_controls = config.CONTROLS[f"player{self.player_number}"]["movement"]
+        player_controls = CONTROLS[f"player{self.player_number}"]["movement"]
 
         self.direction.x = (
             keys[player_controls["right"]] - keys[player_controls["left"]]

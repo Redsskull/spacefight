@@ -4,7 +4,7 @@ Handles animation state and frame management
 
 from typing import Optional, Dict
 import pygame
-from config import ANIMATION_SETTINGS
+from config.graphics import ANIMATION_SETTINGS
 
 
 class Animator:

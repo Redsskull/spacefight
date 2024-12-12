@@ -377,9 +377,3 @@ class StoryScreen(Screen):
                 y_pos = int(position[1]) + 10 + y_offset
                 self.screen.blit(text_surface, (x_pos, y_pos))
                 y_offset += text_surface.get_height()
-
-    # def on_resume(self):
-    #     """
-    #     Resume the story screen.
-    #     """
-    #     self.initialize_sounds()

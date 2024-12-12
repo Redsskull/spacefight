@@ -3,7 +3,9 @@ This module contains the player characters for the game.
 """
 
 import pygame
-from config import SPECIAL_ATTACK_SETTINGS
+from config.characters import CHARACTER_STATS, CHARACTER_SPRITES
+from config.combat import ATTACK_SETTINGS, SPECIAL_ATTACK_SETTINGS
+from config.graphics import SPRITE_SETTINGS, ANIMATION_SETTINGS
 from combat.projectiles import EnergyShot
 from .base import BaseCharacter
 from .traits.movement import MovementMixin

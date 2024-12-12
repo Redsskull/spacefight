@@ -1,3 +1,7 @@
+# DEPRECATED: This file is being replaced by the new modular config system
+# See config/ directory for the new implementation
+# TODO: Remove this file once migration is complete
+
 import pygame
 
 

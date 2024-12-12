@@ -3,7 +3,7 @@ This module contains the DamageSystem class, which handles damage calculations a
 """
 
 from typing import Dict
-from config import ANIMATION_SETTINGS
+from config.graphics import ANIMATION_SETTINGS
 
 
 class DamageSystem:
