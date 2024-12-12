@@ -1,3 +1,9 @@
+# DEPRECATED: This file is being replaced by the new modular enemy system
+# See enemies/base.py and enemies/types/basic.py for the new implementation
+# See config/enemies.py for configuration settings
+# TODO: Remove this file once migration is complete
+
+
 import pygame
 from enum import Enum
 from characters.player_chars import Character

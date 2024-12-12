@@ -26,8 +26,8 @@ from characters.player_chars import Character
 from game_states import GameState
 
 # Import configs
-from config.graphics import SCREEN_WIDTH, SCREEN_HEIGHT
-from config.characters import CHARACTER_BOUNDARIES, CHARACTER_STATS
+from config.graphics import SCREEN_WIDTH, SCREEN_HEIGHT, CHARACTER_BOUNDARIES
+from config.characters import CHARACTER_STATS
 
 logging.basicConfig(level=logging.DEBUG)
 

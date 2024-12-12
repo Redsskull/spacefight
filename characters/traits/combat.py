@@ -3,6 +3,7 @@ Combat Mixin for character classes
 """
 
 import pygame
+from config.controls import CONTROLS
 from config.combat import ATTACK_SETTINGS, SPECIAL_ATTACK_SETTINGS
 from config.graphics import ANIMATION_SETTINGS
 from combat.projectiles import ProjectileSystem, BaseProjectile

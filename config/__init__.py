@@ -1,11 +1,16 @@
 """Configuration package exposing all settings"""
 
+from .enemies import *  # Import enemy configs first
 from .characters import *
 from .combat import *
 from .graphics import *
 from .controls import *
+from .sound import *
 
 __all__ = [
+    # Enemy configs
+    "ENEMY_STATS",
+    "BASE_ENEMY_STATS",
     # Character configs
     "CHARACTER_STATS",
     "CHARACTER_SPRITES",
@@ -21,6 +26,9 @@ __all__ = [
     "SCREEN_HEIGHT",
     "SPRITE_SETTINGS",
     "ANIMATION_SETTINGS",
+    # Sound configs
+    "SOUND_SETTINGS",
+    "SOUND_REGISTRY",
     # Control configs
     "CONTROLS",
 ]

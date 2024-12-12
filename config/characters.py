@@ -1,6 +1,7 @@
 """Character-specific configuration settings"""
 
 import pygame
+from .enemies import ENEMY_STATS
 
 # Character stats
 CHARACTER_STATS = {

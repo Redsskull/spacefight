@@ -58,3 +58,14 @@ SPECIAL_ATTACK_SETTINGS = {
         "duration": 0.5,  # Duration of the animation
     },
 }
+
+# Add to existing config/combat.py
+
+# Enemy attack configuration
+ENEMY_ATTACK = {
+    "range_distance": 60,
+    "range_size": (50, 100),
+    "range_color": (255, 165, 0, 128),  # Semi-transparent orange
+    "cooldown": 1.0,
+    "damage_multiplier": 1.0,
+}
