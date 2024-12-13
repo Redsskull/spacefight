@@ -17,7 +17,13 @@ from screens import (
     GameOverScreen,
 )
 
-from managers import SoundManager, CharacterManager, ScreenEffectsManager, EnemyManager
+from managers import (
+    SoundManager,
+    CharacterManager,
+    ScreenEffectsManager,
+    EnemyManager,
+    AnimationManager,
+)
 
 # Import Character from new modular structure
 from characters.player_chars import Character
@@ -59,11 +65,11 @@ class Game:
             self.current_screen = None
             self.state = GameState.MAIN_MENU
 
-            # initialize the game managers:
+            # Initialize managers in correct order
+            self.animation_manager = AnimationManager()
             self.sound_manager = SoundManager()
             self.character_manager = CharacterManager(self)
             self.selected_characters = []
-            self.character_manager = CharacterManager(self)
             self.enemy_manager = EnemyManager(self)
             self.screen_effects = ScreenEffectsManager(
                 self.screen, self.SCREEN_WIDTH, self.SCREEN_HEIGHT
