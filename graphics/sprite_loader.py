@@ -11,6 +11,7 @@ from config.characters import (
     EMILY_SPRITE_CONFIG,
     BART_SPRITE_CONFIG,
 )
+from config.enemies import ENEMY_SPRITE_CONFIG, ENEMY_SPRITES
 
 
 class SpriteLoader:
@@ -62,6 +63,47 @@ class SpriteLoader:
 
         except Exception as e:
             logging.error(f"Failed to load sprites for {character_name}: {e}")
+            return {}
+
+        return sprite_sheets
+
+    @staticmethod
+    def load_enemy_sprites(enemy_type: str) -> Dict[str, Dict]:
+        """Load all sprites for an enemy type"""
+        sprite_sheets = {}
+        sprite_path = f"assets/sprites/enemy"  # Fixed path for enemy sprites
+
+        try:
+            # Get enemy sprite config
+            sprite_config = ENEMY_SPRITE_CONFIG
+            target_height = sprite_config.get(
+                "target_height", SPRITE_SETTINGS["TARGET_HEIGHT"]
+            )
+
+            # Load each animation type
+            for anim_type, info in ENEMY_SPRITES[enemy_type].items():
+                sprite_name = info["name"]
+                full_path = f"{sprite_path}/{sprite_name}.png"
+
+                original_surface = pygame.image.load(full_path).convert_alpha()
+
+                # Calculate scaling
+                base_height_scale = target_height / original_surface.get_height()
+                final_scale = base_height_scale * sprite_config["scale_factor"]
+                scaled_width = int(original_surface.get_width() * final_scale)
+                scaled_height = int(target_height * sprite_config["scale_factor"])
+
+                scaled_surface = pygame.transform.scale(
+                    original_surface, (scaled_width, scaled_height)
+                )
+
+                sprite_sheets[anim_type] = {
+                    "surface": scaled_surface,
+                    "frames": info["frames"],
+                }
+
+        except Exception as e:
+            logging.error(f"Failed to load sprites for enemy type {enemy_type}: {e}")
             return {}
 
         return sprite_sheets

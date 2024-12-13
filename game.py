@@ -23,6 +23,7 @@ from managers import (
     ScreenEffectsManager,
     EnemyManager,
     AnimationManager,
+    CombatManager,
 )
 
 # Import Character from new modular structure
@@ -69,6 +70,7 @@ class Game:
             self.animation_manager = AnimationManager()
             self.sound_manager = SoundManager()
             self.character_manager = CharacterManager(self)
+            self.combat_manager = CombatManager(self)
             self.selected_characters = []
             self.enemy_manager = EnemyManager(self)
             self.screen_effects = ScreenEffectsManager(
