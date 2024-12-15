@@ -93,8 +93,8 @@ src/
 - ✅ Handle player controls
 - ✅ Add position management
 - ✅ Set up movement tests
-- ❌ Extract boundary checking
-- ❌ Add movement state tracking
+- ✅ Extract boundary checking
+- ✅ Add movement state tracking
 - ✅ Implement vector utilities  # Can mark this complete since we're using pygame.math.Vector2
 
 ### 4. Configuration System

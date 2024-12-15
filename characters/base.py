@@ -24,6 +24,7 @@ class BaseCharacter(pygame.sprite.Sprite):
         # Core identity
         self.name = name
         self.game = game
+        self.direction = pygame.math.Vector2(0, 0)
         self.player_number = None
 
         # Load stats from config

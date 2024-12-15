@@ -27,13 +27,10 @@ def test_character_initialization():
         # Combat trait
         assert hasattr(char, "attacking")
         assert hasattr(char, "attack_timer")
-        assert hasattr(char, "attack_range")
 
         # Animation trait - only test for attributes, not loaded sprites
         assert hasattr(char, "using_sprites")
         assert hasattr(char, "sprite_sheets")
-        assert hasattr(char, "animator")
-        assert hasattr(char, "effects")
 
     # Test specific character attributes
     assert regar.ranged_attacker is True

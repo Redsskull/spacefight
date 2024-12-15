@@ -1,11 +1,10 @@
+# Virtual Environment
 venv/
-**/__pycache__/
-*.pyc
-.structurechange.md
+ENV/
+.env
+
+# Python
+__pycache__/
 *.py[cod]
 *$py.class
-*.pyo
-*.pyd
-.vscode/
-*.code-workspace
-.history/
+.Python

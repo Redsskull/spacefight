@@ -133,9 +133,15 @@ class Emily(Character):
 
 
 class Bart(Character):
-    """Bart character class - Tank character with reversed sprites"""
+    """Bart character class"""
 
     def __init__(self, game):
         super().__init__("Bart", game)
-        self.base_facing_left = True  # For sprite flipping
-        self.facing_right = True  # For initial facing direction
+        self.base_facing_left = True
+        self.facing_right = True
+
+    def move(self, dt: float) -> None:
+        """Override to handle Bart's unique facing"""
+        super().move(dt)
+        if self.direction.x != 0:
+            self.facing_right = self.direction.x > 0
