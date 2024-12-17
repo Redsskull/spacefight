@@ -37,17 +37,12 @@ class Character(BaseCharacter, MovementMixin, CombatMixin, AnimationMixin):
 
 
 class Regar(Character):
-    """Regar character class"""
-
     def __init__(self, game):
-        """
-        Initialize the Regar character
-        Args:
-            game (Game): The game instance
-        """
         super().__init__("Regar", game)
-        self.ranged_attacker = True
+        self.name = "Regar"
+        self.ranged_attacker = True  # Regar uses ranged attacks
         self.has_special_attack = True
+        self.load_sprite_sheets()
 
     def perform_special_attack(self):
         """Perform Regar's energy shot attack"""
@@ -89,11 +84,11 @@ class Susan(Character):
 
 
 class Emily(Character):
-    """Emily character class - Engineering specialist with powerful kick"""
-
     def __init__(self, game):
         super().__init__("Emily", game)
-        self.has_special_attack = True
+        self.name = "Emily"
+        self.has_special_attack = True  # Emily has kick special
+        self.load_sprite_sheets()
 
     def perform_special_attack(self):
         """Perform Emily's special kick attack"""

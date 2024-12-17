@@ -73,11 +73,6 @@ REGAR_SPRITE_CONFIG = {
         "x": 15,  # Padding from sides of sprite
         "y": 10,  # Padding from top/bottom of sprite
     },
-    "frame_widths": {
-        "walk": 75,  # 600px / 6 frames
-        "shoot": 75,  # 300px / 3 frames
-        "attack": 75,  # 400px / 4 frames
-    },
 }
 
 # Susan-specific sprite settings
@@ -87,12 +82,6 @@ SUSAN_SPRITE_CONFIG = {
     "collision_offset": {
         "x": 120,  # Adjust collision box width
         "y": 60,  # Adjust collision box height
-    },
-    "frame_widths": {
-        "idle": 128,  # 512/4 frames
-        "walk": 128,  # 1024/8 frames
-        "attack": 128,  # 1024/8 frames
-        "hurt": 128,  # 128/1 frame
     },
 }
 
@@ -104,13 +93,6 @@ EMILY_SPRITE_CONFIG = {
         "x": 83,  # Reduced from 100 to allow more movement
         "y": 16,  # Reduced from 50 for better proportions
     },
-    "frame_widths": {
-        "idle": 96,  # 384/4 frames
-        "walk": 96,  # 960/10 frames
-        "attack": 96,  # 288/3 frames
-        "hurt": 96,  # 192/2 frames
-        "kick": 96,  # 480/5 frames
-    },
 }
 
 # Bart-specific sprite settings
@@ -120,10 +102,5 @@ BART_SPRITE_CONFIG = {
     "collision_offset": {
         "x": 70,  # Increased to reduce width (228 - 160 = 68px width)
         "y": 10,  # Reduced to make box taller (150 - 20 = 130px height)
-    },
-    "frame_widths": {
-        "idle": 96,  # 384px / 4 frames
-        "walk": 96,  # 384px / 4 frames
-        "attack": 96,  # 288px / 3 frames
     },
 }

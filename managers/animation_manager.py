@@ -7,6 +7,8 @@ from graphics.animator import Animator
 from graphics.effects import VisualEffects
 from config.graphics import ANIMATION_SETTINGS, SPRITE_SETTINGS
 from config.characters import CHARACTER_SPRITES
+from config.enemies import ENEMY_SPRITES
+import os
 
 
 class AnimationManager:
@@ -27,32 +29,37 @@ class AnimationManager:
             entity_id (int): Unique identifier for the entity
             sprite_config (Dict): Entity-specific sprite configuration
         """
+        logging.debug(f"Registering entity {entity_id} with config {sprite_config}")
+        self.entity_configs[entity_id] = sprite_config or {}
         self.animators[entity_id] = Animator()
         self.effects[entity_id] = VisualEffects()
         if sprite_config:
             self.entity_configs[entity_id] = sprite_config
 
     def load_sprite_sheets(self, entity_id: int, name: str, sprite_path: str) -> bool:
-        """
-        Load sprite sheets for an entity
+        """Load sprite sheets for an entity"""
+        # Check both character and enemy sprite configurations
+        sprite_config = None
+        if name in CHARACTER_SPRITES:
+            sprite_config = CHARACTER_SPRITES[name]
+        elif name in ENEMY_SPRITES:
+            sprite_config = ENEMY_SPRITES[name]
 
-        Args:
-            entity_id (int): Entity identifier
-            name (str): Entity name (e.g. "Regar", "Susan")
-            sprite_path (str): Path to sprite directory
-
-        Returns:
-            bool: True if sprites loaded successfully
-        """
-        if name not in CHARACTER_SPRITES:
+        if not sprite_config:
             logging.error(f"No sprite configuration found for {name}")
             return False
 
+        logging.info(f"Loading sprites for {name} from {sprite_path}")
+
         try:
             sprite_sheets = {}
-            for anim_type, info in CHARACTER_SPRITES[name].items():
+            for anim_type, info in sprite_config.items():
                 sprite_name = info["name"]
-                full_path = f"{sprite_path}/{sprite_name}.png"
+                full_path = os.path.join(sprite_path, f"{sprite_name}.png")
+
+                if not os.path.exists(full_path):
+                    logging.error(f"Sprite not found: {full_path}")
+                    continue
 
                 try:
                     original_surface = pygame.image.load(full_path).convert_alpha()
@@ -63,13 +70,17 @@ class AnimationManager:
                         "surface": scaled_surface,
                         "frames": info["frames"],
                     }
+                    logging.debug(f"Loaded {anim_type} animation for {name}")
                 except pygame.error as e:
                     logging.error(f"Failed to load {sprite_name}.png: {e}")
                     continue
 
-            self.sprite_sheets[entity_id] = sprite_sheets
-            return True
+            if sprite_sheets:
+                self.sprite_sheets[entity_id] = sprite_sheets
+                logging.debug(f"Loaded animations: {list(sprite_sheets.keys())}")
+                return True
 
+            return False
         except Exception as e:
             logging.error(f"Failed to load sprites for {name}: {e}")
             return False

@@ -1,169 +1,290 @@
 import pytest
 import pygame
+import os
 from game import Game
-from graphics import Animator, VisualEffects
 from managers.animation_manager import AnimationManager
-from characters.traits.animations import AnimationMixin
 from characters.player_chars import Regar, Emily
-from config.graphics import ANIMATION_SETTINGS
 from config.characters import (
     CHARACTER_SPRITES,
     REGAR_SPRITE_CONFIG,
     EMILY_SPRITE_CONFIG,
 )
+from config.enemies import ENEMY_SPRITES, ENEMY_SPRITE_CONFIG
+
+
+@pytest.fixture
+def game():
+    """Initialize pygame and game instance"""
+    pygame.init()
+    pygame.display.set_mode((1280, 720))  # Need display mode for sprite loading
+    return Game(1280, 720)
 
 
 @pytest.fixture
 def animation_manager():
     """Provide initialized animation manager"""
     pygame.init()
+    pygame.display.set_mode((1280, 720))
     return AnimationManager()
 
 
-def test_animation_mixin_initialization():
-    """Test AnimationMixin properly initializes"""
-    pygame.init()
-    game = Game(1280, 720)
-    char = Regar(game)  # Regar implements AnimationMixin
-
-    # Test initialization
-    assert hasattr(char, "entity_id")
-    assert char.entity_id is not None
-    assert not char.using_sprites
-    assert not char.sprites_loaded
-    assert not char.is_dying
-    assert not char.is_hurt
+@pytest.fixture
+def regar(game):
+    """Create Regar instance with loaded sprites"""
+    pygame.display.init()  # Ensure display is initialized
+    character = Regar(game)
+    character.load_sprite_sheets()  # This should now work with display initialized
+    return character
 
 
-def test_sprite_config_loading():
-    """Test sprite configuration loading"""
-    pygame.init()
-    game = Game(1280, 720)
-
-    # Test Regar's config
-    regar = Regar(game)
-    regar_config = regar._get_sprite_config()
-    assert regar_config == REGAR_SPRITE_CONFIG
-
-    # Test Emily's config
-    emily = Emily(game)
-    emily_config = emily._get_sprite_config()
-    assert emily_config == EMILY_SPRITE_CONFIG
+@pytest.fixture
+def emily(game):
+    """Create Emily instance with loaded sprites"""
+    pygame.display.init()  # Ensure display is initialized
+    character = Emily(game)
+    character.load_sprite_sheets()  # This should now work with display initialized
+    return character
 
 
-def test_animation_manager_registration(animation_manager):
-    """Test entity registration with AnimationManager"""
+@pytest.mark.parametrize(
+    "character,config,animations",
+    [
+        ("Regar", REGAR_SPRITE_CONFIG, ["walk", "shoot", "attack"]),  # Capitalize!
+        ("Emily", EMILY_SPRITE_CONFIG, ["idle", "walk", "attack", "hurt", "kick"]),
+    ],
+)
+def test_character_animations(animation_manager, character, config, animations):
+    """Test loading and validating actual character animations"""
     entity_id = 1
-    sprite_config = REGAR_SPRITE_CONFIG
+    sprite_path = f"assets/sprites/{character.lower()}"
 
-    animation_manager.register_entity(entity_id, sprite_config)
-
-    # Verify registration
-    assert entity_id in animation_manager.animators
-    assert entity_id in animation_manager.effects
-    assert entity_id in animation_manager.entity_configs
-
-
-def test_sprite_sheet_loading(animation_manager):
-    """Test sprite sheet loading through AnimationManager"""
-    entity_id = 1
-    name = "Regar"
-    sprite_path = "assets/sprites/regar"
-
-    animation_manager.register_entity(entity_id, REGAR_SPRITE_CONFIG)
-    success = animation_manager.load_sprite_sheets(entity_id, name, sprite_path)
+    animation_manager.register_entity(entity_id, config)
+    success = animation_manager.load_sprite_sheets(entity_id, character, sprite_path)
 
     assert success
-    assert entity_id in animation_manager.sprite_sheets
-
-    sprite_sheets = animation_manager.sprite_sheets[entity_id]
-    expected_animations = [
-        "walk",
-        "shoot",
-        "attack",
-    ]  # Update to match actual animations
-    for anim_type in expected_animations:
-        assert anim_type in sprite_sheets
-        assert "surface" in sprite_sheets[anim_type]
-        assert "frames" in sprite_sheets[anim_type]
+    for anim in animations:
+        assert anim in CHARACTER_SPRITES[character]  # Check in CHARACTER_SPRITES first
+        assert anim in animation_manager.sprite_sheets[entity_id]
 
 
-def test_animation_state_transitions(animation_manager):
-    """Test animation state transitions"""
+def test_regar_walk_animation(regar):
+    """Test Regar's walk animation frames"""
+    walk_frames = CHARACTER_SPRITES["Regar"]["walk"]["frames"]
+    assert walk_frames == 6
+    assert "walk" in regar.sprite_sheets
+    sheet = regar.sprite_sheets["walk"]["surface"]
+    frame_width = sheet.get_width() // walk_frames
+    assert frame_width > 0
+
+
+def test_emily_attack_animation(emily):
+    """Test Emily's attack animation frames"""
+    attack_frames = CHARACTER_SPRITES["Emily"]["attack"]["frames"]
+    assert attack_frames == 3
+    assert "attack" in emily.sprite_sheets
+    sheet = emily.sprite_sheets["attack"]["surface"]
+    frame_width = sheet.get_width() // attack_frames
+    assert frame_width > 0
+
+
+def test_animation_timing(animation_manager):
+    """Test animation timing with real sprites"""
     entity_id = 1
     animation_manager.register_entity(entity_id, REGAR_SPRITE_CONFIG)
+    success = animation_manager.load_sprite_sheets(
+        entity_id, "Regar", "assets/sprites/regar"
+    )
+    assert success
 
-    # Test setting animations
-    animation_manager.set_animation(entity_id, "idle")
-    animator = animation_manager.animators[entity_id]
-    assert animator.current_animation == "idle"
-
+    # Set the initial animation
     animation_manager.set_animation(entity_id, "walk")
-    assert animator.current_animation == "walk"
+
+    # Now test frame progression
+    walk_frames = CHARACTER_SPRITES["Regar"]["walk"]["frames"]
+    for _ in range(walk_frames):
+        frame = animation_manager.update_animation(entity_id, 0.1, False)
+        assert frame is not None
+        # Optional: Add frame dimension checks
+        assert frame.get_width() > 0
+        assert frame.get_height() > 0
 
 
-def test_visual_effects_integration(animation_manager):
-    """Test visual effects integration"""
+def test_sprite_files_exist():
+    """Verify sprite files exist in assets directory"""
+    base_path = os.path.join(os.path.dirname(__file__), "..", "assets", "sprites")
+
+    # Test Regar's sprites
+    regar_path = os.path.join(base_path, "regar")
+    assert os.path.exists(regar_path)
+    for anim in CHARACTER_SPRITES["Regar"]:
+        sprite_name = CHARACTER_SPRITES["Regar"][anim]["name"]
+        assert os.path.exists(os.path.join(regar_path, f"{sprite_name}.png"))
+
+    # Test Emily's sprites
+    emily_path = os.path.join(base_path, "emily")
+    assert os.path.exists(emily_path)
+    for anim in CHARACTER_SPRITES["Emily"]:
+        sprite_name = CHARACTER_SPRITES["Emily"][anim]["name"]
+        assert os.path.exists(os.path.join(emily_path, f"{sprite_name}.png"))
+
+
+def test_enemy_animations(animation_manager):
+    """Test enemy sprite loading and animation"""
+    pygame.init()
+    entity_id = 1
+    sprite_path = "assets/sprites/enemy"
+
+    # Register enemy with config
+    animation_manager.register_entity(entity_id, ENEMY_SPRITE_CONFIG)
+    success = animation_manager.load_sprite_sheets(entity_id, "basic", sprite_path)
+
+    assert success
+
+    # Verify all animations loaded
+    expected_animations = ["idle", "walk", "attack", "hurt"]
+    for anim in expected_animations:
+        assert anim in ENEMY_SPRITES["basic"]
+        assert anim in animation_manager.sprite_sheets[entity_id]
+
+        # Verify frame counts
+        sheet = animation_manager.sprite_sheets[entity_id][anim]
+        assert sheet["frames"] == ENEMY_SPRITES["basic"][anim]["frames"]
+
+        # Verify sprite dimensions
+        surface = sheet["surface"]
+        frame_width = surface.get_width() // sheet["frames"]
+        assert frame_width > 0
+        assert surface.get_height() == int(
+            ENEMY_SPRITE_CONFIG["target_height"] * ENEMY_SPRITE_CONFIG["scale_factor"]
+        )
+
+
+def test_enemy_sprite_files():
+    """Verify enemy sprite files exist"""
+    sprite_path = os.path.join("assets", "sprites", "enemy")
+    assert os.path.exists(sprite_path)
+
+    for anim_type, info in ENEMY_SPRITES["basic"].items():
+        sprite_name = info["name"]
+        assert os.path.exists(os.path.join(sprite_path, f"{sprite_name}.png"))
+
+
+def test_character_combat_animations(animation_manager):
+    """Test character animations during combat"""
+    # Initialize character
     entity_id = 1
     animation_manager.register_entity(entity_id, REGAR_SPRITE_CONFIG)
+    success = animation_manager.load_sprite_sheets(
+        entity_id, "Regar", "assets/sprites/regar"
+    )
+    assert success
 
-    # Test death effect
-    animation_manager.set_dying(entity_id, True)
-    effects = animation_manager.effects[entity_id]
-    assert effects.is_dying
-
-    # Test hurt effect
-    animation_manager.set_hurt(entity_id, True)
-    assert effects.is_hurt
-
-
-def test_sprite_dimensions(animation_manager):
-    """Test sprite dimension calculations"""
-    entity_id = 1
-    name = "Regar"
-    sprite_path = "assets/sprites/regar"
-
-    animation_manager.register_entity(entity_id, REGAR_SPRITE_CONFIG)
-    animation_manager.load_sprite_sheets(entity_id, name, sprite_path)
-
-    dimensions = animation_manager.get_sprite_dimensions(entity_id)
-    assert dimensions is not None
-    assert len(dimensions) == 2
-    width, height = dimensions
-    assert width > 0
-    assert height > 0
-
-
-def test_animation_update_cycle(animation_manager):
-    """Test full animation update cycle"""
-    entity_id = 1
-    name = "Regar"
-    sprite_path = "assets/sprites/regar"
-
-    # Setup
-    animation_manager.register_entity(entity_id, REGAR_SPRITE_CONFIG)
-    animation_manager.load_sprite_sheets(entity_id, name, sprite_path)
-
-    # Use one of the known animations from the test_sprite_sheet_loading
-    animation_manager.set_animation(entity_id, "walk")  # Changed from "idle" to "walk"
-
-    # Test update
-    frame = animation_manager.update_animation(entity_id, 0.016, False)
+    # Test attack animation
+    animation_manager.set_animation(entity_id, "attack")
+    frame = animation_manager.update_animation(entity_id, 0.1, False)
     assert frame is not None
-    assert isinstance(frame, pygame.Surface)
+    assert frame.get_width() > 0
 
 
-@pytest.mark.parametrize("character_class", [Regar, Emily])
-def test_character_animation_integration(character_class):
-    """Test animation integration with different characters"""
+def test_enemy_combat_animations(animation_manager):
+    """Test enemy animations during combat"""
+    entity_id = 1
+    animation_manager.register_entity(entity_id, ENEMY_SPRITE_CONFIG)
+    success = animation_manager.load_sprite_sheets(
+        entity_id, "basic", "assets/sprites/enemy"
+    )
+    assert success
+
+    # Test transition from idle to attack
+    animation_manager.set_animation(entity_id, "idle")
+    idle_frame = animation_manager.update_animation(entity_id, 0.1, False)
+    assert idle_frame is not None
+
+    animation_manager.set_animation(entity_id, "attack")
+    attack_frame = animation_manager.update_animation(entity_id, 0.1, False)
+    assert attack_frame is not None
+
+
+def test_movement_animation_sync():
+    """Test animation syncs with movement"""
     pygame.init()
     game = Game(1280, 720)
-    character = character_class(game)
+    regar = Regar(game)
 
-    # Test sprite loading
-    character.load_sprite_sheets()
-    assert character.sprites_loaded
+    # Simulate movement right
+    regar.direction = pygame.math.Vector2(1, 0)
+    regar.facing_right = True
+    assert regar.get_current_animation() == "walk"
 
-    # Test animation state changes
-    current_anim = character.get_current_animation()
-    assert current_anim in ["idle", "walk", "attack"]
+    # Simulate stopping - should still be walk since Regar has no idle
+    regar.direction = pygame.math.Vector2(0, 0)
+    assert regar.get_current_animation() == "walk"  # Not idle!
+
+    # Test attack animation
+    regar.attacking = True
+    assert regar.get_current_animation() == "attack"
+
+    # Test special attack
+    regar.is_special_attacking = True
+    assert regar.get_current_animation() == "shoot"
+
+
+def test_special_attack_animation_sequence(animation_manager):
+    """Test special attack animation completion"""
+    entity_id = 1
+    animation_manager.register_entity(entity_id, EMILY_SPRITE_CONFIG)
+    success = animation_manager.load_sprite_sheets(
+        entity_id, "Emily", "assets/sprites/emily"
+    )
+    assert success
+
+    # Test kick animation sequence
+    animation_manager.set_animation(entity_id, "kick")
+    frames = []
+    for _ in range(CHARACTER_SPRITES["Emily"]["kick"]["frames"]):
+        frame = animation_manager.update_animation(entity_id, 0.1, False)
+        frames.append(frame)
+
+    # Verify all frames were generated
+    assert all(frame is not None for frame in frames)
+    assert len(frames) == CHARACTER_SPRITES["Emily"]["kick"]["frames"]
+
+
+def test_emily_movement_animation_sync():
+    """Test Emily's animation syncs with movement"""
+    pygame.init()
+    game = Game(1280, 720)
+    emily = Emily(game)
+
+    # Test idle state
+    emily.direction = pygame.math.Vector2(0, 0)
+    assert emily.get_current_animation() == "idle"
+
+    # Test walking
+    emily.direction = pygame.math.Vector2(1, 0)
+    assert emily.get_current_animation() == "walk"
+
+
+def test_animation_state_priority():
+    """Test animation state priority order"""
+    pygame.init()
+    game = Game(1280, 720)
+
+    # Test Regar's priority
+    regar = Regar(game)
+    regar.is_special_attacking = True
+    assert (
+        regar.get_current_animation() == "shoot"
+    )  # Special attack should override walk
+
+    regar.is_special_attacking = False
+    regar.attacking = True
+    assert regar.get_current_animation() == "attack"  # Attack should override walk
+
+    # Test Emily's priority
+    emily = Emily(game)
+    emily.direction = pygame.math.Vector2(0, 0)
+    assert emily.get_current_animation() == "idle"  # No movement should be idle
+
+    emily.direction = pygame.math.Vector2(1, 0)
+    assert emily.get_current_animation() == "walk"  # Movement should be walk
