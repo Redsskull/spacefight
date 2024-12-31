@@ -136,8 +136,7 @@ class CharacterSelector(Screen):
 
         self.game.set_selected_characters(selected_characters)
         self.game.sound_manager.stop_music()
-        # Let Game handle the transition
-        self.game.change_screen_to_level()
+        self.game.screen_manager.change_screen(GameState.LEVEL)
 
     def show_error(self, message):
         """

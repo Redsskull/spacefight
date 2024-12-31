@@ -41,6 +41,15 @@ class MainMenu(Screen):
 
         self.initialize_sounds()
 
+    def on_enter(self, **kwargs):
+        """Initialize when entering screen"""
+        super().on_enter()
+        self.initialize_sounds()
+
+    def on_exit(self):
+        """Clean up when exiting screen"""
+        self.game.sound_manager.stop_music()
+
     def initialize_sounds(self):
         """
         Initialize the music for the main menu screen using SoundManager.

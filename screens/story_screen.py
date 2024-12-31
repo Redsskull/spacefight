@@ -124,10 +124,8 @@ class StoryScreen(Screen):
                 self.current_segment = 0
 
         if self.current_segment >= len(self.story_segments):
-            self.game.sound_manager.stop_music()  # I was having difficuly with this, I stop the music here and the next screen to be sure for now
-            from .character_selector import CharacterSelector
-
-            self.game.change_screen(CharacterSelector(self.game))
+            self.game.sound_manager.stop_music()
+            self.game.screen_manager.change_screen(GameState.CHARACTER_SELECT)
 
         # Trigger alarm and screen shake when proximity alarm is mentioned (segment 9 in inside_ship)
         if (

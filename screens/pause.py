@@ -14,15 +14,11 @@ class PauseScreen(Screen):
         screen (pygame.Surface): The screen surface
     """
 
-    def __init__(self, game, previous_screen):
-        """
-        Initialize the pause screen.
-        Args:
-            game (Game): The game instance
-            previous_screen (Screen): The screen to return to when unpaused
-        """
+    def __init__(self, game):
+        """Initialize the pause screen"""
         super().__init__(game)
-        self.previous_screen = previous_screen
+        self.previous_state = None
+        # Rest of initialization code...
 
         # UI Constants
         self.BUTTON_WIDTH = 200
@@ -47,6 +43,18 @@ class PauseScreen(Screen):
                 self.BUTTON_HEIGHT,
             )
             self.buttons.append((text, rect))
+
+    def on_enter(self, **kwargs):
+        """Initialize when entering screen"""
+        super().on_enter()
+        # Get previous_state from kwargs if provided
+        self.previous_state = kwargs.get("previous_state", GameState.MAIN_MENU)
+        # Pause logic - could stop animations, enemy AI, etc.
+
+    def on_exit(self):
+        """Clean up when exiting screen"""
+        # Resume logic - restart animations, enemy AI, etc.
+        super().on_exit()
 
     def handle_events(self, events):
         """
@@ -76,11 +84,10 @@ class PauseScreen(Screen):
                             self.select_menu_item()
 
     def select_menu_item(self):
-        """
-        Handle the selection of a menu item.
-        """
+        """Handle menu selection"""
         if self.menu_items[self.selected_index] == "Resume":
-            self.game.change_screen(self.previous_screen)
+            self.game.screen_manager.change_screen(self.previous_state)
+        # Rest of menu handling...
         elif self.menu_items[self.selected_index] == "Options":
             print("Options menu - Coming soon!")
         elif self.menu_items[self.selected_index] == "Main Menu":

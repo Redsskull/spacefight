@@ -24,6 +24,7 @@ from managers import (
     EnemyManager,
     AnimationManager,
     CombatManager,
+    ScreenManager,
 )
 
 # Import Character from new modular structure
@@ -76,6 +77,22 @@ class Game:
             self.screen_effects = ScreenEffectsManager(
                 self.screen, self.SCREEN_WIDTH, self.SCREEN_HEIGHT
             )
+
+            # Initialize screen manager
+            self.screen_manager = ScreenManager(self)
+
+            # Register screens
+            self.screen_manager.register_screen(GameState.MAIN_MENU, MainMenu)
+            self.screen_manager.register_screen(
+                GameState.CHARACTER_SELECT, CharacterSelector
+            )
+            self.screen_manager.register_screen(GameState.STORY, StoryScreen)
+            self.screen_manager.register_screen(GameState.LEVEL, LevelScreen)
+            self.screen_manager.register_screen(GameState.PAUSE, PauseScreen)
+            self.screen_manager.register_screen(GameState.GAME_OVER, GameOverScreen)
+
+            # Start with main menu
+            self.screen_manager.change_screen(GameState.MAIN_MENU)
 
             logging.info("Game initialized successfully.")
 
@@ -143,12 +160,7 @@ class Game:
         for event in events:
             if event.type == pygame.QUIT:
                 self.running = False
-            elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-                if self.state == GameState.LEVEL:
-                    self.change_screen(PauseScreen(self, self.current_screen))
-
-        if self.current_screen:
-            self.current_screen.handle_events(events)
+        self.screen_manager.handle_events(events)
 
     def update(self, dt):
         """
@@ -156,33 +168,21 @@ class Game:
         Args:
             dt (float): Time since last update
         """
-        if self.current_screen:
-            self.current_screen.update(dt)
+        self.screen_manager.update(dt)
 
     def draw(self):
         """
         Draw the current screen if it exists.
         """
-        if self.current_screen:
-            self.current_screen.draw()
+        self.screen_manager.draw()
 
-    def change_screen(self, new_screen: Screen) -> None:
+    def change_screen(self, new_state: GameState, **kwargs):
         """
         Change the current screen to the new screen.
         Args:
-            new_screen (Screen): The new screen to change to.
+            new_state (GameState): The new state to change to.
         """
-        self.current_screen = new_screen
-        if isinstance(new_screen, MainMenu):
-            self.state = GameState.MAIN_MENU
-        elif isinstance(new_screen, CharacterSelector):
-            self.state = GameState.CHARACTER_SELECT
-        elif isinstance(new_screen, StoryScreen):
-            self.state = GameState.STORY
-        elif isinstance(new_screen, LevelScreen):
-            self.state = GameState.LEVEL
-        elif isinstance(new_screen, PauseScreen):
-            self.state = GameState.PAUSE
+        self.screen_manager.change_screen(new_state, **kwargs)
 
     def is_in_state(self, state: GameState) -> bool:
         """
@@ -198,11 +198,8 @@ class Game:
 
     def trigger_game_over(self):
         """Trigger game over state from any screen"""
-        from screens.game_over import GameOverScreen
-
         self.sound_manager.stop_music()
-        self.change_screen(GameOverScreen(self))
-        self.state = GameState.GAME_OVER
+        self.screen_manager.change_screen(GameState.GAME_OVER)
 
     def reset_game(self):
         """Reset the entire game state to initial conditions"""
@@ -220,4 +217,11 @@ class Game:
         )
 
         # Create new main menu
-        self.change_screen(MainMenu(self))
+        self.change_screen(GameState.MAIN_MENU)
+
+    def pause_game(self):
+        """Pause the game"""
+        previous_state = self.state
+        self.screen_manager.change_screen(
+            GameState.PAUSE, previous_state=previous_state
+        )

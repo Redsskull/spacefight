@@ -20,8 +20,6 @@ class LevelScreen(Screen):
         super().__init__(game)
         self.game = game
         self.initialize_assets()
-        self.initialize_sounds()
-        self.initialize_characters()
 
         # Define boundries
 
@@ -29,6 +27,17 @@ class LevelScreen(Screen):
         self.ceiling_y = LEVEL_BOUNDS["ceiling_y"]
         self.left_x = LEVEL_BOUNDS["left_x"]
         self.right_x = LEVEL_BOUNDS["right_x"]
+
+    def on_enter(self, **kwargs):
+        """Initialize when entering screen"""
+        super().on_enter()
+        self.initialize_sounds()
+        self.initialize_characters()
+
+    def on_exit(self):
+        """Clean up when exiting screen"""
+        self.game.sound_manager.stop_music()
+        self.game.character_manager.clear()
 
     def initialize_assets(self):
         """

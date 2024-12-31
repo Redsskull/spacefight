@@ -4,6 +4,7 @@ from .screen_effects import ScreenEffectsManager
 from .enemy_manager import EnemyManager
 from .animation_manager import AnimationManager
 from .combat_manager import CombatManager
+from .screen_manager import ScreenManager
 
 __all__ = [
     "SoundManager",
@@ -12,4 +13,5 @@ __all__ = [
     "EnemyManager",
     "AnimationManager",
     "CombatManager",
+    "ScreenManager",
 ]

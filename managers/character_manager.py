@@ -203,3 +203,29 @@ class CharacterManager:
             (char.name, char.health, char.speed, char.strength)
             for char in self.all_characters
         ]
+
+    def clear(self, preserve_selected: bool = True) -> None:
+        """Clear character states with option to preserve selected characters
+
+        Args:
+            preserve_selected (bool): If True, keeps selected characters in memory
+        """
+        if preserve_selected:
+            # Store selected characters before clearing
+            selected = [
+                char
+                for char in self.active_characters
+                if char in self.game.selected_characters
+            ]
+
+            # Clear states
+            self.active_characters = []
+            self.character_group.empty()
+
+            # Restore selected characters
+            self.active_characters = selected
+            self.character_group.add(selected)
+        else:
+            # Full clear for complete reset
+            self.active_characters = []
+            self.character_group.empty()
