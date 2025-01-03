@@ -153,3 +153,30 @@ def test_bart_facing(monkeypatch):
     monkeypatch.setattr(pygame.key, "get_pressed", lambda: keys)
     bart.move(0.016)
     assert not bart.facing_right
+
+
+def test_character_draw():
+    """Test character drawing functionality"""
+    pygame.init()
+    game = Game(1280, 720)
+    screen = pygame.Surface((1280, 720))
+
+    # Test Regar drawing
+    regar = Regar(game)
+
+    # Test non-sprite drawing first
+    regar.using_sprites = False
+    regar.visible = True
+    regar.draw(screen)  # Should not raise error
+
+    # Test with sprites
+    regar.load_sprite_sheets()
+    regar.using_sprites = True
+    regar.visible = True
+    regar.current_animation = "walk"
+    regar.animation_frame = 0
+    regar.draw(screen)  # Should not raise error with sprites
+
+    # Test attack range drawing
+    regar.attacking = True
+    regar.draw(screen)  # Should draw attack range

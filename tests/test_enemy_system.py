@@ -3,7 +3,7 @@
 import pytest
 import pygame
 from game import Game
-from enemies import BaseEnemy, BasicEnemy
+from enemies import BaseEnemy, BasicEnemy, EnemyState
 from characters.player_chars import Character, Regar  # Import Regar for testing
 
 
@@ -54,3 +54,20 @@ def test_enemy_sprite_config():
     assert "idle" in enemy.sprite_data
     assert "walk" in enemy.sprite_data
     assert "attack" in enemy.sprite_data
+
+
+def test_enemy_animation_integration():
+    """Test enemy animation integration with sprite system"""
+    pygame.init()
+    game = Game(1280, 720)
+    screen = pygame.Surface((1280, 720))
+
+    enemy = BasicEnemy(game, (100, 100))
+
+    # Test sprite loading
+    assert enemy.using_sprites
+    assert enemy.sprites_loaded
+    assert "idle" in enemy.sprite_sheets
+
+    # Test animation state machine
+    assert enemy.get_current_animation() == "idle"  # Default

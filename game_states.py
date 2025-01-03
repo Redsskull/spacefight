@@ -18,3 +18,12 @@ class GameState(Enum):
     LEVEL = auto()
     GAME_OVER = auto()
     PAUSE = auto()
+
+
+class EnemyState(Enum):
+    """Enemy AI states"""
+
+    SPAWNING = "spawning"
+    PURSUING = "pursuing"
+    ATTACKING = "attacking"
+    STUNNED = "stunned"

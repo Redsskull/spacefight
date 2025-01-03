@@ -2,11 +2,11 @@
 handles all sprite and amimation related properties and methods
 """
 
-from typing import Literal
+from typing import Literal, Optional, TYPE_CHECKING
 import pygame
 import os
 import logging
-from graphics import Animator, VisualEffects
+from graphics import Animator, VisualEffects, SpriteLoader
 from config.characters import (
     CHARACTER_SPRITES,
     REGAR_SPRITE_CONFIG,
@@ -14,12 +14,24 @@ from config.characters import (
     EMILY_SPRITE_CONFIG,
     BART_SPRITE_CONFIG,
 )
+from config.combat import ATTACK_SETTINGS
+from game_states import EnemyState
+
+if TYPE_CHECKING:
+    from enemies.base import (
+        BaseEnemy,
+    )  # Keep BaseEnemy in TYPE_CHECKING to avoid circular import
 
 
 class AnimationMixin:
     """Handles character animations and sprites"""
 
     def __init__(self):
+        self.current_animation = "walk"  # default animation
+        self.animation_frame = 0
+        self.using_sprites = False
+        self.visible = True
+
         # Animation components
         self.animator = Animator()
         self.effects = VisualEffects()
@@ -56,8 +68,8 @@ class AnimationMixin:
         if self.is_dying:
             return "death"
 
-        # Special attack takes highest priority
-        if self.is_special_attacking:
+        # Special attack takes highest priority for characters
+        if hasattr(self, "is_special_attacking") and self.is_special_attacking:
             if self.ranged_attacker and "shoot" in self.sprite_sheets:
                 return "shoot"
             elif "kick" in self.sprite_sheets:
@@ -67,8 +79,15 @@ class AnimationMixin:
         if self.attacking:
             return "attack"
 
-        # Movement animations
-        if self.direction.length() > 0:
+        # For enemies, use state-based animations
+        if hasattr(self, "state"):
+            if self.state == EnemyState.PURSUING and hasattr(self, "direction"):
+                if self.direction.length() > 0:
+                    return "walk"
+            return "idle"  # Default for enemies
+
+        # For characters, use movement-based animations
+        if hasattr(self, "direction") and self.direction.length() > 0:
             return "walk"
 
         # Default state - only return idle if available
@@ -77,28 +96,31 @@ class AnimationMixin:
         return "walk"  # Default to walk if no idle animation
 
     def update_animation(self, dt: float):
-        """Update animation state using animation manager"""
-        current_anim = self.get_current_animation()
+        try:
+            current_anim = self.get_current_animation()
 
-        # Queue current animation
-        self.game.animation_manager.queue_animation(
-            self.entity_id,
-            current_anim,
-            priority=1 if self.is_hurt or self.is_special_attacking else 0,
-        )
-
-        # Update animation frame
-        frame = self.game.animation_manager.update_animation(
-            self.entity_id, dt, self.should_flip()
-        )
-
-        # Update particles
-        if self.visible:
-            self.game.animation_manager.update_particles(
-                self.entity_id, dt, self.game.screen
+            # Queue current animation
+            self.game.animation_manager.queue_animation(
+                self.entity_id,
+                current_anim,
+                priority=1 if self.is_hurt or self.is_special_attacking else 0,
             )
 
-        return frame
+            # Update animation frame
+            frame = self.game.animation_manager.update_animation(
+                self.entity_id, dt, self.should_flip()
+            )
+
+            # Update particles
+            if self.visible:
+                self.game.animation_manager.update_particles(
+                    self.entity_id, dt, self.game.screen
+                )
+
+            return frame
+        except KeyError as e:
+            logging.error(f"Animation error: {e}")
+            return None
 
     def should_flip(self) -> bool:
         """Determine if sprite should be flipped"""
@@ -106,42 +128,81 @@ class AnimationMixin:
             not self.base_facing_left and not self.facing_right
         )
 
-    def load_sprite_sheets(self, sprite_path: str = None) -> None:
-        """Load character sprite sheets"""
-        if sprite_path is None:
-            sprite_path = f"assets/sprites/{self.name.lower()}"
+    def load_sprite_sheets(self, entity_type=None):
+        """Load sprite sheets for the entity"""
+        # Import here to avoid circular import
+        from enemies.base import BaseEnemy
 
-        logging.debug(f"Loading sprites from: {sprite_path}")
-        self.sprites_loaded = False
-        self.sprite_sheets = {}  # Reset sprite sheets
+        if isinstance(self, BaseEnemy):
+            sprite_sheets = SpriteLoader.load_enemy_sprites(entity_type)
+        else:
+            sprite_sheets = SpriteLoader.load_character_sprites(self.name)
 
-        for anim_type, info in CHARACTER_SPRITES[self.name].items():
-            try:
-                sprite_name = info["name"]
-                full_path = os.path.join(sprite_path, f"{sprite_name}.png")
+        if sprite_sheets:
+            self.sprite_sheets = sprite_sheets
+            self.sprites_loaded = True
 
-                if not os.path.exists(full_path):
-                    logging.error(f"Sprite not found: {full_path}")
-                    continue
+    def get_current_frame(self, animation_name: str) -> Optional[pygame.Surface]:
+        """Get the current frame of the specified animation"""
+        if not self.using_sprites or animation_name not in self.sprite_sheets:
+            return None
 
-                sprite_surface = pygame.image.load(full_path).convert_alpha()
-                if sprite_surface is None:
-                    logging.error(f"Failed to load sprite: {full_path}")
-                    continue
+        sheet = self.sprite_sheets[animation_name]
+        frame_width = sheet["surface"].get_width() // sheet["frames"]
+        frame_rect = pygame.Rect(
+            frame_width * self.animation_frame,
+            0,
+            frame_width,
+            sheet["surface"].get_height(),
+        )
 
-                self.sprite_sheets[anim_type] = {
-                    "surface": sprite_surface,
-                    "frames": info["frames"],
-                }
-                logging.debug(
-                    f"Loaded {anim_type} animation with {info['frames']} frames"
-                )
+        frame = sheet["surface"].subsurface(frame_rect)
+        if not self.facing_right:
+            frame = pygame.transform.flip(frame, True, False)
 
-            except (pygame.error, KeyError, IOError) as e:
-                logging.error(f"Error loading {anim_type} animation: {e}")
-                continue
+        return frame
 
-        # Only set sprites_loaded if we loaded at least one animation
-        self.sprites_loaded = len(self.sprite_sheets) > 0
-        if not self.sprites_loaded:
-            logging.error(f"Failed to load any sprites for {self.name}")
+    def draw(self, screen: pygame.Surface) -> None:
+        """Draw the character and its projectiles"""
+        self.projectiles.draw(screen)
+
+        if self.is_dying and self.animation_complete:
+            return
+
+        if self.using_sprites and self.visible:
+            current_frame = self.get_current_frame(self.current_animation)
+            if current_frame:
+                frame_rect = current_frame.get_rect()
+                frame_rect.midbottom = self.rect.midbottom
+                screen.blit(current_frame, frame_rect)
+
+                # Draw attack range only when attacking
+                if self.attacking:
+                    self._draw_attack_range(screen, frame_rect)
+
+        else:
+            # Non-sprite characters
+            if self.visible:
+                screen.blit(self.image, self.rect)
+                if self.attacking:
+                    self._draw_attack_range(screen, self.rect)
+
+    def _draw_attack_range(
+        self, screen: pygame.Surface, source_rect: pygame.Rect
+    ) -> None:
+        """Draw the attack range when attacking"""
+        attack_rect = self.attack_range.get_rect()
+        attack_config = ATTACK_SETTINGS.get(self.name, ATTACK_SETTINGS["default"])
+
+        if "offset" in attack_config:
+            if self.facing_right:
+                attack_rect.midleft = (source_rect.right, source_rect.centery)
+            else:
+                attack_rect.midright = (source_rect.left, source_rect.centery)
+            screen.blit(self.attack_range, attack_rect)
+
+    def on_animation_complete(self, animation_name: str) -> None:
+        """Handle animation completion events"""
+        if animation_name in ["attack", "shoot", "kick"]:
+            self.attacking = False
+            self.is_special_attacking = False

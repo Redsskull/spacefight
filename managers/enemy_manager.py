@@ -100,8 +100,11 @@ class EnemyManager:
     def handle_collision(self, attack_rect: pygame.Rect, damage: int) -> None:
         """Handle player attack collision with enemies"""
         for enemy in self.enemies:
+            logging.debug(f"Checking collision with enemy at {enemy.rect}")
             if enemy.rect.colliderect(attack_rect):
+                logging.debug(f"Collision detected! Applying damage: {damage}")
                 enemy.take_damage(damage)
+                return  # Exit after first hit
 
     def clear(self) -> None:
         """Remove all enemies"""

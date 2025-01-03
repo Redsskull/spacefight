@@ -36,14 +36,27 @@ def test_melee_collision_detection(combat_manager):
     combat_manager.game.character_manager.active_characters.append(char)
     combat_manager.game.enemy_manager.enemies.add(enemy)
 
-    # Position character next to enemy
-    char.position = pygame.math.Vector2(150, 100)
+    # Position character right next to enemy for melee range
+    char.position = pygame.math.Vector2(75, 100)  # Move right next to enemy at x=100
     char.rect.center = char.position
+    char.facing_right = True  # Ensure character faces enemy
     char.attacking = True
+    char.strength = 20
+
+    # Get initial health and log state
+    initial_health = enemy.health
+    print(
+        f"Initial setup - Enemy position: {enemy.rect}, Character position: {char.rect}"
+    )
+
+    # Get attack rect for debugging
+    attack_rect = combat_manager._get_attack_rect(char)
+    print(f"Attack rect: {attack_rect}")
+    print(f"Attack rect collides with enemy: {attack_rect.colliderect(enemy.rect)}")
 
     # Test collision detection
     combat_manager._check_melee_collisions()
-    assert enemy.health < enemy.max_health
+    assert enemy.health < initial_health
 
 
 def test_projectile_collision_detection(combat_manager):

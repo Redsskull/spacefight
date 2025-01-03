@@ -4,6 +4,7 @@ The main menu of the game. Allows the player to start the game, open options, or
 
 import pygame
 from .base import Screen
+from game_states import GameState
 
 
 class MainMenu(Screen):
@@ -87,11 +88,7 @@ class MainMenu(Screen):
         """
         if self.selected_index == 0:  # Start
             self.game.sound_manager.stop_music()
-            from .story_screen import (
-                StoryScreen,
-            )  # Import here to avoid circular import
-
-            self.game.change_screen(StoryScreen(self.game))
+            self.game.screen_manager.change_screen(GameState.STORY)
         elif self.selected_index == 1:  # Options
             print("Open options")  # Replace with options screen logic
         elif self.selected_index == 2:  # Quit

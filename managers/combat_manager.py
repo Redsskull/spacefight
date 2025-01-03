@@ -9,6 +9,7 @@ from combat.attack import Attack
 from combat.damage import DamageSystem
 from combat.projectiles import ProjectileSystem
 from config.combat import ATTACK_SETTINGS, SPECIAL_ATTACK_SETTINGS
+from config.graphics import ANIMATION_SETTINGS
 from managers.enemy_manager import EnemyManager
 
 
@@ -48,17 +49,16 @@ class CombatManager:
         """Check melee attack collisions using the original system"""
         for character in self.game.character_manager.active_characters:
             if character.attacking:
-                attack_rect = character.attack_range.get_rect()
-                if character.facing_right:
-                    attack_rect.midleft = character.rect.midright
-                else:
-                    attack_rect.midright = character.rect.midleft
-
-                # Let enemy manager handle collisions
-                self.game.enemy_manager.handle_collision(
-                    attack_rect, character.strength
-                )
-                self.attack_collisions.append(attack_rect)
+                attack_rect = self._get_attack_rect(character)  # Use helper method
+                if attack_rect:
+                    # Calculate damage before applying
+                    damage = self.damage_system.calculate_damage(
+                        character.strength, character.name, "Enemy"
+                    )
+                    logging.debug(f"Melee attack damage calculated: {damage}")
+                    # Let enemy manager handle collisions with calculated damage
+                    self.game.enemy_manager.handle_collision(attack_rect, damage)
+                    self.attack_collisions.append(attack_rect)
 
     def _get_attack_rect(self, character: Character) -> Optional[pygame.Rect]:
         """Get attack hitbox rectangle based on character facing and offset"""
