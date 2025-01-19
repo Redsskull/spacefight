@@ -2,6 +2,7 @@ import pygame
 from config.graphics import LEVEL_BOUNDS, CHARACTER_BOUNDARIES
 from characters.player_chars import Character
 from .base import Screen
+from game_states import GameState
 
 
 class LevelScreen(Screen):
@@ -56,36 +57,42 @@ class LevelScreen(Screen):
         self.game.sound_manager.play_music("battle")
 
     def initialize_characters(self):
-        """
-        Initialize the players for the level one screen
-        """
+        """Initialize the players for the level screen"""
         selected_characters = self.game.get_selected_characters()
+        for character in selected_characters:
+            # Set initial position
+            character.set_position(200, 500)  # Adjust values as needed
+            # Ensure character has sprites enabled
+            character.using_sprites = True
+            # Reload sprite sheets for level
+            character.load_sprite_sheets()
+            # Set player number if not set
+            if character.player_number is None:
+                character.set_player_number(1)
+
         self.game.character_manager.initialize_characters_for_level(selected_characters)
+        # Start enemy spawning
+        self.game.enemy_manager.spawn_timer = 0
 
     def update(self, dt):
-        """
-        Update the level one screen
-        Args:
-            dt (float): Time since last update
-        """
-        dt = self.game.clock.get_time() / 1000  # Convert to seconds
+        """Update the level screen"""
+        # First update character states and input
+        for character in self.game.character_manager.active_characters:
+            character.update(dt)  # This should handle movement and combat
+
         self.game.character_manager.update_characters(dt)
         self.game.enemy_manager.update(dt)
         self.limit_character_movement()
 
-        # First check if any characters are still alive
+        # Check for game over conditions
         all_dead = all(
             char.health <= 0 for char in self.game.character_manager.active_characters
         )
-
-        # Then check if all dead characters have finished their animations this is especially important if there is a player 2
-        if all_dead:
-            animations_complete = all(
-                char.animation_complete
-                for char in self.game.character_manager.active_characters
-            )
-            if animations_complete:
-                self.game.trigger_game_over()
+        if all_dead and all(
+            char.animation_complete
+            for char in self.game.character_manager.active_characters
+        ):
+            self.game.trigger_game_over()
 
     def limit_character_movement(self):
         """Limit the characters movement to their boundaries"""
@@ -118,15 +125,3 @@ class LevelScreen(Screen):
         self.game.character_manager.draw_characters(self.screen)
         self.game.enemy_manager.draw(self.screen)
         self.game.character_manager.draw_ui(self.screen)
-
-    # def handle_events(self, events):
-    #     """
-    #     Handle events for the level one screen
-    #     Args:
-    #         events (Event): The events to handle
-    #     """
-    #     # Handle any level-specific events here
-    #     # (like character movement, attacks, etc)
-    #     self.game.character_manager.handle_events(events)
-
-    # I don't appear to need a handle_events method here.

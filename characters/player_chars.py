@@ -35,6 +35,43 @@ class Character(BaseCharacter, MovementMixin, CombatMixin, AnimationMixin):
         CombatMixin.__init__(self)
         AnimationMixin.__init__(self)
 
+    def update(self, dt: float) -> None:
+        """Update character state"""
+        if self.is_dying:
+            return
+
+        # Get input state
+        if self.player_number:
+            keys = pygame.key.get_pressed()
+            self.handle_input(keys, dt)
+
+        # Update components
+        self.move(dt)
+        self.attack(dt)
+        self.update_animation(dt)
+
+        # Update projectiles
+        for projectile in list(
+            self.projectiles
+        ):  # Use list to avoid modification during iteration
+            projectile.update(dt)
+            # Check projectile collisions with enemies
+            for enemy in self.game.enemy_manager.enemies:
+                if projectile.rect.colliderect(enemy.rect):
+                    enemy.take_damage(projectile.damage)
+                    projectile.kill()
+                    break
+            # Remove off-screen projectiles
+            if projectile.is_off_screen():
+                projectile.kill()
+
+    def handle_input(self, keys: list, dt: float) -> None:
+        """Handle all input for the character"""
+        # Handle movement input
+        MovementMixin.handle_input(self, keys, dt)
+        # Handle combat input
+        CombatMixin.handle_input(self, keys, dt)
+
 
 class Regar(Character):
     def __init__(self, game):
@@ -50,7 +87,7 @@ class Regar(Character):
             self.is_special_attacking = True
             self.animation_timer = 0
 
-            # Create projectile
+            # Create projectile with proper direction
             direction = (
                 pygame.math.Vector2(1, 0)
                 if self.facing_right
@@ -62,6 +99,7 @@ class Regar(Character):
                 pos=(spawn_x, self.rect.centery),
                 direction=direction,
                 damage=self.strength,
+                speed=400,  # Make sure speed is set
             )
             self.projectiles.add(projectile)
 

@@ -5,6 +5,7 @@ Character selector screen for selecting characters for a 2-player game
 import pygame
 from .base import Screen
 from .story_screen import StoryScreen
+from game_states import GameState
 
 
 class CharacterSelector(Screen):

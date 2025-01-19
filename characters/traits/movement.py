@@ -6,15 +6,16 @@ from .boundaries import BoundaryMixin
 from .states import MovementStateMixin, MovementState
 import pygame
 from config.controls import CONTROLS
+from config.characters import CHARACTER_STATS
 
 
 class MovementMixin(BoundaryMixin, MovementStateMixin):
-    """Handles character movement and state"""
+    """Handles character movement and input processing"""
 
     def __init__(self):
         BoundaryMixin.__init__(self)
         MovementStateMixin.__init__(self)
-        self.direction = pygame.math.Vector2(0, 0)
+        self.direction = pygame.math.Vector2()
         self.facing_right = True
         self.base_facing_left = False
         self.position = pygame.math.Vector2()
@@ -32,37 +33,40 @@ class MovementMixin(BoundaryMixin, MovementStateMixin):
         if hasattr(self, "rect"):
             self.rect.topleft = (int(x), int(y))
 
-    def move(self, dt: float) -> None:
-        """Move character based on input"""
-        if self.player_number is None:
+    def handle_input(self, keys: list, dt: float) -> None:
+        """Handle movement input"""
+        if not hasattr(self, "player_number"):
             return
 
-        keys = pygame.key.get_pressed()
-        player_controls = CONTROLS[f"player{self.player_number}"]["movement"]
+        controls = CONTROLS[f"player{self.player_number}"]["movement"]
 
-        # Get directional input from configured keys
-        self.direction.x = (
-            keys[player_controls["right"]] - keys[player_controls["left"]]
-        )
-        self.direction.y = keys[player_controls["down"]] - keys[player_controls["up"]]
+        # Get directional input
+        self.direction.x = keys[controls["right"]] - keys[controls["left"]]
+        self.direction.y = keys[controls["down"]] - keys[controls["up"]]
 
-        # Update facing direction (unless overridden by child class)
-        if self.direction.x > 0:
-            self.facing_right = True
-        elif self.direction.x < 0:
-            self.facing_right = False
+        # Update facing direction based on movement
+        if self.direction.x != 0:
+            self.facing_right = self.direction.x > 0
 
+        # Normalize diagonal movement
         if self.direction.length() > 0:
             self.direction = self.direction.normalize()
+
+    def move(self, dt: float) -> None:
+        """Move character based on input"""
+        if not hasattr(self, "player_number"):
+            return
+
+        # Get speed from character stats
+        movement_speed = CHARACTER_STATS[self.name]["speed"]
+
+        # Calculate movement
+        if self.direction.length() > 0:
+            self.direction = self.direction.normalize()
+            # Use proper speed from stats
+            movement = self.direction * movement_speed * dt
+            self.position += movement
+            self.rect.topleft = (int(self.position.x), int(self.position.y))
             self.set_movement_state(MovementState.WALKING)
         else:
             self.set_movement_state(MovementState.IDLE)
-
-        movement = self.direction * self.speed * dt
-        proposed_pos = self.position + movement
-        _, new_pos = self.check_boundaries(proposed_pos)
-        self.position = new_pos
-        self.rect.topleft = int(self.position.x), int(self.position.y)
-
-        # Update state timing
-        self.update_movement_state(dt)

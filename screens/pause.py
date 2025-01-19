@@ -6,6 +6,7 @@ from pygame.constants import (
 from game_states import GameState
 from managers.enemy_manager import EnemyManager
 from .base import Screen
+from game_states import GameState
 
 
 class PauseScreen(Screen):

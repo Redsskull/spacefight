@@ -7,6 +7,7 @@ import textwrap
 import json
 import pygame
 from .base import Screen
+from game_states import GameState
 
 
 class StoryScreen(Screen):

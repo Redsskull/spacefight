@@ -46,11 +46,11 @@ class CombatMixin:
         if self.special_attack_timer > 0:
             self.special_attack_timer -= dt
 
-        controls = CONTROLS[f"player{self.player_number}"]["combat"]
-
         # Handle player 1 (mouse) vs player 2 (keyboard) controls
         if self.player_number == 1:
             mouse = pygame.mouse.get_pressed()
+            controls = CONTROLS["player1"]["combat"]
+
             # Normal attack
             if (
                 mouse[controls["attack"] - 1]
@@ -58,6 +58,7 @@ class CombatMixin:
                 and self.attack_timer <= 0
             ):
                 self.start_attack()
+
             # Special attack
             if (
                 mouse[controls["special"] - 1]
@@ -85,10 +86,13 @@ class CombatMixin:
                 if hasattr(self, "perform_special_attack"):
                     self.perform_special_attack()
 
-    def start_attack(self):
-        """Start an attack sequence"""
+    def start_attack(self) -> None:
+        """Start attack sequence"""
         self.attacking = True
-        self.attack_timer = self.attack_cooldown
+        self.animation_frame = 0  # Reset animation frame
+        self.attack_timer = ATTACK_SETTINGS[self.name]["cooldown"]
+
+        # Play attack sound
         if hasattr(self.game, "sound_manager"):
             self.game.sound_manager.play_sound("punch")
 
@@ -108,3 +112,45 @@ class CombatMixin:
             if "hurt" in self.sprite_sheets:
                 self.is_hurt = True
                 self.hurt_timer = self.hurt_duration
+
+    def handle_input(self, keys: list, dt: float) -> None:
+        """Handle combat input"""
+        if not hasattr(self, "player_number"):
+            return
+
+        controls = CONTROLS[f"player{self.player_number}"]["combat"]
+
+        # Update timers
+        if self.attack_timer > 0:
+            self.attack_timer -= dt
+        if self.special_attack_timer > 0:
+            self.special_attack_timer -= dt
+
+        # Handle player 1 (mouse) vs player 2 (keyboard) controls
+        if self.player_number == 1:
+            mouse = pygame.mouse.get_pressed()
+            if (
+                mouse[controls["attack"] - 1]
+                and not self.attacking
+                and self.attack_timer <= 0
+            ):
+                self.attacking = True
+                self.animation_frame = 0  # Reset animation frame
+                self.animation_timer = 0  # Reset animation timer
+                self.attack_timer = self.attack_cooldown
+            # Special attack
+            if mouse[controls["special"] - 1] and hasattr(
+                self, "perform_special_attack"
+            ):
+                self.perform_special_attack()
+        else:
+            # Normal attack
+            if (
+                keys[controls["attack"]]
+                and not self.attacking
+                and self.attack_timer <= 0
+            ):
+                self.start_attack()
+            # Special attack
+            if keys[controls["special"]] and hasattr(self, "perform_special_attack"):
+                self.perform_special_attack()

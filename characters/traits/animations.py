@@ -15,6 +15,7 @@ from config.characters import (
     BART_SPRITE_CONFIG,
 )
 from config.combat import ATTACK_SETTINGS
+from config.graphics import ANIMATION_SETTINGS
 from game_states import EnemyState
 
 if TYPE_CHECKING:
@@ -27,6 +28,11 @@ class AnimationMixin:
     """Handles character animations and sprites"""
 
     def __init__(self):
+        # Animation timing
+        self.animation_timer = 0  # Add this
+        self.frame_duration = ANIMATION_SETTINGS["frame_duration"]
+
+        # Animation state
         self.current_animation = "walk"  # default animation
         self.animation_frame = 0
         self.using_sprites = False
@@ -38,19 +44,18 @@ class AnimationMixin:
         self.sprite_sheets = {}
 
         # State flags
-        self.using_sprites = False
         self.sprites_loaded = False
-
-        # Death/Hurt state management moved to VisualEffects
         self.is_dying = False
         self.is_hurt = False
 
-        self.entity_id = id(self)  # Use object id as entity id
+        # Register with animation manager
+        self.entity_id = id(self)
         self.game.animation_manager.register_entity(
             self.entity_id, self._get_sprite_config()
         )
 
-        self.ranged_attacker = False  # Add this trait
+        # Combat animation states
+        self.ranged_attacker = False
         self.has_special_attack = False
 
     def _get_sprite_config(self):
@@ -64,63 +69,41 @@ class AnimationMixin:
         return configs.get(self.name)
 
     def get_current_animation(self) -> str:
-        """Get the current animation based on state priority"""
+        """Get the current animation state"""
         if self.is_dying:
             return "death"
-
-        # Special attack takes highest priority for characters
-        if hasattr(self, "is_special_attacking") and self.is_special_attacking:
-            if self.ranged_attacker and "shoot" in self.sprite_sheets:
-                return "shoot"
-            elif "kick" in self.sprite_sheets:
-                return "kick"
-
-        # Normal attack next
         if self.attacking:
-            return "attack"
-
-        # For enemies, use state-based animations
-        if hasattr(self, "state"):
-            if self.state == EnemyState.PURSUING and hasattr(self, "direction"):
-                if self.direction.length() > 0:
-                    return "walk"
-            return "idle"  # Default for enemies
-
-        # For characters, use movement-based animations
-        if hasattr(self, "direction") and self.direction.length() > 0:
+            return "attack"  # Should use regar_punch.png
+        if self.is_special_attacking:
+            return "shoot"
+        if self.direction.length() > 0:
             return "walk"
+        # Regar has no idle animation
+        return "walk"
 
-        # Default state - only return idle if available
-        if "idle" in self.sprite_sheets:
-            return "idle"
-        return "walk"  # Default to walk if no idle animation
+    def update_animation(self, dt: float) -> None:
+        """Update the animation state"""
+        if not self.using_sprites:
+            return
 
-    def update_animation(self, dt: float):
-        try:
-            current_anim = self.get_current_animation()
+        animation_key = self.get_current_animation()
+        if animation_key not in self.sprite_sheets:
+            return
 
-            # Queue current animation
-            self.game.animation_manager.queue_animation(
-                self.entity_id,
-                current_anim,
-                priority=1 if self.is_hurt or self.is_special_attacking else 0,
-            )
+        # Update animation timer
+        self.animation_timer += dt
+        frame_duration = ANIMATION_SETTINGS["frame_duration"]
 
-            # Update animation frame
-            frame = self.game.animation_manager.update_animation(
-                self.entity_id, dt, self.should_flip()
-            )
+        if self.animation_timer >= frame_duration:
+            self.animation_timer = 0
+            total_frames = CHARACTER_SPRITES[self.name][animation_key]["frames"]
+            self.animation_frame = (self.animation_frame + 1) % total_frames
 
-            # Update particles
-            if self.visible:
-                self.game.animation_manager.update_particles(
-                    self.entity_id, dt, self.game.screen
-                )
-
-            return frame
-        except KeyError as e:
-            logging.error(f"Animation error: {e}")
-            return None
+            # Reset attack states when animation completes
+            if self.attacking and self.animation_frame == 0:
+                self.attacking = False
+            if self.is_special_attacking and self.animation_frame == 0:
+                self.is_special_attacking = False
 
     def should_flip(self) -> bool:
         """Determine if sprite should be flipped"""
@@ -163,34 +146,49 @@ class AnimationMixin:
         return frame
 
     def draw(self, screen: pygame.Surface) -> None:
-        """Draw the character and its projectiles"""
+        """Draw the character"""
+        # Draw projectiles first
         self.projectiles.draw(screen)
 
-        if self.is_dying and self.animation_complete:
+        if not self.visible:
             return
 
-        if self.using_sprites and self.visible:
-            current_frame = self.get_current_frame(self.current_animation)
+        if self.using_sprites:
+            current_frame = self.get_current_frame(self.get_current_animation())
             if current_frame:
                 frame_rect = current_frame.get_rect()
                 frame_rect.midbottom = self.rect.midbottom
                 screen.blit(current_frame, frame_rect)
 
-                # Draw attack range only when attacking
+                # Draw attack range if attacking
                 if self.attacking:
-                    self._draw_attack_range(screen, frame_rect)
-
+                    attack_rect = self.attack_range.get_rect()
+                    if self.facing_right:
+                        attack_rect.midleft = self.rect.midright
+                    else:
+                        attack_rect.midright = self.rect.midleft
+                    screen.blit(self.attack_range, attack_rect)
         else:
-            # Non-sprite characters
-            if self.visible:
-                screen.blit(self.image, self.rect)
-                if self.attacking:
-                    self._draw_attack_range(screen, self.rect)
+            # Non-sprite drawing
+            self.image.fill(self.color)
+            screen.blit(self.image, self.rect)
+
+            if self.attacking:
+                attack_rect = self.attack_range.get_rect()
+                if self.facing_right:
+                    attack_rect.midleft = self.rect.midright
+                else:
+                    attack_rect.midright = self.rect.midleft
+                screen.blit(self.attack_range, attack_rect)
 
     def _draw_attack_range(
         self, screen: pygame.Surface, source_rect: pygame.Rect
     ) -> None:
         """Draw the attack range when attacking"""
+        # Early return to skip drawing attack range
+        if self.using_sprites:
+            return
+
         attack_rect = self.attack_range.get_rect()
         attack_config = ATTACK_SETTINGS.get(self.name, ATTACK_SETTINGS["default"])
 
