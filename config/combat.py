@@ -7,7 +7,7 @@ ATTACK_SETTINGS = {
     "default": {
         "cooldown": 0.1,
         "range_size": (50, 100),
-        "range_color": (144, 238, 144),  # Light green
+        "range_color": (144, 238, 144, 0),  # Make transparent by default
     },
     "Regar": {
         "cooldown": 0.1,
@@ -19,9 +19,9 @@ ATTACK_SETTINGS = {
         },
     },
     "Susan": {
-        "cooldown": 0.1,
+        "cooldown": 0.08,
         "range_size": (50, 100),
-        "range_color": (144, 238, 144),
+        "range_color": (144, 238, 144, 0),
         "offset": {
             "x": 120,
             "y": 60,
@@ -30,7 +30,7 @@ ATTACK_SETTINGS = {
     "Emily": {
         "cooldown": 0.1,
         "range_size": (50, 100),
-        "range_color": (144, 238, 144),
+        "range_color": (144, 238, 144, 0),
         "offset": {
             "x": 35,
             "y": 15,
@@ -39,7 +39,7 @@ ATTACK_SETTINGS = {
     "Bart": {  # Add Bart's attack settings
         "cooldown": 0.1,
         "range_size": (50, 100),
-        "range_color": (144, 238, 144),
+        "range_color": (144, 238, 144, 0),
         "offset": {
             "x": 70,  # Match his collision offset
             "y": 10,  # Match his collision offset
@@ -58,8 +58,6 @@ SPECIAL_ATTACK_SETTINGS = {
         "duration": 0.5,  # Duration of the animation
     },
 }
-
-# Add to existing config/combat.py
 
 # Enemy attack configuration
 ENEMY_ATTACK = {

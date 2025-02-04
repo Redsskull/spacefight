@@ -40,10 +40,26 @@ CHARACTER_SPRITES = {
         "attack": {"name": "regar_punch", "frames": 4},
     },
     "Susan": {
-        "idle": {"name": "susan_idle", "frames": 4},
-        "walk": {"name": "susan_walk", "frames": 8},
-        "attack": {"name": "susan_attack", "frames": 8},
-        "hurt": {"name": "susan_hurt", "frames": 1},
+        "idle": {
+            "name": "susan_idle",
+            "frames": 4,
+            "frame_duration": 0.30,  # Slower idle
+        },
+        "walk": {
+            "name": "susan_walk",
+            "frames": 8,
+            "frame_duration": 0.15,  # Slower walk
+        },
+        "attack": {
+            "name": "susan_attack",
+            "frames": 8,
+            "frame_duration": 0.08,  # Slightly slower attack
+        },
+        "hurt": {
+            "name": "susan_hurt",
+            "frames": 1,
+            "frame_duration": 0.1,
+        },
     },
     "Emily": {
         "idle": {"name": "emily_idle", "frames": 4},
@@ -88,6 +104,12 @@ SUSAN_SPRITE_CONFIG = {
         "x": 120,  # Adjust collision box width
         "y": 60,  # Adjust collision box height
     },
+    "frame_width": {  # Add this
+        "idle": 128,
+        "walk": 128,
+        "attack": 128,
+        "hurt": 128,
+    },
 }
 
 # Emily-specific sprite settings
@@ -97,6 +119,13 @@ EMILY_SPRITE_CONFIG = {
     "collision_offset": {
         "x": 83,  # Reduced from 100 to allow more movement
         "y": 16,  # Reduced from 50 for better proportions
+    },
+    "frame_width": {  # Add this
+        "idle": 96,
+        "walk": 96,
+        "attack": 96,
+        "hurt": 96,
+        "kick": 96,
     },
 }
 
@@ -108,4 +137,5 @@ BART_SPRITE_CONFIG = {
         "x": 70,  # Increased to reduce width (228 - 160 = 68px width)
         "y": 10,  # Reduced to make box taller (150 - 20 = 130px height)
     },
+    "frame_width": {"idle": 96, "walk": 96, "attack": 96},  # Add this
 }

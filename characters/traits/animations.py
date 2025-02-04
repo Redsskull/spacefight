@@ -72,13 +72,16 @@ class AnimationMixin:
         """Get the current animation state"""
         if self.is_dying:
             return "death"
-        if self.attacking:
-            return "attack"  # Should use regar_punch.png
         if self.is_special_attacking:
-            return "shoot"
+            return "shoot" if self.ranged_attacker else "kick"
+        if self.attacking:
+            return "attack"
         if self.direction.length() > 0:
             return "walk"
-        # Regar has no idle animation
+
+        # Check if character has idle animation, fallback to walk if not
+        if "idle" in CHARACTER_SPRITES.get(self.name, {}):
+            return "idle"
         return "walk"
 
     def update_animation(self, dt: float) -> None:
@@ -92,7 +95,11 @@ class AnimationMixin:
 
         # Update animation timer
         self.animation_timer += dt
-        frame_duration = ANIMATION_SETTINGS["frame_duration"]
+
+        # Use character-specific frame duration if available, otherwise use default
+        frame_duration = CHARACTER_SPRITES[self.name][animation_key].get(
+            "frame_duration", ANIMATION_SETTINGS["frame_duration"]
+        )
 
         if self.animation_timer >= frame_duration:
             self.animation_timer = 0
@@ -130,27 +137,22 @@ class AnimationMixin:
             return None
 
         sheet = self.sprite_sheets[animation_name]
-
-        # Add bounds checking for animation frame
-        total_frames = sheet["frames"]
-        if self.animation_frame >= total_frames:
-            self.animation_frame = 0
-
-        frame_width = sheet["surface"].get_width() // total_frames
+        frame_width = sheet["surface"].get_width() // sheet["frames"]
         frame_rect = pygame.Rect(
             frame_width * self.animation_frame,
             0,
             frame_width,
             sheet["surface"].get_height(),
         )
-
         try:
             frame = sheet["surface"].subsurface(frame_rect)
             if not self.facing_right:
                 frame = pygame.transform.flip(frame, True, False)
             return frame
-        except ValueError:
-            logging.error(f"Invalid frame rectangle for {animation_name}: {frame_rect}")
+        except ValueError as e:
+            logging.error(
+                f"Invalid frame rectangle for {self.name}/{animation_name}: {frame_rect}"
+            )
             return None
 
     def draw(self, screen: pygame.Surface) -> None:
