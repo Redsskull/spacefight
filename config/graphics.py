@@ -13,7 +13,7 @@ SPRITE_SETTINGS = {
 
 # Animation settings
 ANIMATION_SETTINGS = {
-    "frame_duration": 0.1,
+    "frame_duration": 0.2,
     "special_attack_duration": 0.5,
     "death": {"blink_duration": 0.2, "total_time": 2.0, "max_blinks": 10},
 }

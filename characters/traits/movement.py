@@ -57,16 +57,9 @@ class MovementMixin(BoundaryMixin, MovementStateMixin):
         if not hasattr(self, "player_number"):
             return
 
-        # Get speed from character stats
-        movement_speed = CHARACTER_STATS[self.name]["speed"]
-
-        # Calculate movement
-        if self.direction.length() > 0:
-            self.direction = self.direction.normalize()
-            # Use proper speed from stats
-            movement = self.direction * movement_speed * dt
-            self.position += movement
-            self.rect.topleft = (int(self.position.x), int(self.position.y))
-            self.set_movement_state(MovementState.WALKING)
-        else:
-            self.set_movement_state(MovementState.IDLE)
+        # Scale movement by dt and base speed from config
+        base_speed = CHARACTER_STATS["Regar"]["speed"]  # Should be 200
+        speed = base_speed * dt
+        movement = self.direction * speed
+        self.position += movement
+        self.rect.topleft = (int(self.position.x), int(self.position.y))

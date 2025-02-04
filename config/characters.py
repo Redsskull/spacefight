@@ -7,7 +7,7 @@ from .enemies import ENEMY_STATS
 CHARACTER_STATS = {
     "Regar": {
         "health": 120,
-        "speed": 200,
+        "speed": 145,
         "strength": 10,
         "color": (0, 0, 255),  # Blue
     },
@@ -35,7 +35,7 @@ CHARACTER_STATS = {
 # Character sprites
 CHARACTER_SPRITES = {
     "Regar": {
-        "walk": {"name": "regar_walk", "frames": 6},
+        "walk": {"name": "regar_walk", "frames": 6, "frame_duration": 0.15},
         "shoot": {"name": "regar_shoot", "frames": 3},
         "attack": {"name": "regar_punch", "frames": 4},
     },
@@ -72,6 +72,11 @@ REGAR_SPRITE_CONFIG = {
     "collision_offset": {
         "x": 15,  # Padding from sides of sprite
         "y": 10,  # Padding from top/bottom of sprite
+    },
+    "frame width": {
+        "walk": 75,
+        "shoot": 75,
+        "attack": 75,
     },
 }
 

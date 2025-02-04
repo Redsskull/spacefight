@@ -126,12 +126,17 @@ class AnimationMixin:
             self.sprites_loaded = True
 
     def get_current_frame(self, animation_name: str) -> Optional[pygame.Surface]:
-        """Get the current frame of the specified animation"""
-        if not self.using_sprites or animation_name not in self.sprite_sheets:
+        if not self.sprite_sheets or animation_name not in self.sprite_sheets:
             return None
 
         sheet = self.sprite_sheets[animation_name]
-        frame_width = sheet["surface"].get_width() // sheet["frames"]
+
+        # Add bounds checking for animation frame
+        total_frames = sheet["frames"]
+        if self.animation_frame >= total_frames:
+            self.animation_frame = 0
+
+        frame_width = sheet["surface"].get_width() // total_frames
         frame_rect = pygame.Rect(
             frame_width * self.animation_frame,
             0,
@@ -139,11 +144,14 @@ class AnimationMixin:
             sheet["surface"].get_height(),
         )
 
-        frame = sheet["surface"].subsurface(frame_rect)
-        if not self.facing_right:
-            frame = pygame.transform.flip(frame, True, False)
-
-        return frame
+        try:
+            frame = sheet["surface"].subsurface(frame_rect)
+            if not self.facing_right:
+                frame = pygame.transform.flip(frame, True, False)
+            return frame
+        except ValueError:
+            logging.error(f"Invalid frame rectangle for {animation_name}: {frame_rect}")
+            return None
 
     def draw(self, screen: pygame.Surface) -> None:
         """Draw the character"""
@@ -163,11 +171,26 @@ class AnimationMixin:
                 # Draw attack range if attacking
                 if self.attacking:
                     attack_rect = self.attack_range.get_rect()
-                    if self.facing_right:
-                        attack_rect.midleft = self.rect.midright
-                    else:
-                        attack_rect.midright = self.rect.midleft
-                    screen.blit(self.attack_range, attack_rect)
+                    attack_config = ATTACK_SETTINGS.get(
+                        self.name, ATTACK_SETTINGS["default"]
+                    )
+
+                    # Create surface with alpha support
+                    attack_surface = pygame.Surface(
+                        attack_config["range_size"], pygame.SRCALPHA
+                    )
+                    attack_surface.fill(attack_config["range_color"])
+
+                    if "offset" in attack_config:
+                        offset_x = attack_config["offset"]["x"]
+                        offset_y = attack_config["offset"]["y"]
+
+                        if self.facing_right:
+                            attack_rect.midleft = (self.rect.right, self.rect.centery)
+                        else:
+                            attack_rect.midright = (self.rect.left, self.rect.centery)
+
+                        screen.blit(attack_surface, attack_rect)
         else:
             # Non-sprite drawing
             self.image.fill(self.color)

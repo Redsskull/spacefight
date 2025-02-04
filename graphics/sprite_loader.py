@@ -2,6 +2,7 @@
 
 import pygame
 import logging
+import os
 from typing import Dict
 from config.graphics import SPRITE_SETTINGS
 from config.characters import CHARACTER_SPRITES
@@ -16,6 +17,23 @@ from config.enemies import ENEMY_SPRITE_CONFIG, ENEMY_SPRITES
 
 class SpriteLoader:
     """Handles loading and configuring sprite sheets"""
+
+    @staticmethod
+    def _scale_sprite(
+        surface: pygame.Surface, character_name: str, sprite_config: Dict
+    ) -> pygame.Surface:
+        """Scale sprite based on configuration"""
+        target_height = SPRITE_SETTINGS["TARGET_HEIGHT"]
+        scale_factor = sprite_config.get("scale_factor", 1.0)
+
+        # Calculate scaling
+        base_scale = target_height / surface.get_height()
+        final_scale = base_scale * scale_factor
+
+        scaled_width = int(surface.get_width() * final_scale)
+        scaled_height = int(target_height * scale_factor)
+
+        return pygame.transform.scale(surface, (scaled_width, scaled_height))
 
     @staticmethod
     def load_character_sprites(character_name: str) -> Dict[str, Dict]:
@@ -35,37 +53,35 @@ class SpriteLoader:
             if not sprite_config:
                 raise ValueError(f"No sprite config found for {character_name}")
 
-            # Use target height from SPRITE_SETTINGS if not in character config
-            target_height = sprite_config.get(
-                "target_height", SPRITE_SETTINGS["TARGET_HEIGHT"]
-            )
-
             # Load each animation type
             for anim_type, info in CHARACTER_SPRITES[character_name].items():
                 sprite_name = info["name"]
-                full_path = f"{sprite_path}/{sprite_name}.png"
-                original_surface = pygame.image.load(full_path).convert_alpha()
+                full_path = os.path.join(sprite_path, f"{sprite_name}.png")
 
-                # Calculate scaling like in characters.py
-                base_height_scale = target_height / original_surface.get_height()
-                final_scale = base_height_scale * sprite_config["scale_factor"]
-                scaled_width = int(original_surface.get_width() * final_scale)
-                scaled_height = int(target_height * sprite_config["scale_factor"])
+                if not os.path.exists(full_path):
+                    logging.error(f"Sprite not found: {full_path}")
+                    continue
 
-                scaled_surface = pygame.transform.scale(
-                    original_surface, (scaled_width, scaled_height)
-                )
+                try:
+                    original_surface = pygame.image.load(full_path).convert_alpha()
+                    scaled_surface = SpriteLoader._scale_sprite(
+                        original_surface, character_name, sprite_config
+                    )
 
-                sprite_sheets[anim_type] = {
-                    "surface": scaled_surface,
-                    "frames": info["frames"],
-                }
+                    sprite_sheets[anim_type] = {
+                        "surface": scaled_surface,
+                        "frames": info["frames"],
+                    }
+
+                except pygame.error as e:
+                    logging.error(f"Failed to load {sprite_name}.png: {e}")
+                    continue
+
+            return sprite_sheets
 
         except Exception as e:
             logging.error(f"Failed to load sprites for {character_name}: {e}")
             return {}
-
-        return sprite_sheets
 
     @staticmethod
     def load_enemy_sprites(enemy_type: str) -> Dict[str, Dict]:

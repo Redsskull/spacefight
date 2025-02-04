@@ -12,7 +12,7 @@ ATTACK_SETTINGS = {
     "Regar": {
         "cooldown": 0.1,
         "range_size": (50, 100),
-        "range_color": (144, 238, 144),
+        "range_color": (144, 238, 144, 0),  # Fully transparent
         "offset": {
             "x": 15,
             "y": 10,
