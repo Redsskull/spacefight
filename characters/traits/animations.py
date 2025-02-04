@@ -144,12 +144,14 @@ class AnimationMixin:
             frame_width,
             sheet["surface"].get_height(),
         )
+
         try:
             frame = sheet["surface"].subsurface(frame_rect)
-            if not self.facing_right:
+            # Use should_flip() instead of direct facing_right check
+            if self.should_flip():
                 frame = pygame.transform.flip(frame, True, False)
             return frame
-        except ValueError as e:
+        except ValueError:
             logging.error(
                 f"Invalid frame rectangle for {self.name}/{animation_name}: {frame_rect}"
             )
